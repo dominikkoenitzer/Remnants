@@ -419,16 +419,16 @@ function createDefaultArgvConfigSync(argvConfigPath: string): void {
 
 		// Default argv content
 		const defaultArgvConfigContent = [
-			'// This configuration file allows you to pass permanent command line arguments to VS Code.',
+			'// This configuration file allows you to pass permanent command line arguments to Remnants.',
 			'// Only a subset of arguments is currently supported to reduce the likelihood of breaking',
 			'// the installation.',
 			'//',
 			'// PLEASE DO NOT CHANGE WITHOUT UNDERSTANDING THE IMPACT',
 			'//',
-			'// NOTE: Changing this file requires a restart of VS Code.',
+			'// NOTE: Changing this file requires a restart of Remnants.',
 			'{',
 			'	// Use software rendering instead of hardware accelerated rendering.',
-			'	// This can help in cases where you see rendering issues in VS Code.',
+			'	// This can help in cases where you see rendering issues in Remnants.',
 			'	// "disable-hardware-acceleration": true',
 			'}'
 		];
@@ -534,7 +534,7 @@ function configureCrashReporter(): void {
 
 	// Start crash reporter for all processes
 	const productName = (product.crashReporter ? product.crashReporter.productName : undefined) || product.nameShort;
-	const companyName = (product.crashReporter ? product.crashReporter.companyName : undefined) || 'Microsoft';
+	const companyName = (product.crashReporter ? product.crashReporter.companyName : undefined) || 'Remnants';
 	const uploadToServer = Boolean(!process.env['VSCODE_DEV'] && submitURL && !crashReporterDirectory);
 	crashReporter.start({
 		companyName,

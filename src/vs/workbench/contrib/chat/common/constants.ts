@@ -222,7 +222,7 @@ export function isSupportedChatFileScheme(accessor: ServicesAccessor, scheme: st
 }
 
 /**
- * Returns the effective default session type for a new chat in the VS Code
+ * Returns the effective default session type for a new chat in the Remnants
  * editor window, honoring the experimental
  * {@link ChatConfiguration.EditorDefaultProvider} setting:
  * - `'copilotAh'` selects the Agent Host Copilot CLI when its contribution is registered.

@@ -68,17 +68,8 @@ const chatViewDescriptor: IViewDescriptor = {
 		order: 1
 	},
 	ctorDescriptor: new SyncDescriptor(ChatViewPane),
-	when: ContextKeyExpr.and(
-		ChatContextKeys.accountPolicyGateActive.negate(),
-		ContextKeyExpr.or(
-			ContextKeyExpr.and(
-				ChatContextKeys.Setup.hidden.negate(),
-				ChatContextKeys.Setup.disabledInWorkspace.negate(),
-			),
-			ChatContextKeys.panelParticipantRegistered,
-			ChatContextKeys.extensionInvalid
-		)
-	)
+	// Remnants: built-in Chat panel is hidden — the assistant lives in the Remnants AI view.
+	when: ContextKeyExpr.false()
 };
 Registry.as<IViewsRegistry>(ViewExtensions.ViewsRegistry).registerViews([chatViewDescriptor], chatViewContainer);
 
