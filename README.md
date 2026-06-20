@@ -1,78 +1,117 @@
-# Visual Studio Code - Open Source ("Code - OSS")
-[![Feature Requests](https://img.shields.io/github/issues/microsoft/vscode/feature-request.svg)](https://github.com/microsoft/vscode/issues?q=is%3Aopen+is%3Aissue+label%3Afeature-request+sort%3Areactions-%2B1-desc)
-[![Bugs](https://img.shields.io/github/issues/microsoft/vscode/bug.svg)](https://github.com/microsoft/vscode/issues?utf8=✓&q=is%3Aissue+is%3Aopen+label%3Abug)
-[![Gitter](https://img.shields.io/badge/chat-on%20gitter-yellow.svg)](https://gitter.im/Microsoft/vscode)
+# Remnants
 
-## The Repository
+[![CI](https://github.com/dominikkoenitzer/Remnants/actions/workflows/ci.yml/badge.svg)](https://github.com/dominikkoenitzer/Remnants/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.txt)
+[![Platform](https://img.shields.io/badge/platform-Windows-blue.svg)](#download)
+[![Built on Code - OSS](https://img.shields.io/badge/built%20on-Code%20--%20OSS-1f7abf.svg)](https://github.com/microsoft/vscode)
 
-This repository ("`Code - OSS`") is where we (Microsoft) develop the [Visual Studio Code](https://code.visualstudio.com) product together with the community. Not only do we work on code and issues here, but we also publish our [roadmap](https://github.com/microsoft/vscode/wiki/Roadmap), [monthly iteration plans](https://github.com/microsoft/vscode/wiki/Iteration-Plans), and our [endgame plans](https://github.com/microsoft/vscode/wiki/Running-the-Endgame). This source code is available to everyone under the standard [MIT license](https://github.com/microsoft/vscode/blob/main/LICENSE.txt).
+**A clean, AI-free code editor.** Remnants is a personal fork of [Code - OSS](https://github.com/microsoft/vscode) (the open-source core of VS Code) with every built-in AI surface, telemetry hook, and corporate integration stripped out. It keeps everything that makes a great editor — fast editing, IntelliSense, an integrated terminal, Git, and debugging — and nothing else.
 
-## Visual Studio Code
+> No Copilot. No agents. No telemetry. No sign-in. Just the editor.
 
-<p align="center">
-  <img alt="VS Code in action" src="https://github.com/user-attachments/assets/56af271c-949d-454c-a3ea-16188c063414">
-</p>
+---
 
-[Visual Studio Code](https://code.visualstudio.com) is a distribution of the `Code - OSS` repository with Microsoft-specific customizations released under a traditional [Microsoft product license](https://code.visualstudio.com/License/).
+## Why Remnants?
 
-[Visual Studio Code](https://code.visualstudio.com) combines the simplicity of a code editor with what developers need for their core edit-build-debug cycle. It provides comprehensive code editing, navigation, and understanding support along with lightweight debugging, a rich extensibility model, and lightweight integration with existing tools.
+VS Code is an excellent editor wrapped in a growing layer of cloud services, chat panels, agent windows, and account prompts. Remnants removes that layer entirely:
 
-Visual Studio Code is updated monthly with new features and bug fixes. You can download it for Windows, macOS, and Linux on [Visual Studio Code's website](https://code.visualstudio.com/Download). To get the latest releases every day, install the [Insiders build](https://code.visualstudio.com/insiders).
+- **No built-in AI** — Copilot, the chat panel, agent sessions, voice, and the bundled AI extension are all removed. (Use [Claude Code](https://claude.com/claude-code) or any tool you like in the terminal instead.)
+- **No telemetry** — telemetry is disabled at the product level.
+- **No account prompts** — no "Set up Copilot", no sign-in entries in the title bar or status bar.
+- **Open marketplace** — extensions resolve through [Open VSX](https://open-vsx.org) rather than the Microsoft Marketplace.
+- **Everything else stays** — the editor, language features, terminal, source control, tasks, and the JavaScript/Node debugger all work exactly as you expect.
+
+## Features
+
+| Area | Status |
+| --- | --- |
+| Code editing, multi-cursor, IntelliSense, refactoring | ✅ Full |
+| Integrated terminal | ✅ Full |
+| Source control (Git, GitHub auth) | ✅ Full |
+| Debugging (JavaScript / Node via `js-debug`) | ✅ Kept |
+| Extensions via [Open VSX](https://open-vsx.org) | ✅ Full |
+| Themes, keybindings, settings, profiles | ✅ Full |
+| Built-in Copilot / Chat / agents / voice | ❌ Removed |
+| Telemetry & crash reporting | ❌ Disabled |
+
+## Keyboard shortcuts
+
+Remnants uses the standard VS Code keybindings. A few of the most useful:
+
+| Action | Windows |
+| --- | --- |
+| Command Palette | `Ctrl+Shift+P` |
+| Quick Open (go to file) | `Ctrl+P` |
+| Toggle integrated terminal | `` Ctrl+` `` |
+| Global search | `Ctrl+Shift+F` |
+| Go to symbol | `Ctrl+Shift+O` |
+| Toggle sidebar | `Ctrl+B` |
+| Split editor | `Ctrl+\` |
+| Format document | `Shift+Alt+F` |
+
+The full reference lives under **Help → Keyboard Shortcuts Reference** inside the app.
+
+## Download
+
+Remnants currently ships a **Windows (x64) user installer**. There is no automated release pipeline — builds are produced locally from source (a full Electron build is too heavy for hosted CI). See [Build from source](#build-from-source) to produce `RemnantsUserSetup.exe`.
+
+macOS and Linux are inherited from Code - OSS and should build, but are **not currently verified** in this fork.
+
+## Build from source
+
+Remnants builds with the same toolchain as Code - OSS.
+
+### Prerequisites (Windows)
+
+- **Node.js 22+** (the tree targets Node 24; on Node 22 set `VSCODE_SKIP_NODE_VERSION_CHECK=1`)
+- **Python 3.13**
+- **Visual Studio 2022 C++ Build Tools** with the *Desktop development with C++* workload **and** the Spectre-mitigated libraries (`Microsoft.VisualStudio.Component.VC.Runtimes.x86.x64.Spectre` — this is not in `--includeRecommended`, add it explicitly)
+
+### Run a development build
+
+```sh
+npm install
+npm run transpile                  # fast esbuild build of client + built-in extensions
+npm run download-builtin-extensions
+scripts\code.bat                   # launches the dev build
+```
+
+### Produce the Windows installer
+
+```sh
+npm run gulp vscode-win32-x64
+npm run gulp vscode-win32-x64-inno-updater
+npm run gulp vscode-win32-x64-user-setup
+```
+
+The app is emitted to `..\VSCode-win32-x64\Remnants.exe`; the installer lands in `.build\win32-x64\user-setup\` (Inno's hardcoded output name is `VSCodeSetup.exe` — rename it to `RemnantsUserSetup.exe`).
+
+### Type-check
+
+```sh
+npm run compile-check-ts-native    # type-checks ./src without emitting
+```
+
+## Project structure
+
+Remnants follows the Code - OSS layered architecture.
+
+| Path | What lives here |
+| --- | --- |
+| `src/vs/base/` | Foundation utilities and cross-platform abstractions |
+| `src/vs/platform/` | Platform services and dependency-injection infrastructure |
+| `src/vs/editor/` | The Monaco text editor: language services, highlighting, editing |
+| `src/vs/workbench/` | The application workbench (UI parts, services, feature contributions) |
+| `src/vs/code/` | Electron main-process entry points |
+| `src/vs/server/` | Server / remote implementation |
+| `extensions/` | Built-in extensions (Git, language features, themes, debugging) |
+| `build/` | Gulp build, packaging, and CI tooling |
+| `resources/` | Icons, installer assets, platform resources |
 
 ## Contributing
 
-There are many ways in which you can participate in this project, for example:
-
-* [Submit bugs and feature requests](https://github.com/microsoft/vscode/issues), and help us verify as they are checked in
-* Review [source code changes](https://github.com/microsoft/vscode/pulls)
-* Review the [documentation](https://github.com/microsoft/vscode-docs) and make pull requests for anything from typos to new content.
-
-If you are interested in fixing issues and contributing directly to the code base,
-please see the document [How to Contribute](https://github.com/microsoft/vscode/wiki/How-to-Contribute), which covers the following:
-
-* [How to build and run from source](https://github.com/microsoft/vscode/wiki/How-to-Contribute)
-* [The development workflow, including debugging and running tests](https://github.com/microsoft/vscode/wiki/How-to-Contribute#debugging)
-* [Coding guidelines](https://github.com/microsoft/vscode/wiki/Coding-Guidelines)
-* [Submitting pull requests](https://github.com/microsoft/vscode/wiki/How-to-Contribute#pull-requests)
-* [Finding an issue to work on](https://github.com/microsoft/vscode/wiki/How-to-Contribute#where-to-contribute)
-* [Contributing to translations](https://aka.ms/vscodeloc)
-
-## Feedback
-
-* Ask a question on [Stack Overflow](https://stackoverflow.com/questions/tagged/vscode)
-* [Request a new feature](CONTRIBUTING.md)
-* Upvote [popular feature requests](https://github.com/microsoft/vscode/issues?q=is%3Aopen+is%3Aissue+label%3Afeature-request+sort%3Areactions-%2B1-desc)
-* [File an issue](https://github.com/microsoft/vscode/issues)
-* Connect with the extension author community on [GitHub Discussions](https://github.com/microsoft/vscode-discussions/discussions) or [Slack](https://aka.ms/vscode-dev-community)
-* Follow [@code](https://x.com/code) and let us know what you think!
-
-See our [wiki](https://github.com/microsoft/vscode/wiki/Feedback-Channels) for a description of each of these channels and information on some other available community-driven channels.
-
-## Related Projects
-
-Many of the core components and extensions to VS Code live in their own repositories on GitHub. For example, the [node debug adapter](https://github.com/microsoft/vscode-node-debug) and the [mono debug adapter](https://github.com/microsoft/vscode-mono-debug) repositories are separate from each other. For a complete list, please visit the [Related Projects](https://github.com/microsoft/vscode/wiki/Related-Projects) page on our [wiki](https://github.com/microsoft/vscode/wiki).
-
-## Bundled Extensions
-
-VS Code includes a set of built-in extensions located in the [extensions](extensions) folder, including grammars and snippets for many languages. Extensions that provide rich language support (inline suggestions, Go to Definition) for a language have the suffix `language-features`. For example, the `json` extension provides coloring for `JSON` and the `json-language-features` extension provides rich language support for `JSON`.
-
-## Development Container
-
-This repository includes a Visual Studio Code Dev Containers / GitHub Codespaces development container.
-
-* For [Dev Containers](https://aka.ms/vscode-remote/download/containers), use the **Dev Containers: Clone Repository in Container Volume...** command which creates a Docker volume for better disk I/O on macOS and Windows.
-  * If you already have VS Code and Docker installed, you can also click [here](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/microsoft/vscode) to get started. This will cause VS Code to automatically install the Dev Containers extension if needed, clone the source code into a container volume, and spin up a dev container for use.
-
-* For Codespaces, install the [GitHub Codespaces](https://marketplace.visualstudio.com/items?itemName=GitHub.codespaces) extension in VS Code, and use the **Codespaces: Create New Codespace** command.
-
-Docker / the Codespace should have at least **4 cores and 6 GB of RAM (8 GB recommended)** to run a full build. See the [development container README](.devcontainer/README.md) for more information.
-
-## Code of Conduct
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+This is a personal fork, but issues and pull requests are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Security reports go through [SECURITY.md](SECURITY.md).
 
 ## License
 
-Copyright (c) Microsoft Corporation. All rights reserved.
-
-Licensed under the [MIT](LICENSE.txt) license.
+Remnants is released under the [MIT License](LICENSE.txt). It is a fork of [Code - OSS](https://github.com/microsoft/vscode), which is also MIT-licensed; the original copyright notice is retained in `LICENSE.txt` as the license requires. Remnants is **not** affiliated with or endorsed by Microsoft.
