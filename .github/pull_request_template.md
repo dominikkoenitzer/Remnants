@@ -1,7 +1,15 @@
-<!-- Thank you for submitting a Pull Request. Please:
-* Read our Pull Request guidelines:
-  https://github.com/microsoft/vscode/wiki/How-to-Contribute#pull-requests
-* Associate an issue with the Pull Request.
-* Ensure that the code is up-to-date with the `main` branch.
-* Include a description of the proposed changes and how to test them.
--->
+## Description
+
+<!-- What does this change, and why? -->
+
+## Related issue
+
+<!-- e.g. Fixes #123 -->
+
+## Checklist
+
+- [ ] `npm run compile-check-ts-native` passes with no errors
+- [ ] Follows the existing code style (tabs; PascalCase types, camelCase functions/variables)
+- [ ] Does not re-introduce built-in AI, telemetry, or account integrations
+- [ ] No build output (`out/`, `.build/`, `node_modules/`) is committed
+- [ ] Commits are focused with clear messages
