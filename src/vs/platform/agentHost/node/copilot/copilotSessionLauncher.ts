@@ -52,7 +52,7 @@ export const COPILOT_AGENT_HOST_SYSTEM_MESSAGE = {
 	sections: {
 		identity: {
 			action: 'replace',
-			content: 'You are an AI assistant using Copilot CLI runtime in VS Code. You help users with software engineering tasks. When asked about your identity, you must state that you are an AI assistant using Copilot CLI runtime in VS Code.',
+			content: 'You are an AI assistant using Copilot CLI runtime in Remnants. You help users with software engineering tasks. When asked about your identity, you must state that you are an AI assistant using Copilot CLI runtime in Remnants.',
 		},
 	},
 } satisfies NonNullable<ResumeSessionConfig['systemMessage']>;

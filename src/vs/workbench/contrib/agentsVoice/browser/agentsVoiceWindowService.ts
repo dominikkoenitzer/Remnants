@@ -145,7 +145,7 @@ export class AgentsVoiceWindowService extends Disposable implements IAgentsVoice
 		this._window = auxiliaryWindow;
 		this._auxiliaryWindowRef.value = auxiliaryWindow;
 
-		// Minimize the main VS Code window so the floating aux window is the
+		// Minimize the main Remnants window so the floating aux window is the
 		// primary surface the user interacts with. The aux window stays visible
 		// because it lives in a separate OS window. We minimize at three points
 		// to defeat any focus-restore behavior from Electron when the aux is

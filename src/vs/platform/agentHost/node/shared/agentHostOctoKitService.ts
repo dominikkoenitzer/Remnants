@@ -29,7 +29,7 @@ interface GitHubPullRequestResponseItem {
  * Minimal GitHub REST client living in the agent-host process.
  *
  * The agent host runs headless and has no access to the workbench
- * `IOctoKitService` / Octokit / VS Code auth providers. This service is a
+ * `IOctoKitService` / Octokit / Remnants auth providers. This service is a
  * deliberately small re-implementation of the bits we need, modelled on
  * `OctoKitService` from the Copilot extension so the API surface is
  * familiar. Only operations the agent host actually needs are exposed —

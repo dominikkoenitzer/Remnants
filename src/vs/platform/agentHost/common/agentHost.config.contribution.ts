@@ -46,7 +46,7 @@ configurationRegistry.registerConfiguration({
 			type: 'string',
 			enum: ['local', 'copilotEh', 'copilotAh'],
 			enumDescriptions: [
-				nls.localize('chat.editor.defaultProvider.local', "Use the built-in VS Code local chat harness"),
+				nls.localize('chat.editor.defaultProvider.local', "Use the built-in Remnants local chat harness"),
 				nls.localize('chat.editor.defaultProvider.copilotEh', "Use the Extension Host Copilot CLI"),
 				nls.localize('chat.editor.defaultProvider.copilotAh', "Use the Agent Host Copilot CLI"),
 			],

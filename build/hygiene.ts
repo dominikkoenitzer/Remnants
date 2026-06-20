@@ -92,13 +92,9 @@ export function hygiene(some: NodeJS.ReadWriteStream | string[] | undefined, run
 	let errorCount = 0;
 
 	const productJson = es.through(function (file: VinylFile) {
-		const product = JSON.parse(file.contents!.toString('utf8'));
-
-		if (product.extensionsGallery) {
-			console.error(`product.json: Contains 'extensionsGallery'`);
-			errorCount++;
-		}
-
+		// Remnants intentionally ships an Open VSX extensionsGallery in
+		// product.json so extensions can be installed, so the upstream OSS
+		// guard against committing an extensionsGallery does not apply here.
 		this.emit('data', file);
 	});
 
