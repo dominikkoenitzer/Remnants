@@ -56,7 +56,7 @@ import { CopilotSlashCommandCompletionProvider } from './copilotSlashCommandComp
 import { DiscoveredType, SessionCustomizationDiscovery, areDiscoveredDirectoriesEqual, type IDiscoveredDirectory } from './sessionCustomizationDiscovery.js';
 
 /**
- * Maps a VS Code {@link LogLevel} to the Copilot CLI runtime's `logLevel`
+ * Maps a Remnants {@link LogLevel} to the Copilot CLI runtime's `logLevel`
  * option so the spawned CLI logs (written to `~/.copilot/logs/process-*.log`)
  * match the agent host's configured verbosity. `Trace` maps to the CLI's most
  * verbose `'all'` level so renderer-side trace logging surfaces the CLI's
@@ -571,7 +571,7 @@ export class CopilotAgent extends Disposable implements IAgent {
 		const clientStarting = (async () => {
 			this._logService.info('[Copilot] Starting CopilotClient... (with token)');
 
-			// Build a clean env for the CLI subprocess, stripping Electron/VS Code vars
+			// Build a clean env for the CLI subprocess, stripping Electron/Remnants vars
 			// that can interfere with the Node.js process the SDK spawns.
 			const env: Record<string, string | undefined> = Object.assign({}, process.env, { ELECTRON_RUN_AS_NODE: '1' });
 			delete env['NODE_OPTIONS'];
@@ -606,13 +606,13 @@ export class CopilotAgent extends Disposable implements IAgent {
 			const cliPath = URI.joinPath(nodeModulesUri, '@github', 'copilot', 'index.js').fsPath;
 
 			// The SDK's sandbox auto-detection looks for `<MXC_BIN_DIR>/<arch>/wxc-exec.exe`
-			// (and the Linux/macOS equivalents). VS Code core ships the MXC sandbox binaries
+			// (and the Linux/macOS equivalents). Remnants core ships the MXC sandbox binaries
 			// at `node_modules/@microsoft/mxc-sdk/bin/<arch>/`, so point `MXC_BIN_DIR` there.
 			// The @github/copilot package's own `mxc-bin/` is excluded from the product build
 			// (see build/.moduleignore), mirroring `CopilotCLISDK.getPackage` in the extension.
 			env['MXC_BIN_DIR'] = URI.joinPath(nodeModulesUri, '@microsoft', 'mxc-sdk', 'bin').fsPath;
 
-			// Add VS Code's built-in ripgrep to PATH so the CLI subprocess can find it.
+			// Add Remnants's built-in ripgrep to PATH so the CLI subprocess can find it.
 			const resolvedRgDiskPath = await rgDiskPath();
 			const rgDir = dirname(resolvedRgDiskPath);
 			// On Windows the env key is typically "Path" (not "PATH"). Since we copied
