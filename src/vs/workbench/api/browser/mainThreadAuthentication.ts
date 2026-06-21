@@ -29,10 +29,23 @@ import { IDynamicAuthenticationProviderStorageService } from '../../services/aut
 import { IClipboardService } from '../../../platform/clipboard/common/clipboardService.js';
 import { IQuickInputService } from '../../../platform/quickinput/common/quickInput.js';
 import { ISecretStorageService } from '../../../platform/secrets/common/secrets.js';
-import { mcpOAuthClientSecretStorageKey } from '../../contrib/mcp/common/mcpTypes.js';
 import { IProductService } from '../../../platform/product/common/productService.js';
 import { IConfigurationService } from '../../../platform/configuration/common/configuration.js';
-import { IMcpEnterpriseManagedAuthIdpConfig, mcpEnterpriseManagedAuthIdpSection } from '../../contrib/mcp/common/mcpConfiguration.js';
+
+// The MCP (Model Context Protocol) feature was removed, but the cross-app-access (XAA)
+// authentication flow below still relies on these small self-contained helpers. They were
+// previously imported from contrib/mcp; inlined here so authentication has no AI dependency.
+function mcpOAuthClientSecretStorageKey(mcpServerUrl: string, clientId: string): string {
+	return `mcp.oauth.clientSecret:${mcpServerUrl}:${clientId}`;
+}
+
+const mcpEnterpriseManagedAuthIdpSection = 'mcp.enterpriseManagedAuth.idp';
+
+interface IMcpEnterpriseManagedAuthIdpConfig {
+	readonly issuer?: string;
+	readonly clientId?: string;
+	readonly clientSecret?: string;
+}
 
 export interface AuthenticationInteractiveOptions {
 	detail?: string;
