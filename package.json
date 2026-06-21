@@ -3,7 +3,7 @@
   "version": "1.125.0",
   "distro": "8edd514e8c5617018ec1e3f7e9c482edd103640a",
   "author": {
-    "name": "Microsoft Corporation"
+    "name": "Dominik Könitzer"
   },
   "license": "MIT",
   "main": "./out/main.js",
@@ -24,7 +24,6 @@
     "transpile": "npm-run-all2 -lp transpile-client transpile-extensions",
     "transpile-extensions": "npm run gulp transpile-extensions compile-extension-media",
     "compile-check-ts-native": "tsgo --project ./src/tsconfig.json --noEmit --skipLibCheck",
-    "codex:gen-protocol": "node build/codex/generate-protocol.mjs",
     "watch": "npm-run-all2 -lp watch-client-transpile watch-client watch-extensions",
     "watch-transpile": "npm-run-all2 -lp watch-client-transpile watch-extensions",
     "watchd": "deemon npm run watch",
@@ -49,7 +48,6 @@
     "7z": "7z",
     "update-grammars": "node build/npm/update-all-grammars.ts",
     "update-localization-extension": "node build/npm/update-localization-extension.ts",
-    "mixin-telemetry-docs": "node build/npm/mixin-telemetry-docs.ts",
     "smoketest": "node build/lib/preLaunch.ts && cd test/smoke && npm run compile && node test/index.js",
     "smoketest-no-compile": "cd test/smoke && node test/index.js",
     "download-builtin-extensions": "node build/lib/builtInExtensions.ts",
@@ -79,8 +77,6 @@
     "core-ci": "npm run gulp core-ci",
     "extensions-ci": "npm run gulp extensions-ci",
     "perf": "node scripts/code-perf.js",
-    "perf:chat": "node scripts/chat-simulation/test-chat-perf-regression.js",
-    "perf:chat-leak": "node scripts/chat-simulation/test-chat-mem-leaks.js",
     "update-build-ts-version": "npm install -D typescript@next && npm install -D @typescript/native-preview && (cd build && npm run typecheck)",
     "install-local-component-explorer": "npm install ../vscode-packages/js-component-explorer/dist/vscode-component-explorer-0.1.0.tgz ../vscode-packages/js-component-explorer/dist/vscode-component-explorer-cli-0.1.0.tgz --no-save && cd build/rspack && npm install ../../../vscode-packages/js-component-explorer/dist/vscode-component-explorer-webpack-plugin-0.1.0.tgz --no-save && cd ../vite && npm install ../../../vscode-packages/js-component-explorer/dist/vscode-component-explorer-vite-plugin-0.1.0.tgz --no-save",
     "symlink-local-component-explorer": "npm install ../vscode-packages/js-component-explorer/packages/explorer ../vscode-packages/js-component-explorer/packages/cli --no-save && cd build/rspack && npm install ../../../vscode-packages/js-component-explorer/packages/webpack-plugin ../../../vscode-packages/js-component-explorer/packages/explorer --no-save && cd ../vite && npm install ../../../vscode-packages/js-component-explorer/packages/vite-plugin ../../../vscode-packages/js-component-explorer/packages/explorer --no-save",
@@ -269,10 +265,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/microsoft/vscode.git"
+    "url": "https://github.com/dominikkoenitzer/Remnants.git"
   },
   "bugs": {
-    "url": "https://github.com/microsoft/vscode/issues"
+    "url": "https://github.com/dominikkoenitzer/Remnants/issues"
   },
   "optionalDependencies": {
     "windows-foreground-love": "0.6.1"
