@@ -8,10 +8,10 @@
 AppId={#AppId}
 AppName={#NameLong}
 AppVerName={#NameVersion}
-AppPublisher=Microsoft Corporation
-AppPublisherURL=https://code.visualstudio.com/
-AppSupportURL=https://code.visualstudio.com/
-AppUpdatesURL=https://code.visualstudio.com/
+AppPublisher=Dominik Könitzer
+AppPublisherURL=https://github.com/dominikkoenitzer/Remnants
+AppSupportURL=https://github.com/dominikkoenitzer/Remnants
+AppUpdatesURL=https://github.com/dominikkoenitzer/Remnants
 DefaultGroupName={#NameLong}
 AllowNoIcons=yes
 OutputDir={#OutputDir}
