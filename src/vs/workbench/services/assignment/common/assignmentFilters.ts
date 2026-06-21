@@ -6,12 +6,10 @@
 import type { IExperimentationFilterProvider } from 'tas-client';
 import { Emitter } from '../../../../base/common/event.js';
 import { Disposable } from '../../../../base/common/lifecycle.js';
-import { getInternalOrg } from '../../../../platform/assignment/common/assignment.js';
 import { IDefaultAccountService } from '../../../../platform/defaultAccount/common/defaultAccount.js';
 import { ExtensionIdentifier } from '../../../../platform/extensions/common/extensions.js';
 import { ILogService } from '../../../../platform/log/common/log.js';
 import { IStorageService, StorageScope, StorageTarget } from '../../../../platform/storage/common/storage.js';
-import { IChatEntitlementService } from '../../chat/common/chatEntitlementService.js';
 import { IExtensionService } from '../../extensions/common/extensions.js';
 
 export enum ExtensionsFilter {
@@ -87,7 +85,6 @@ export class CopilotAssignmentFilterProvider extends Disposable implements IExpe
 		@IExtensionService private readonly _extensionService: IExtensionService,
 		@ILogService private readonly _logService: ILogService,
 		@IStorageService private readonly _storageService: IStorageService,
-		@IChatEntitlementService private readonly _chatEntitlementService: IChatEntitlementService,
 		@IDefaultAccountService private readonly _defaultAccountService: IDefaultAccountService,
 	) {
 		super();
@@ -105,10 +102,6 @@ export class CopilotAssignmentFilterProvider extends Disposable implements IExpe
 			if (extensionIdentifiers.some(identifier => ExtensionIdentifier.equals(identifier, 'github.copilot') || ExtensionIdentifier.equals(identifier, 'github.copilot-chat'))) {
 				this.updateExtensionVersions();
 			}
-		}));
-
-		this._register(this._chatEntitlementService.onDidChangeEntitlement(() => {
-			this.updateCopilotEntitlementInfo();
 		}));
 
 		this._register(this._defaultAccountService.onDidChangeCopilotTokenInfo(() => {
@@ -157,9 +150,11 @@ export class CopilotAssignmentFilterProvider extends Disposable implements IExpe
 	}
 
 	private updateCopilotEntitlementInfo() {
-		const newSku = this._chatEntitlementService.sku;
-		const newTrackingId = this._chatEntitlementService.copilotTrackingId;
-		const newInternalOrg = getInternalOrg(this._chatEntitlementService.organisations);
+		// Built-in chat entitlement has been removed; no SKU / tracking-id / org
+		// information is available, so these experiment filters resolve to undefined.
+		const newSku = undefined;
+		const newTrackingId = undefined;
+		const newInternalOrg = undefined;
 
 		if (this.copilotSku === newSku && this.copilotInternalOrg === newInternalOrg && this.copilotTrackingId === newTrackingId) {
 			return;

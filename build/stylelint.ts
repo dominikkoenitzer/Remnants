@@ -18,17 +18,15 @@ interface FileWithLines {
 type Reporter = (message: string, isError: boolean) => void;
 
 /**
- * Stylelint gulpfile task. When `designTokensEverywhere` is `true` the
- * design-token suggestions run on every linted file rather than only the
- * design-system area (`src/vs/sessions`); used when the caller explicitly
- * targets a path so the checks follow the requested scope.
+ * Stylelint gulpfile task. The design-token suggestions only run when
+ * `designTokensEverywhere` is `true`; used when the caller explicitly targets
+ * a path so the checks follow the requested scope.
  */
 export default function gulpstylelint(reporter: Reporter, designTokensEverywhere = false): NodeJS.ReadWriteStream {
 	const variableValidator = getVariableNameValidator();
 	let errorCount = 0;
 	const monacoWorkbenchPattern = /\.monaco-workbench/;
 	const restrictedPathPattern = /^src[\/\\]vs[\/\\](base|platform|editor)[\/\\]/;
-	const designSystemPattern = /^src[\/\\]vs[\/\\]sessions[\/\\]/;
 	const layerCheckerDisablePattern = /\/\*\s*stylelint-disable\s+layer-checker\s*\*\//;
 
 	// Per-category tally of design-token suggestions for the summary footer.
@@ -57,15 +55,14 @@ export default function gulpstylelint(reporter: Reporter, designTokensEverywhere
 		});
 
 		// Design-token checks that need block (selector + declaration) awareness.
-		// By default these are scoped to the design-system area (src/vs/sessions),
-		// but when `designTokensEverywhere` is set (an explicit path was targeted)
-		// they run on every linted file so the checks follow the requested scope.
+		// These run only when `designTokensEverywhere` is set (an explicit path was
+		// targeted) so the checks follow the requested scope.
 		// All findings are advisory warnings (never fail the build). Findings for a
 		// file are gathered, sorted by source line, then printed under a one-line
 		// file header as compact `path(line,col): [category] value -> var` rows so
 		// the terminal both groups them visually and linkifies each row.
 		const contents = file.contents.toString('utf8');
-		if (designTokensEverywhere || designSystemPattern.test(file.relative)) {
+		if (designTokensEverywhere) {
 			const findings: { line: number; category: string; message: string }[] = [];
 			for (const v of validateCodiconFontSizes(contents)) { findings.push({ line: v.line, category: 'codicon', message: v.message }); }
 			for (const v of validateFontSizeTokens(contents)) { findings.push({ line: v.line, category: 'font-size', message: v.message }); }
@@ -139,8 +136,8 @@ function stylelint(sources: string[] = Array.from(stylelintFilter), explicit = f
  * `--path=<path>`). A `.css` file or an explicit glob is used as-is; a folder is
  * expanded to `<folder>/**\/*.css`. With no argument the default
  * `src/**\/*.css` set is linted. Returns the resolved globs plus whether an
- * explicit path was given (used to widen the design-token checks beyond the
- * default `src/vs/sessions` scope to follow the requested path).
+ * explicit path was given (used to enable the design-token checks so they
+ * follow the requested path).
  */
 function resolveSources(argv: string[]): { sources: string[]; explicit: boolean } {
 	const args = argv.slice(2);
