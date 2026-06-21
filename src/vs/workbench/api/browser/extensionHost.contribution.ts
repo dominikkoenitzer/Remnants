@@ -18,10 +18,6 @@ import { CSSExtensionPoint } from '../../services/themes/browser/cssExtensionPoi
 // --- mainThread participants
 import './mainThreadLocalization.js';
 import './mainThreadBulkEdits.js';
-import './mainThreadLanguageModels.js';
-import './mainThreadChatAgents2.js';
-import './mainThreadChatCodeMapper.js';
-import './mainThreadLanguageModelTools.js';
 import './mainThreadEmbeddings.js';
 import './mainThreadCodeInsets.js';
 import './mainThreadCLICommands.js';
@@ -92,14 +88,6 @@ import './mainThreadProfileContentHandlers.js';
 import './mainThreadAiRelatedInformation.js';
 import './mainThreadAiEmbeddingVector.js';
 import './mainThreadAiSettingsSearch.js';
-import './mainThreadMcp.js';
-import './mainThreadChatContext.js';
-import './mainThreadChatDebug.js';
-import './mainThreadChatStatus.js';
-import './mainThreadChatQuota.js';
-import './mainThreadChatInputNotification.js';
-import './mainThreadChatOutputRenderer.js';
-import './mainThreadChatSessions.js';
 import './mainThreadDataChannels.js';
 import './mainThreadMeteredConnection.js';
 import './mainThreadGitExtensionService.js';
