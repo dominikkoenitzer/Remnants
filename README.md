@@ -2,7 +2,8 @@
 
 [![CI](https://github.com/dominikkoenitzer/Remnants/actions/workflows/ci.yml/badge.svg)](https://github.com/dominikkoenitzer/Remnants/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.txt)
-[![Platform](https://img.shields.io/badge/platform-Windows-blue.svg)](#download)
+[![Latest release](https://img.shields.io/github/v/release/dominikkoenitzer/Remnants?sort=semver&display_name=tag)](https://github.com/dominikkoenitzer/Remnants/releases/latest)
+[![Platform](https://img.shields.io/badge/platform-Windows-blue.svg)](#install)
 [![Built on Code - OSS](https://img.shields.io/badge/built%20on-Code%20--%20OSS-1f7abf.svg)](https://github.com/microsoft/vscode)
 
 **A clean, AI-free code editor.** Remnants is a personal fork of [Code - OSS](https://github.com/microsoft/vscode) (the open-source core of VS Code) with every built-in AI surface, telemetry hook, and corporate integration stripped out. It keeps everything that makes a great editor — fast editing, IntelliSense, an integrated terminal, Git, and debugging — and nothing else.
@@ -51,11 +52,21 @@ Remnants uses the standard VS Code keybindings. A few of the most useful:
 
 The full reference lives under **Help → Keyboard Shortcuts Reference** inside the app.
 
-## Download
+## Install
 
-Remnants currently ships a **Windows (x64) user installer**. There is no automated release pipeline — builds are produced locally from source (a full Electron build is too heavy for hosted CI). See [Build from source](#build-from-source) to produce `RemnantsUserSetup.exe`.
+### Windows (x64)
 
-macOS and Linux are inherited from Code - OSS and should build, but are **not currently verified** in this fork.
+1. Download the latest **`RemnantsUserSetup.exe`** from the [**Releases** page](https://github.com/dominikkoenitzer/Remnants/releases/latest).
+2. Run it. It's a per-user installer — no administrator rights needed; it installs into your user profile and adds **Remnants** to the Start menu.
+3. Remnants is not code-signed, so Windows SmartScreen may warn *"Windows protected your PC."* Click **More info → Run anyway** to continue.
+
+> **First run:** Remnants behaves like VS Code, minus the AI and sign-in. There's nothing to log into. Install extensions from the built-in **Extensions** view — they resolve through [Open VSX](https://open-vsx.org). Your settings, keybindings, and extensions live under `%USERPROFILE%\.remnants`.
+
+No release published yet, or want a bleeding-edge build? [Build from source](#build-from-source) to produce the installer yourself.
+
+### macOS / Linux
+
+macOS and Linux are inherited from Code - OSS and should build from source, but are **not currently verified** in this fork, and there are no prebuilt downloads for them yet.
 
 ## Build from source
 
