@@ -343,7 +343,6 @@ export default defineConfig(
 			'src/vs/workbench/services/remote/common/tunnelModel.ts',
 			'src/vs/workbench/services/search/common/textSearchManager.ts',
 			'src/vs/workbench/test/browser/workbenchTestServices.ts',
-			'src/vs/platform/agentHost/common/state/protocol/**',
 			'test/automation/src/playwrightDriver.ts',
 			'.eslint-plugin-local/**/*',
 		],
@@ -1084,7 +1083,6 @@ export default defineConfig(
 			'local/code-no-static-node-module-import': [
 				'error',
 				// Files that run in separate processes, not on the electron-main startup path
-				'src/vs/platform/agentHost/node/**/*.ts',
 				'src/vs/platform/files/node/watcher/**/*.ts',
 				'src/vs/platform/terminal/node/**/*.ts',
 				// Files that use small, safe modules
@@ -1506,7 +1504,6 @@ export default defineConfig(
 					// - electron-main
 					'when': 'hasNode',
 					'allow': [
-						'@github/copilot-sdk',
 						'zod',
 						'@microsoft/dev-tunnels-contracts',
 						'@microsoft/dev-tunnels-management',
@@ -1630,35 +1627,6 @@ export default defineConfig(
 					]
 				},
 				{
-					'target': 'src/vs/platform/agentHost/node/diffWorkerMain.ts',
-					'layer': 'node',
-					'restrictions': [
-						'vs/base/~',
-						'vs/base/parts/*/~',
-						'vs/platform/*/~',
-						'vs/editor/common/diff/**', // diffing logic used by the agent host
-					]
-				},
-				{
-					'target': 'src/vs/platform/agentHost/~',
-					'restrictions': [
-						'vs/base/~',
-						'vs/base/parts/*/~',
-						'vs/platform/*/~',
-						'tas-client', // node module allowed even in /common/
-						'@microsoft/1ds-core-js', // node module allowed even in /common/
-						'@microsoft/1ds-post-js', // node module allowed even in /common/
-						'@xterm/headless', // node module allowed even in /common/
-						'@vscode/tree-sitter-wasm', // used by agentHost for command auto-approval
-						'@vscode/copilot-api', // used by agentHost for Copilot API requests
-						'@anthropic-ai/sdk', // used by agentHost for Anthropic API requests
-						'@anthropic-ai/claude-agent-sdk', // used by agentHost for Claude Agent SDK session enumeration / queries
-						'@modelcontextprotocol/sdk/**/*', // used by agentHost for Claude client-tool MCP result types (Phase 10)
-						'@github/copilot-sdk',
-						'zod' // used by agentHost for Claude client-tool MCP input schemas
-					]
-				},
-				{
 					'target': 'src/vs/platform/*/~',
 					'restrictions': [
 						'vs/base/~',
@@ -1668,7 +1636,7 @@ export default defineConfig(
 						'@microsoft/1ds-core-js', // node module allowed even in /common/
 						'@microsoft/1ds-post-js', // node module allowed even in /common/
 						'@xterm/headless', // node module allowed even in /common/
-						'@vscode/tree-sitter-wasm' // used by agentHost for command auto-approval
+						'@vscode/tree-sitter-wasm' // node module allowed even in /common/
 					]
 				},
 				{
@@ -1805,7 +1773,6 @@ export default defineConfig(
 						'vs/workbench/~',
 						'vs/workbench/services/*/~',
 						'vs/workbench/contrib/*/~',
-						'vs/sessions/~',
 						'vs/workbench/contrib/terminal/terminalContribChatExports*',
 						'vs/workbench/contrib/terminal/terminalContribExports*',
 						'vscode-notebook-renderer', // Type only import
@@ -1883,17 +1850,6 @@ export default defineConfig(
 					]
 				},
 				{
-					'target': 'src/vs/sessions/electron-browser/sessions.ts',
-					'layer': 'electron-browser',
-					'restrictions': [
-						'vs/base/~',
-						'vs/base/parts/*/~',
-						'vs/platform/*/~',
-						'vs/sessions/~',
-						'vs/sessions/sessions.desktop.main.js'
-					]
-				},
-				{
 					'target': 'src/vs/server/~',
 					'restrictions': [
 						'vs/base/~',
@@ -1942,9 +1898,7 @@ export default defineConfig(
 						'vs/workbench/api/~',
 						'vs/workbench/services/*/~',
 						'vs/workbench/contrib/*/~',
-						'vs/workbench/contrib/terminal/terminal.all.js',
-						'vs/sessions/common/theme.js', // side-effect import for color registry
-						'vs/sessions/common/sizes.js' // side-effect import for size registry
+						'vs/workbench/contrib/terminal/terminal.all.js'
 					]
 				},
 				{
@@ -2026,197 +1980,6 @@ export default defineConfig(
 						'vs/nls.js',
 						'src/*.js',
 						'*' // node.js
-					]
-				},
-				{
-					'target': 'src/vs/sessions/sessions.common.main.ts',
-					'layer': 'browser',
-					'restrictions': [
-						'vs/base/~',
-						'vs/base/parts/*/~',
-						'vs/platform/*/~',
-						'vs/editor/~',
-						'vs/editor/contrib/*/~',
-						'vs/editor/editor.all.js',
-						'vs/sessions/~',
-						'vs/sessions/services/*/~',
-						'vs/sessions/contrib/*/~',
-						'vs/sessions/contrib/providers/*/~',
-						'vs/workbench/~',
-						'vs/workbench/api/~',
-						'vs/workbench/services/*/~',
-						'vs/workbench/contrib/*/~',
-						'vs/workbench/contrib/terminal/terminal.all.js',
-					]
-				},
-				{
-					'target': 'src/vs/sessions/sessions.desktop.main.ts',
-					'layer': 'electron-browser',
-					'restrictions': [
-						'vs/base/*/~',
-						'vs/base/parts/*/~',
-						'vs/platform/*/~',
-						'vs/editor/~',
-						'vs/editor/contrib/*/~',
-						'vs/editor/editor.all.js',
-						'vs/sessions/~',
-						'vs/sessions/services/*/~',
-						'vs/sessions/contrib/*/~',
-						'vs/sessions/contrib/providers/*/~',
-						'vs/workbench/~',
-						'vs/workbench/api/~',
-						'vs/workbench/services/*/~',
-						'vs/workbench/contrib/*/~',
-						'vs/sessions/sessions.common.main.js'
-					]
-				},
-				{
-					'target': 'src/vs/sessions/sessions.web.main.ts',
-					'layer': 'browser',
-					'restrictions': [
-						'vs/base/~',
-						'vs/base/parts/*/~',
-						'vs/platform/*/~',
-						'vs/editor/~',
-						'vs/editor/contrib/*/~',
-						'vs/editor/editor.all.js',
-						'vs/sessions/~',
-						'vs/sessions/services/*/~',
-						'vs/sessions/contrib/*/~',
-						'vs/sessions/contrib/providers/*/~',
-						'vs/workbench/~',
-						'vs/workbench/api/~',
-						'vs/workbench/services/*/~',
-						'vs/workbench/contrib/*/~',
-						'vs/sessions/sessions.common.main.js'
-					]
-				},
-				{
-					'target': 'src/vs/sessions/sessions.web.main.internal.ts',
-					'layer': 'browser',
-					'restrictions': [
-						'vs/base/~',
-						'vs/base/parts/*/~',
-						'vs/platform/*/~',
-						'vs/sessions/~',
-						'vs/sessions/contrib/*/~',
-						'vs/sessions/contrib/providers/*/~',
-						'vs/workbench/~',
-						'vs/workbench/browser/**',
-						'vs/workbench/services/*/~',
-						'vs/workbench/contrib/*/~',
-						'vs/sessions/sessions.web.main.js'
-					]
-				},
-				{
-					'target': 'src/vs/sessions/test/sessions.web.test.internal.ts',
-					'layer': 'browser',
-					'restrictions': [
-						'vs/base/~',
-						'vs/base/parts/*/~',
-						'vs/platform/*/~',
-						'vs/sessions/~',
-						'vs/sessions/test/**',
-						'vs/sessions/contrib/*/~',
-						'vs/sessions/contrib/providers/*/~',
-						'vs/workbench/~',
-						'vs/workbench/browser/**',
-						'vs/workbench/services/*/~',
-						'vs/workbench/contrib/*/~',
-						'vs/sessions/sessions.web.main.js'
-					]
-				},
-				{
-					'target': 'src/vs/sessions/test/{web.test.ts,web.test.factory.ts}',
-					'layer': 'browser',
-					'restrictions': [
-						'vs/base/~',
-						'vs/base/parts/*/~',
-						'vs/platform/*/~',
-						'vs/sessions/~',
-						'vs/sessions/test/**',
-						'vs/sessions/contrib/*/~',
-						'vs/workbench/~',
-						'vs/workbench/browser/**',
-						'vs/workbench/services/*/~',
-						'vs/workbench/contrib/*/~'
-					]
-				},
-				{
-					'target': 'src/vs/sessions/~',
-					'restrictions': [
-						'vs/base/~',
-						'vs/base/parts/*/~',
-						'vs/platform/*/~',
-						'vs/editor/~',
-						'vs/editor/contrib/*/~',
-						'vs/workbench/~',
-						'vs/workbench/browser/**',
-						'vs/workbench/services/*/~',
-						'vs/sessions/~',
-						'vs/sessions/services/*/~'
-					]
-				},
-				{
-					'target': 'src/vs/sessions/contrib/providers/*/~',
-					'restrictions': [
-						'vs/base/~',
-						'vs/base/parts/*/~',
-						'vs/platform/*/~',
-						'vs/editor/~',
-						'vs/editor/contrib/*/~',
-						'vs/workbench/~',
-						'vs/workbench/browser/**',
-						'vs/workbench/services/*/~',
-						'vs/workbench/contrib/*/~',
-						'vs/sessions/~',
-						'vs/sessions/contrib/*/~',
-						'vs/sessions/contrib/providers/*/~',
-						'vs/sessions/services/*/~',
-					]
-				},
-				{
-					'target': 'src/vs/sessions/contrib/*/~',
-					'restrictions': [
-						'vs/base/~',
-						'vs/base/parts/*/~',
-						'vs/platform/*/~',
-						'vs/editor/~',
-						'vs/editor/contrib/*/~',
-						'vs/workbench/~',
-						'vs/workbench/browser/**',
-						'vs/workbench/services/*/~',
-						'vs/workbench/contrib/*/~',
-						'vs/sessions/~',
-						'vs/sessions/contrib/*/~',
-						'vs/sessions/services/*/~',
-					]
-				},
-				{
-					'target': 'src/vs/sessions/services/*/~',
-					'restrictions': [
-						'vs/base/~',
-						'vs/base/parts/*/~',
-						'vs/platform/*/~',
-						'vs/editor/~',
-						'vs/editor/contrib/*/~',
-						'vs/workbench/~',
-						'vs/workbench/services/*/~',
-						'vs/sessions/~',
-						'vs/sessions/services/*/~',
-						'vs/workbench/contrib/*/~',
-						{
-							'when': 'test',
-							'pattern': 'vs/workbench/contrib/*/~'
-						}, // TODO@layers
-						'tas-client', // node module allowed even in /common/
-						'vscode-textmate', // node module allowed even in /common/
-						'@vscode/vscode-languagedetection', // node module allowed even in /common/
-						'@vscode/tree-sitter-wasm', // type import
-						{
-							'when': 'hasBrowser',
-							'pattern': '@xterm/xterm'
-						} // node module allowed even in /browser/
 					]
 				},
 			]
@@ -2302,38 +2065,6 @@ export default defineConfig(
 						'test/componentFixtures/playwright/**',
 						'@playwright/*',
 						'*' // node modules
-					]
-				}
-			]
-		}
-	},
-	{
-		// `IAgentSessionsService` and the agent sessions model are provider-internal
-		// to Copilot. Only the Copilot chat sessions provider may consume them; the
-		// rest of the Agents window (sessions workbench) must stay provider-agnostic.
-		// See src/vs/sessions/SESSIONS.md.
-		files: [
-			'src/vs/sessions/**/*.ts'
-		],
-		ignores: [
-			'src/vs/sessions/contrib/providers/copilotChatSessions/**/*.ts'
-		],
-		languageOptions: {
-			parser: tseslint.parser,
-		},
-		rules: {
-			'no-restricted-imports': [
-				'warn',
-				{
-					'patterns': [
-						{
-							'group': ['dompurify*'],
-							'message': 'Use domSanitize instead of dompurify directly'
-						},
-						{
-							'group': ['**/agentSessions/agentSessionsService', '**/agentSessions/agentSessionsService.js'],
-							'message': 'IAgentSessionsService is provider-internal to Copilot. Only contrib/providers/copilotChatSessions may import it; the rest of the Agents window must stay provider-agnostic. See src/vs/sessions/SESSIONS.md.'
-						}
 					]
 				}
 			]

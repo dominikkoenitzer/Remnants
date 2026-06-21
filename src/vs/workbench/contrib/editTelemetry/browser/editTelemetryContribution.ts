@@ -15,7 +15,6 @@ import { EditTrackingFeature } from './telemetry/editSourceTrackingFeature.js';
 import { VSCodeWorkspace } from './helpers/vscodeObservableWorkspace.js';
 import { AiStatsFeature } from './editStats/aiStatsFeature.js';
 import { AI_STATS_SETTING_ID, EDIT_TELEMETRY_SETTING_ID } from './settingIds.js';
-import { IChatEntitlementService } from '../../../services/chat/common/chatEntitlementService.js';
 import { AiContributionFeature } from './aiContributionFeature.js';
 
 export class EditTelemetryContribution extends Disposable {
@@ -23,7 +22,6 @@ export class EditTelemetryContribution extends Disposable {
 		@IInstantiationService instantiationService: IInstantiationService,
 		@IConfigurationService configurationService: IConfigurationService,
 		@ITelemetryService telemetryService: ITelemetryService,
-		@IChatEntitlementService chatEntitlementService: IChatEntitlementService
 	) {
 		super();
 
@@ -42,7 +40,7 @@ export class EditTelemetryContribution extends Disposable {
 		const aiStatsEnabled = observableConfigValue(AI_STATS_SETTING_ID, true, configurationService);
 		this._register(autorun(r => {
 			const enabled = aiStatsEnabled.read(r);
-			const aiDisabled = chatEntitlementService.sentimentObs.read(r).hidden;
+			const aiDisabled = true;
 			if (!enabled || aiDisabled) {
 				return;
 			}
@@ -63,7 +61,7 @@ export class EditTelemetryContribution extends Disposable {
 			if (addAICoAuthor.read(r) === 'off') {
 				return;
 			}
-			const aiDisabled = chatEntitlementService.sentimentObs.read(r).hidden;
+			const aiDisabled = true;
 			if (aiDisabled) {
 				return;
 			}

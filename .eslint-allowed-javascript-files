@@ -14,7 +14,6 @@ build/azure-pipelines/common/installPlaywright.js
 build/azure-pipelines/github-check-run.js
 build/builtin/browser-main.js
 build/builtin/main.js
-build/codex/generate-protocol.mjs
 eslint.config.js
 extensions/cpp/build/update-grammars.js
 extensions/css-language-features/server/test/index.js
@@ -55,15 +54,9 @@ extensions/vscode-colorize-tests/test/colorize-fixtures/test.js
 extensions/vscode-colorize-tests/test/colorize-fixtures/test6916.js
 extensions/yaml/build/update-grammar.js
 gulpfile.mjs
-scripts/chat-simulation/common/perf-scenarios.js
-scripts/chat-simulation/common/utils.js
-scripts/chat-simulation/merge-ci-summary.js
-scripts/chat-simulation/test-chat-mem-leaks.js
-scripts/chat-simulation/test-chat-perf-regression.js
 scripts/code-agent-host.js
 scripts/code-perf.js
 scripts/code-server.js
-scripts/code-sessions-web.js
 scripts/code-web.js
 scripts/xterm-update.js
 src/vs/base/browser/dompurify/dompurify.js
@@ -91,10 +84,6 @@ src/vs/platform/files/test/node/fixtures/service/deep/company.js
 src/vs/platform/files/test/node/fixtures/service/deep/conway.js
 src/vs/platform/files/test/node/fixtures/service/deep/employee.js
 src/vs/platform/files/test/node/fixtures/service/deep/small.js
-src/vs/sessions/test/e2e/common.cjs
-src/vs/sessions/test/e2e/extensions/sessions-e2e-mock/extension.js
-src/vs/sessions/test/e2e/generate.cjs
-src/vs/sessions/test/e2e/test.cjs
 src/vs/workbench/contrib/webview/browser/pre/service-worker.js
 src/vs/workbench/services/keybinding/test/node/linux_de_ch.js
 src/vs/workbench/services/keybinding/test/node/linux_en_uk.js

@@ -30,7 +30,9 @@ import { SnippetString } from './extHostTypes/snippetString.js';
 import { SymbolKind, SymbolTag } from './extHostTypes/symbolInformation.js';
 import { TextEdit } from './extHostTypes/textEdit.js';
 import { WorkspaceEdit } from './extHostTypes/workspaceEdit.js';
-import { HookTypeValue } from '../../contrib/chat/common/promptSyntax/hookTypes.js';
+
+// Inlined from the removed contrib/chat hook types so this module has no AI dependency.
+type HookTypeValue = 'SessionStart' | 'SessionEnd' | 'UserPromptSubmit' | 'PreToolUse' | 'PostToolUse' | 'PreCompact' | 'SubagentStart' | 'SubagentStop' | 'Stop' | 'ErrorOccurred';
 
 export { CodeActionKind } from './extHostTypes/codeActionKind.js';
 export {
