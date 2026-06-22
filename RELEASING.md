@@ -50,7 +50,7 @@ Users can now download `RemnantsUserSetup.exe` from the release.
 
 `.github/workflows/release.yml` runs the full Windows packaging build on a
 GitHub-hosted runner and uploads the installer to a release. It is **manual only**
-(`workflow_dispatch`) — it never runs on push, because the build is heavy (~1 hour).
+(`workflow_dispatch`) — it never runs on push. A full run takes ~15–20 minutes.
 
 1. Go to **Actions → Release (Windows installer) → Run workflow**.
 2. Leave **version** blank to release the current `package.json` version, or type a
@@ -60,11 +60,12 @@ GitHub-hosted runner and uploads the installer to a release. It is **manual only
    `v<version>` GitHub Release. Re-running for an existing tag is safe: it re-uploads the
    installer to that release (`--clobber`) instead of failing.
 
-> ⚠️ This workflow has not yet been validated by a real run. Before relying on it,
-> dispatch it once and confirm the Windows runner has everything it needs (native
-> module builds, Inno Setup). If a step fails, the README's local build (Option A)
-> remains the source of truth, and the installer is still recoverable from the run's
-> uploaded artifact even if the release step fails.
+> ✅ Validated: `v1.125.0` was cut this way. Two pins make it work and must stay:
+> the job runs on **`windows-2022`** (the VS 2022 C++ toolchain node-gyp needs —
+> `windows-latest` ships VS 18, which the bundled node-gyp can't use) and on **Node 22**
+> (npm 10 — the committed `package-lock.json` is only in sync under npm 10's resolver;
+> npm 11 from Node 24 rejects `npm ci`). If a step fails, the installer is still
+> recoverable from the run's uploaded artifact even if the release step fails.
 
 ## After releasing
 
