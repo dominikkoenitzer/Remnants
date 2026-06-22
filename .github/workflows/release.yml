@@ -20,7 +20,12 @@ concurrency:
 jobs:
   windows-installer:
     name: Build Windows x64 installer
-    runs-on: windows-latest
+    # Pin to windows-2022, not windows-latest: .npmrc sets build_from_source=true
+    # so every native module compiles with node-gyp, and the bundled node-gyp can't
+    # use the Visual Studio 18 toolchain on the newer windows-latest image
+    # ("find VS unknown version"). windows-2022 ships the VS 2022 C++ tools this
+    # tree expects (see README "Prerequisites").
+    runs-on: windows-2022
     timeout-minutes: 120
     env:
       VSCODE_SKIP_NODE_VERSION_CHECK: 1
