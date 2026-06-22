@@ -10,7 +10,7 @@ build is heavy) or **build on GitHub Actions** (optional, manual).
 ## Prerequisites
 
 - A working build environment — see [Build from source](README.md#build-from-source)
-  (Node 22+, Python 3.13, VS 2022 C++ Build Tools with the Spectre-mitigated libs).
+  (Node 24, Python 3.13, VS 2022 C++ Build Tools with the Spectre-mitigated libs).
 - The [GitHub CLI](https://cli.github.com/) (`gh`), authenticated against this repo
   (`gh auth login`).
 
@@ -53,15 +53,18 @@ GitHub-hosted runner and uploads the installer to a release. It is **manual only
 (`workflow_dispatch`) — it never runs on push, because the build is heavy (~1 hour).
 
 1. Go to **Actions → Release (Windows installer) → Run workflow**.
-2. Enter the version (e.g. `1.125.0`) and run it.
+2. Leave **version** blank to release the current `package.json` version, or type a
+   version — it must match `package.json` (the workflow fails fast otherwise, since the
+   installer always reports the `package.json` version). The tag is `v<version>`.
 3. The job builds, attaches `RemnantsUserSetup.exe` as a run artifact, and creates the
-   `v<version>` GitHub Release.
+   `v<version>` GitHub Release. Re-running for an existing tag is safe: it re-uploads the
+   installer to that release (`--clobber`) instead of failing.
 
 > ⚠️ This workflow has not yet been validated by a real run. Before relying on it,
 > dispatch it once and confirm the Windows runner has everything it needs (native
-> module builds, Inno Setup, the Spectre libs). If a step fails, the README's local
-> build (Option A) remains the source of truth, and the installer is still recoverable
-> from the run's uploaded artifact even if the release step fails.
+> module builds, Inno Setup). If a step fails, the README's local build (Option A)
+> remains the source of truth, and the installer is still recoverable from the run's
+> uploaded artifact even if the release step fails.
 
 ## After releasing
 

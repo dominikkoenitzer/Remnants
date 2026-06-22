@@ -7,14 +7,14 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version to release (e.g. 1.125.0). The tag will be v<version>."
-        required: true
+        description: "Version to release (defaults to package.json). Must match package.json; the tag will be v<version>."
+        required: false
 
 permissions:
   contents: write # create the release and upload the installer
 
 concurrency:
-  group: release-${{ github.event.inputs.version }}
+  group: release
   cancel-in-progress: false
 
 jobs:
@@ -30,10 +30,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Resolve and validate version
+        id: version
+        shell: pwsh
+        run: |
+          $pkg = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $supplied = "${{ github.event.inputs.version }}".Trim()
+          if ($supplied -and $supplied -ne $pkg) {
+            throw "Dispatch version '$supplied' does not match package.json version '$pkg'. The installer and in-app version always come from package.json, so the tag must match it. Bump package.json or leave the input blank."
+          }
+          $ver = if ($supplied) { $supplied } else { $pkg }
+          "version=$ver" >> $env:GITHUB_OUTPUT
+          Write-Host "Releasing Remnants v$ver"
+
+      # .nvmrc pins Node 24; match it so the release binary is built on the same
+      # toolchain upstream Code - OSS releases on.
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       - name: Set up Python
@@ -67,13 +82,22 @@ jobs:
           path: .build/win32-x64/user-setup/RemnantsUserSetup.exe
           if-no-files-found: error
 
-      - name: Create GitHub Release
+      - name: Create or update GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         shell: pwsh
         run: |
-          gh release create "v${{ github.event.inputs.version }}" `
-            ".build/win32-x64/user-setup/RemnantsUserSetup.exe" `
-            --title "Remnants v${{ github.event.inputs.version }}" `
-            --notes "Windows (x64) user installer. AI-free build of Code - OSS ${{ github.event.inputs.version }}. Unsigned — on first launch click ``More info -> Run anyway`` past Windows SmartScreen." `
-            --target ${{ github.sha }}
+          $ver = "${{ steps.version.outputs.version }}"
+          $tag = "v$ver"
+          $asset = ".build/win32-x64/user-setup/RemnantsUserSetup.exe"
+          # NOTE: the doubled backticks below are intentional PowerShell escapes —
+          # in a double-quoted string ``  collapses to a single literal backtick,
+          # so the notes render as `More info -> Run anyway`. Do not "simplify" them.
+          $notes = "Windows (x64) user installer. AI-free build of Code - OSS $ver. Unsigned — on first launch click ``More info -> Run anyway`` past Windows SmartScreen."
+          gh release view $tag 2>$null | Out-Null
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "Release $tag already exists — updating its installer asset."
+            gh release upload $tag $asset --clobber
+          } else {
+            gh release create $tag $asset --title "Remnants v$ver" --notes $notes --target ${{ github.sha }}
+          }

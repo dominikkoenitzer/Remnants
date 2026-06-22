@@ -74,7 +74,7 @@ Remnants builds with the same toolchain as Code - OSS.
 
 ### Prerequisites (Windows)
 
-- **Node.js 22+** (the tree targets Node 24; on Node 22 set `VSCODE_SKIP_NODE_VERSION_CHECK=1`)
+- **Node.js 24** — matches `.nvmrc` and the release build, so `npm install` works without extra flags. (Node 22 also builds, but you must set `VSCODE_SKIP_NODE_VERSION_CHECK=1` before `npm install`, because the tree pins the Node 24 major.)
 - **Python 3.13**
 - **Visual Studio 2022 C++ Build Tools** with the *Desktop development with C++* workload **and** the Spectre-mitigated libraries (`Microsoft.VisualStudio.Component.VC.Runtimes.x86.x64.Spectre` — this is not in `--includeRecommended`, add it explicitly)
 
