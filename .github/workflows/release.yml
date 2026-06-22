@@ -43,12 +43,15 @@ jobs:
           "version=$ver" >> $env:GITHUB_OUTPUT
           Write-Host "Releasing Remnants v$ver"
 
-      # .nvmrc pins Node 24; match it so the release binary is built on the same
-      # toolchain upstream Code - OSS releases on.
+      # Build on Node 22 (npm 10), matching the green CI job. The committed
+      # package-lock.json is only in sync under npm 10's resolver; npm 11
+      # (bundled with Node 24) rejects `npm ci` over the ssh2 > cpu-features
+      # override ("Missing: cpu-features@ from lock file"). The
+      # VSCODE_SKIP_NODE_VERSION_CHECK=1 above bypasses the .nvmrc Node 24 pin.
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22
           cache: npm
 
       - name: Set up Python
