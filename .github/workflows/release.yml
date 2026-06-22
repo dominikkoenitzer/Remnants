@@ -1,7 +1,7 @@
 name: Release (Windows installer)
 
-# Manual only. The full Electron packaging build is heavy (~1 hour), so this never
-# runs on push — dispatch it from the Actions tab when you want to cut a release.
+# Manual only (~15-20 min full Electron packaging build), so this never runs on
+# push — dispatch it from the Actions tab when you want to cut a release.
 # See RELEASING.md.
 on:
   workflow_dispatch:
