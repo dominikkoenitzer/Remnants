@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Remnants brand mark — a faceted shard ("what remains"). Signature blue #3B82F6.
+       This is the single vector source of truth for every app icon and the editor
+       watermark. Regenerate the raster/ico/icns assets with:
+         node build/icons/generate-remnants-icons.mjs -->
+  <defs>
+    <linearGradient id="tab" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9CC8FD"/>
+      <stop offset="1" stop-color="#73B0FB"/>
+    </linearGradient>
+    <linearGradient id="cl" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4F8DF7"/>
+      <stop offset="1" stop-color="#3B82F6"/>
+    </linearGradient>
+    <linearGradient id="cr" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7FB5FB"/>
+      <stop offset="1" stop-color="#5AA0F9"/>
+    </linearGradient>
+    <linearGradient id="pl" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1D4ED8"/>
+      <stop offset="1" stop-color="#15399E"/>
+    </linearGradient>
+    <linearGradient id="pr" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2C6AEE"/>
+      <stop offset="1" stop-color="#2056DC"/>
+    </linearGradient>
+  </defs>
+  <!-- T1(230,54) T2(282,54) Mt(256,156) L(120,244) R(392,228) M(252,262) B(242,474) -->
+  <polygon points="230,54 282,54 256,156" fill="url(#tab)"/>
+  <polygon points="230,54 256,156 252,262 120,244" fill="url(#cl)"/>
+  <polygon points="282,54 392,228 252,262 256,156" fill="url(#cr)"/>
+  <polygon points="120,244 252,262 242,474" fill="url(#pl)"/>
+  <polygon points="252,262 392,228 242,474" fill="url(#pr)"/>
+  <polyline points="256,156 252,262 242,474" fill="none" stroke="#CFE2FE" stroke-width="3" stroke-linejoin="round" stroke-opacity="0.30"/>
+  <polyline points="230,54 256,156 282,54" fill="none" stroke="#CFE2FE" stroke-width="2.5" stroke-linejoin="round" stroke-opacity="0.25"/>
+</svg>
