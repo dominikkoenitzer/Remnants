@@ -1,0 +1,68 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+/* Remnants: a cleaner, smoother surface — soft rounded corners on the
+ * interactive controls and floating widgets, gentle hover transitions, and a
+ * little more breathing room. Layout-neutral; visual polish only. */
+
+/* Controls: inputs, buttons, dropdowns, checkboxes */
+.monaco-workbench .monaco-inputbox,
+.monaco-workbench .monaco-select-box,
+.monaco-workbench .monaco-text-button,
+.monaco-workbench .monaco-button,
+.monaco-workbench .select-container > select,
+.monaco-workbench .monaco-action-bar .action-item .action-label.codicon {
+	border-radius: 6px;
+}
+
+/* Rounded selection / hover rows in every list and tree */
+.monaco-workbench .monaco-list .monaco-list-row {
+	border-radius: 5px;
+}
+
+/* Floating surfaces: command palette, suggest, hover, find, peek, notifications, menus */
+.monaco-workbench .quick-input-widget,
+.monaco-workbench .editor-widget.suggest-widget,
+.monaco-workbench .monaco-editor .suggest-widget,
+.monaco-workbench .monaco-hover,
+.monaco-workbench .editor-widget.find-widget,
+.monaco-workbench .editor-widget.parameter-hints-widget,
+.monaco-workbench .notifications-toasts .notification-toast,
+.monaco-workbench .notifications-center .notifications-center-header,
+.monaco-workbench .monaco-menu .monaco-action-bar.vertical,
+.monaco-workbench .context-view .monaco-menu {
+	border-radius: 10px;
+	overflow: hidden;
+}
+
+/* Command center: a soft pill, centered in the title bar */
+.monaco-workbench .part.titlebar .command-center .action-item.command-center-center {
+	border-radius: 999px;
+}
+
+/* Activity-bar and title-bar action items: rounded hover targets */
+.monaco-workbench .activitybar .action-item,
+.monaco-workbench .part.titlebar .action-item {
+	border-radius: 6px;
+}
+
+/* Quick input rows breathe a touch more */
+.monaco-workbench .quick-input-widget .quick-input-list .monaco-list-row {
+	border-radius: 6px;
+}
+
+/* Editor tabs: soft top corners for a calmer tab strip */
+.monaco-workbench .tabs-container > .tab {
+	border-radius: 7px 7px 0 0;
+}
+
+/* Gentle, consistent hover transitions */
+.monaco-workbench .monaco-list .monaco-list-row,
+.monaco-workbench .monaco-button,
+.monaco-workbench .monaco-text-button,
+.monaco-workbench .action-item .action-label,
+.monaco-workbench .tabs-container > .tab {
+	transition: background-color 120ms ease, color 120ms ease, opacity 120ms ease;
+}
