@@ -223,12 +223,6 @@ export const walkthroughs: GettingStartedWalkthroughContent = [
 						'onCommand:workbench.action.selectTheme'
 					],
 					media: { type: 'markdown', path: 'theme_picker', }
-				},
-				{
-					id: 'videoTutorial',
-					title: localize('gettingStarted.videoTutorial.title', "Watch video tutorials"),
-					description: localize('gettingStarted.videoTutorial.description.interpolated', "Watch the first in a series of short & practical video tutorials for Remnants's key features.\n{0}", Button(localize('watch', "Watch Tutorial"), 'https://aka.ms/vscode-getting-started-video')),
-					media: { type: 'svg', altText: 'Remnants Settings', path: 'learn.svg' },
 				}
 			]
 		}
@@ -414,13 +408,6 @@ export const walkthroughs: GettingStartedWalkthroughContent = [
 					id: 'accessibilitySettings',
 					title: localize('gettingStarted.accessibilitySettings.title', "Configure accessibility settings"),
 					description: localize('gettingStarted.accessibilitySettings.description.interpolated', "Accessibility settings can be configured by running the Open Accessibility Settings command.\n{0}", Button(localize('openAccessibilitySettings', "Open Accessibility Settings"), 'command:workbench.action.openAccessibilitySettings')),
-					media: { type: 'markdown', path: 'empty' }
-				},
-				{
-					id: 'dictation',
-					title: localize('gettingStarted.dictation.title', "Use dictation to write code and text in the editor and terminal"),
-					description: localize('gettingStarted.dictation.description.interpolated', "Dictation allows you to write code and text using your voice. It can be activated with the Voice: Start Dictation in Editor command.\n{0}\n For dictation in the terminal, use the Voice: Start Dictation in Terminal and Voice: Stop Dictation in Terminal commands.\n{1}\n{2}", Button(localize('toggleDictation', "Voice: Start Dictation in Editor"), 'command:workbench.action.editorDictation.start'), Button(localize('terminalStartDictation', "Terminal: Start Dictation in Terminal"), 'command:workbench.action.terminal.startVoice'), Button(localize('terminalStopDictation', "Terminal: Stop Dictation in Terminal"), 'command:workbench.action.terminal.stopVoice')),
-					when: 'hasSpeechProvider',
 					media: { type: 'markdown', path: 'empty' }
 				}
 			]
