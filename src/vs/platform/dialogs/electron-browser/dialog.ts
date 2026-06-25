@@ -33,8 +33,9 @@ export function createNativeAboutDialogDetails(productService: IProductService, 
 		);
 	};
 
-	const details = getDetails(true);
-	const detailsToCopy = getDetails(false);
+	const brand = localize('aboutBrand', "A clean, fast, AI-free editor.") + '\nhttps://github.com/dominikkoenitzer/Remnants\n\n';
+	const details = brand + getDetails(true);
+	const detailsToCopy = brand + getDetails(false);
 
 	return {
 		title: productService.nameLong,
