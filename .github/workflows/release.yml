@@ -54,7 +54,7 @@ jobs:
       # override ("Missing: cpu-features@ from lock file"). The
       # VSCODE_SKIP_NODE_VERSION_CHECK=1 above bypasses the .nvmrc Node 24 pin.
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
