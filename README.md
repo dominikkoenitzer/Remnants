@@ -6,9 +6,16 @@
 [![Platform](https://img.shields.io/badge/platform-Windows-blue.svg)](#install)
 [![Built on Code - OSS](https://img.shields.io/badge/built%20on-Code%20--%20OSS-1f7abf.svg)](https://github.com/microsoft/vscode)
 
-**A clean, AI-free code editor.** Remnants is a personal fork of [Code - OSS](https://github.com/microsoft/vscode) (the open-source core of VS Code) with every built-in AI surface, telemetry hook, and corporate integration stripped out. It keeps everything that makes a great editor — fast editing, IntelliSense, an integrated terminal, Git, and debugging — and nothing else.
+**A clean, AI-free code editor.** Remnants is a personal build derived from [Code - OSS](https://github.com/microsoft/vscode) (the open-source core of VS Code) with every built-in AI surface, telemetry hook, and corporate integration stripped out. It keeps everything that makes a great editor — fast editing, IntelliSense, an integrated terminal, Git, and debugging — and nothing else.
 
 > No Copilot. No agents. No telemetry. No sign-in. Just the editor.
+
+> [!NOTE]
+> Almost all of the code here is Microsoft's. Remnants is derived from upstream
+> commit [`93cfdd48`](https://github.com/microsoft/vscode/commit/93cfdd489c3b228840d0f86ec77c3636277c93ea)
+> (release 1.125.0); my own contribution is roughly −759,000 / +2,800 lines on
+> top of it. **[CHANGES.md](CHANGES.md) documents exactly what I changed** and
+> how to verify it.
 
 ---
 
@@ -66,7 +73,7 @@ No release published yet, or want a bleeding-edge build? [Build from source](#bu
 
 ### macOS / Linux
 
-macOS and Linux are inherited from Code - OSS and should build from source, but are **not currently verified** in this fork, and there are no prebuilt downloads for them yet.
+macOS and Linux are inherited from Code - OSS and should build from source, but are **not currently verified** in this build, and there are no prebuilt downloads for them yet.
 
 ## Build from source
 
@@ -121,8 +128,8 @@ Remnants follows the Code - OSS layered architecture.
 
 ## Contributing
 
-This is a personal fork, but issues and pull requests are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Security reports go through [SECURITY.md](SECURITY.md).
+This is a personal project, but issues and pull requests are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Security reports go through [SECURITY.md](SECURITY.md).
 
 ## License
 
-Remnants is released under the [MIT License](LICENSE.txt). It is a fork of [Code - OSS](https://github.com/microsoft/vscode), which is also MIT-licensed; the original copyright notice is retained in `LICENSE.txt` as the license requires. Remnants is **not** affiliated with or endorsed by Microsoft.
+Remnants is released under the [MIT License](LICENSE.txt). It is derived from [Code - OSS](https://github.com/microsoft/vscode), which is also MIT-licensed; the original copyright notice is retained in `LICENSE.txt` as the license requires. See [CHANGES.md](CHANGES.md) for the provenance and the full scope of local changes. Remnants is **not** affiliated with or endorsed by Microsoft.
