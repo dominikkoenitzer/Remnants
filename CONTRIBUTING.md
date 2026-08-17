@@ -1,6 +1,6 @@
 # Contributing to Remnants
 
-Thanks for your interest! Remnants is a personal, AI-free fork of [Code - OSS](https://github.com/microsoft/vscode). Issues and pull requests are welcome.
+Thanks for your interest! Remnants is a personal, AI-free build derived from [Code - OSS](https://github.com/microsoft/vscode) — see [CHANGES.md](CHANGES.md) for what it changes. Issues and pull requests are welcome.
 
 ## Before you start
 
