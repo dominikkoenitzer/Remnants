@@ -19,6 +19,50 @@ You can expect an acknowledgement within a reasonable time. Please give a reason
 
 Remnants is a fork of [Code - OSS](https://github.com/microsoft/vscode). Vulnerabilities that originate in upstream VS Code are best reported to [Microsoft's VS Code security process](https://github.com/microsoft/vscode/blob/main/SECURITY.md); this policy covers issues specific to the Remnants fork (its build, packaging, branding, and removed/modified components).
 
+## Dependency advisories
+
+GitHub's Dependabot reports a large number of open advisories against this
+repository — **221 as of 2026-08-18** (3 critical, 104 high, 98 medium, 16 low).
+That number is worth explaining rather than leaving to interpretation.
+
+They come from upstream. Remnants is a snapshot of the VS Code tree at
+[`93cfdd48`](https://github.com/microsoft/vscode/commit/93cfdd489c3b228840d0f86ec77c3636277c93ea)
+(release 1.125.0), and it carries that tree's 20-odd lockfiles with it — the
+editor's own dependencies plus those of the build scripts, the bundled
+extensions, the CLI, and the test harnesses. Dependabot scans all of them and
+attributes every transitive advisory to whoever owns the fork. Upstream carries
+the same dependency versions at the same commit.
+
+Where they sit:
+
+| Location | Alerts |
+| --- | --- |
+| Root lockfile (editor + built-ins) | 73 |
+| Bundled extensions | 61 |
+| Build tooling | 37 |
+| Remote server | 23 |
+| CLI (`Cargo.lock`) | 16 |
+| Test harnesses | 11 |
+
+Of the 221, 94 are on development-only dependencies that never reach a build.
+
+**None of them were introduced here.** Remnants is a subtractive fork: it
+removes packages and never adds them. In the root lockfile, the commits on top
+of the import add **0** entries and remove **34**. That is checkable in one
+command:
+
+```bash
+root=$(git rev-list --max-parents=0 HEAD)
+git diff "$root" HEAD -- package-lock.json | grep -c '^+ *"node_modules/'   # 0
+```
+
+What is actually done about them: Dependabot is enabled, and advisories that
+have a fix reachable without diverging from upstream are merged as they arrive.
+The rest are resolved by rebasing onto a newer upstream release, which is the
+only honest way to fix a dependency you do not own. If you need an editor with
+a fully patched dependency tree today, build from
+[upstream VS Code](https://github.com/microsoft/vscode) directly.
+
 ## Supported versions
 
 As a personal fork, only the latest build from `main` is supported.
