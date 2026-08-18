@@ -22,7 +22,7 @@ Remnants is a fork of [Code - OSS](https://github.com/microsoft/vscode). Vulnera
 ## Dependency advisories
 
 GitHub's Dependabot reports a large number of open advisories against this
-repository — **221 as of 2026-08-18** (3 critical, 104 high, 98 medium, 16 low).
+repository — **213 as of 2026-08-18** (3 critical, 97 high, 97 medium, 16 low).
 That number is worth explaining rather than leaving to interpretation.
 
 They come from upstream. Remnants is a snapshot of the VS Code tree at
@@ -42,9 +42,9 @@ Where they sit:
 | Build tooling | 37 |
 | Remote server | 23 |
 | CLI (`Cargo.lock`) | 16 |
-| Test harnesses | 11 |
+| Test harnesses | 3 |
 
-Of the 221, 94 are on development-only dependencies that never reach a build.
+Of the 213, 88 are on development-only dependencies that never reach a build.
 
 **None of them were introduced here.** Remnants is a subtractive fork: it
 removes packages and never adds them. In the root lockfile, the commits on top
