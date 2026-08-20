@@ -22,7 +22,7 @@ Remnants is a fork of [Code - OSS](https://github.com/microsoft/vscode). Vulnera
 ## Dependency advisories
 
 GitHub's Dependabot reports a large number of open advisories against this
-repository — **149 as of 2026-08-19** (1 critical, 71 high, 64 medium, 13 low).
+repository — **120 as of 2026-08-20** (1 critical, 61 high, 49 medium, 9 low).
 That number is worth explaining rather than leaving to interpretation.
 
 They come from upstream. Remnants is a snapshot of the VS Code tree at
@@ -37,14 +37,14 @@ Where they sit:
 
 | Location | Alerts |
 | --- | --- |
-| Bundled extensions | 58 |
-| Root lockfile (editor + built-ins) | 47 |
-| Build tooling | 26 |
+| Bundled extensions | 47 |
+| Root lockfile (editor + built-ins) | 32 |
+| Build tooling | 23 |
 | CLI (`Cargo.lock`) | 16 |
 | Test harnesses | 2 |
 | Remote server | 0 |
 
-Of the 149, 59 are on development-only dependencies that never reach a build.
+Of the 120, 45 are on development-only dependencies that never reach a build.
 
 **None of them were introduced here.** Remnants is a subtractive fork: it
 removes packages and never adds them. In the root lockfile, the commits on top
@@ -58,10 +58,12 @@ git diff "$root" HEAD -- package-lock.json | grep -c '^+ *"node_modules/'   # 0
 
 What is actually done about them: Dependabot is enabled, and advisories that
 have a fix reachable without diverging from upstream are merged as they arrive.
-The rest are resolved by rebasing onto a newer upstream release, which is the
-only honest way to fix a dependency you do not own. If you need an editor with
-a fully patched dependency tree today, build from
-[upstream VS Code](https://github.com/microsoft/vscode) directly.
+A few cannot produce a pull request at all — the patched `postcss` is reachable
+only by downgrading `gulp-sourcemaps`, so the security updater reports that
+conflict instead of opening one. The rest are resolved by rebasing onto a newer
+upstream release, which is the only honest way to fix a dependency you do not
+own. If you need an editor with a fully patched dependency tree today, build
+from [upstream VS Code](https://github.com/microsoft/vscode) directly.
 
 ## Supported versions
 
