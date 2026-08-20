@@ -22,7 +22,7 @@ Remnants is a fork of [Code - OSS](https://github.com/microsoft/vscode). Vulnera
 ## Dependency advisories
 
 GitHub's Dependabot reports a large number of open advisories against this
-repository — **90 as of 2026-08-20** (1 critical, 31 high, 49 medium, 9 low).
+repository — **79 as of 2026-08-20** (1 critical, 29 high, 40 medium, 9 low).
 That number is worth explaining rather than leaving to interpretation.
 
 They come from upstream. Remnants is a snapshot of the VS Code tree at
@@ -38,22 +38,23 @@ Where they sit:
 | Location | Alerts |
 | --- | --- |
 | Bundled extensions | 32 |
-| Root lockfile (editor + built-ins) | 26 |
+| Root lockfile (editor + built-ins) | 15 |
 | Build tooling | 15 |
 | CLI (`Cargo.lock`) | 16 |
 | Test harnesses | 1 |
 | Remote server | 0 |
 
-Of the 90, 30 are on development-only dependencies that never reach a build.
+Of the 79, 30 are on development-only dependencies that never reach a build.
 
-**None of them were introduced here.** Remnants is a subtractive fork: it
-removes packages and never adds them. In the root lockfile, the commits on top
-of the import add **0** entries and remove **34**. That is checkable in one
-command:
+**None of them were introduced here.** Remnants is a subtractive fork. In the
+root lockfile, the commits on top of the import remove **34** entries and add
+**2** — `agent-base` and `https-proxy-agent`, both nested under `axios` and both
+pulled in by its security update. That is checkable in two commands:
 
 ```bash
 root=$(git rev-list --max-parents=0 HEAD)
-git diff "$root" HEAD -- package-lock.json | grep -c '^+ *"node_modules/'   # 0
+git diff "$root" HEAD -- package-lock.json | grep -c '^- *"node_modules/'   # 34
+git diff "$root" HEAD -- package-lock.json | grep -c '^+ *"node_modules/'   # 2
 ```
 
 What is actually done about them: Dependabot is enabled, and advisories that
