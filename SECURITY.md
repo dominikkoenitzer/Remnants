@@ -22,7 +22,7 @@ Remnants is a fork of [Code - OSS](https://github.com/microsoft/vscode). Vulnera
 ## Dependency advisories
 
 GitHub's Dependabot reports a large number of open advisories against this
-repository — **79 as of 2026-08-20** (1 critical, 29 high, 40 medium, 9 low).
+repository — **75 as of 2026-08-30** (1 critical, 29 high, 36 medium, 9 low).
 That number is worth explaining rather than leaving to interpretation.
 
 They come from upstream. Remnants is a snapshot of the VS Code tree at
@@ -38,23 +38,26 @@ Where they sit:
 | Location | Alerts |
 | --- | --- |
 | Bundled extensions | 32 |
-| Root lockfile (editor + built-ins) | 15 |
-| Build tooling | 15 |
+| Root lockfile (editor + built-ins) | 12 |
+| Build tooling | 14 |
 | CLI (`Cargo.lock`) | 16 |
 | Test harnesses | 1 |
 | Remote server | 0 |
 
-Of the 79, 30 are on development-only dependencies that never reach a build.
+Of the 75, 26 are on development-only dependencies that never reach a build.
 
-**None of them were introduced here.** Remnants is a subtractive fork. In the
-root lockfile, the commits on top of the import remove **34** entries and add
-**2** — `agent-base` and `https-proxy-agent`, both nested under `axios` and both
-pulled in by its security update. That is checkable in two commands:
+**None of them were introduced here.** Remnants is a subtractive fork: nothing
+was added to the root `package.json` to support anything it does. The commits
+on top of the import take **6** direct dependencies out of it, all of them AI
+SDKs, and put none back. What is left in that diff is version bumps, the build
+scripts those SDKs came with, and the fork's own metadata. The lockfile has
+grown since, but only behind the bumps, which carry their own transitive
+entries in with them. That is checkable in two commands:
 
 ```bash
 root=$(git rev-list --max-parents=0 HEAD)
-git diff "$root" HEAD -- package-lock.json | grep -c '^- *"node_modules/'   # 34
-git diff "$root" HEAD -- package-lock.json | grep -c '^+ *"node_modules/'   # 2
+git diff "$root" HEAD -- package.json                  # 6 names out, 0 in
+git log --oneline "$root"..HEAD -- package-lock.json   # every lockfile change
 ```
 
 What is actually done about them: Dependabot is enabled, and advisories that
