@@ -13,7 +13,7 @@ to take on faith.
 | Upstream | [microsoft/vscode](https://github.com/microsoft/vscode) |
 | Base commit | [`93cfdd48`](https://github.com/microsoft/vscode/commit/93cfdd489c3b228840d0f86ec77c3636277c93ea) (2026-06-15) |
 | Upstream release | 1.125.0 |
-| Upstream licence | MIT — retained in [`LICENSE.txt`](LICENSE.txt), with attribution in [`ThirdPartyNotices.txt`](ThirdPartyNotices.txt) |
+| Upstream licence | MIT, retained in [`LICENSE.txt`](LICENSE.txt), with attribution in [`ThirdPartyNotices.txt`](ThirdPartyNotices.txt) |
 
 > **On the git history.** The upstream tree was imported as a single squashed
 > snapshot rather than as a git fork, so this repository does **not** carry
@@ -34,12 +34,12 @@ cleanly without breaking the editor around it.
 
 | Change | Scope |
 | --- | --- |
-| **All built-in AI** — chat, agent sessions, Copilot, MCP, language-model APIs | 2,761 files, −712,045 lines |
-| **Remaining AI/MCP/Copilot remnants** — leftover registrations, contributions, settings | 143 files, −21,324 lines |
-| **VS Code / Copilot GitHub automation** — upstream workflows, bots, issue triage | 117 files, −19,670 lines |
-| **Dead AI welcome/setup code** — agent-sessions welcome, Copilot setup flows | 6 files, −2,731 lines |
+| **All built-in AI**: chat, agent sessions, Copilot, MCP, language-model APIs | 2,761 files, −712,045 lines |
+| **Remaining AI/MCP/Copilot remnants**: leftover registrations, contributions, settings | 143 files, −21,324 lines |
+| **VS Code / Copilot GitHub automation**: upstream workflows, bots, issue triage | 117 files, −19,670 lines |
+| **Dead AI welcome/setup code**: agent-sessions welcome, Copilot setup flows | 6 files, −2,731 lines |
 | **AI leftovers across git, terminal, editor and search** | 15 files, −586 lines |
-| **Telemetry and corporate surfaces** — telemetry disabled at product level, sign-in prompts removed | part of the rebrand commit, 951 files |
+| **Telemetry and corporate surfaces**: telemetry disabled at product level, sign-in prompts removed | part of the rebrand commit, 951 files |
 | **The bundled AI extension** | removed wholesale |
 
 Extensions resolve through [Open VSX](https://open-vsx.org) instead of the
@@ -47,15 +47,15 @@ Microsoft Marketplace, which the Code - OSS licence does not cover.
 
 ## What was added or changed
 
-- **Build and release pipeline** — GitHub Releases distribution for a Windows
+- **Build and release pipeline**: GitHub Releases distribution for a Windows
   user-setup installer, then hardened: pinned to `windows-2022` for the VS 2022
   toolchain, and to Node 22 to match the in-sync lockfile.
-- **`npm install` fix** — the upstream `postinstall` created AI-agent harness
+- **`npm install` fix**: the upstream `postinstall` created AI-agent harness
   symlinks that broke installs once the harness was removed.
-- **Visual identity** — the Remnants shard icon, themes, product branding, and
+- **Visual identity**: the Remnants shard icon, themes, product branding, and
   Windows installer artwork.
-- **Default settings** — a minimal, quieter default configuration.
-- **Repository automation** — upstream's `.github` replaced with a small CI
+- **Default settings**: a minimal, quieter default configuration.
+- **Repository automation**: upstream's `.github` replaced with a small CI
   workflow and release workflow; test fixtures excluded from secret scanning.
 
 ## Verifying this yourself

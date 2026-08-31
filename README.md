@@ -6,7 +6,7 @@
 [![Platform](https://img.shields.io/badge/platform-Windows-blue.svg)](#install)
 [![Built on Code - OSS](https://img.shields.io/badge/built%20on-Code%20--%20OSS-1f7abf.svg)](https://github.com/microsoft/vscode)
 
-**A clean, AI-free code editor.** Remnants is a personal build derived from [Code - OSS](https://github.com/microsoft/vscode) (the open-source core of VS Code) with every built-in AI surface, telemetry hook, and corporate integration stripped out. It keeps everything that makes a great editor — fast editing, IntelliSense, an integrated terminal, Git, and debugging — and nothing else.
+**A clean, AI-free code editor.** Remnants is a personal build derived from [Code - OSS](https://github.com/microsoft/vscode) (the open-source core of VS Code) with every built-in AI surface, telemetry hook, and corporate integration stripped out. It keeps everything that makes a great editor (fast editing, IntelliSense, an integrated terminal, Git, and debugging) and nothing else.
 
 > No Copilot. No agents. No telemetry. No sign-in. Just the editor.
 
@@ -23,11 +23,11 @@
 
 VS Code is an excellent editor wrapped in a growing layer of cloud services, chat panels, agent windows, and account prompts. Remnants removes that layer entirely:
 
-- **No built-in AI** — Copilot, the chat panel, agent sessions, voice, and the bundled AI extension are all removed. (Use [Claude Code](https://claude.com/claude-code) or any tool you like in the terminal instead.)
-- **No telemetry** — telemetry is disabled at the product level.
-- **No account prompts** — no "Set up Copilot", no sign-in entries in the title bar or status bar.
-- **Open marketplace** — extensions resolve through [Open VSX](https://open-vsx.org) rather than the Microsoft Marketplace.
-- **Everything else stays** — the editor, language features, terminal, source control, tasks, and the JavaScript/Node debugger all work exactly as you expect.
+- **No built-in AI**: Copilot, the chat panel, agent sessions, voice, and the bundled AI extension are all removed. (Use [Claude Code](https://claude.com/claude-code) or any tool you like in the terminal instead.)
+- **No telemetry**: telemetry is disabled at the product level.
+- **No account prompts**: no "Set up Copilot", no sign-in entries in the title bar or status bar.
+- **Open marketplace**: extensions resolve through [Open VSX](https://open-vsx.org) rather than the Microsoft Marketplace.
+- **Everything else stays**: the editor, language features, terminal, source control, tasks, and the JavaScript/Node debugger all work exactly as you expect.
 
 ## Features
 
@@ -64,10 +64,10 @@ The full reference lives under **Help → Keyboard Shortcuts Reference** inside 
 ### Windows (x64)
 
 1. Download the latest **`RemnantsUserSetup.exe`** from the [**Releases** page](https://github.com/dominikkoenitzer/Remnants/releases/latest).
-2. Run it. It's a per-user installer — no administrator rights needed; it installs into your user profile and adds **Remnants** to the Start menu.
+2. Run it. It's a per-user installer, so no administrator rights are needed; it installs into your user profile and adds **Remnants** to the Start menu.
 3. Remnants is not code-signed, so Windows SmartScreen may warn *"Windows protected your PC."* Click **More info → Run anyway** to continue.
 
-> **First run:** Remnants behaves like VS Code, minus the AI and sign-in. There's nothing to log into. Install extensions from the built-in **Extensions** view — they resolve through [Open VSX](https://open-vsx.org). Your settings, keybindings, and extensions live under `%USERPROFILE%\.remnants`.
+> **First run:** Remnants behaves like VS Code, minus the AI and sign-in. There's nothing to log into. Install extensions from the built-in **Extensions** view; they resolve through [Open VSX](https://open-vsx.org). Your settings, keybindings, and extensions live under `%USERPROFILE%\.remnants`.
 
 No release published yet, or want a bleeding-edge build? [Build from source](#build-from-source) to produce the installer yourself.
 
@@ -81,9 +81,9 @@ Remnants builds with the same toolchain as Code - OSS.
 
 ### Prerequisites (Windows)
 
-- **Node.js 24** — matches `.nvmrc`, so `npm install` works without extra flags. (Node 22 also builds; set `VSCODE_SKIP_NODE_VERSION_CHECK=1` before `npm install` first. The CI and release builds run on Node 22 with that flag, since the committed lockfile is in sync under npm 10.)
+- **Node.js 24**: matches `.nvmrc`, so `npm install` works without extra flags. (Node 22 also builds; set `VSCODE_SKIP_NODE_VERSION_CHECK=1` before `npm install` first. The CI and release builds run on Node 22 with that flag, since the committed lockfile is in sync under npm 10.)
 - **Python 3.13**
-- **Visual Studio 2022 C++ Build Tools** with the *Desktop development with C++* workload **and** the Spectre-mitigated libraries (`Microsoft.VisualStudio.Component.VC.Runtimes.x86.x64.Spectre` — this is not in `--includeRecommended`, add it explicitly)
+- **Visual Studio 2022 C++ Build Tools** with the *Desktop development with C++* workload **and** the Spectre-mitigated libraries (`Microsoft.VisualStudio.Component.VC.Runtimes.x86.x64.Spectre`; this is not in `--includeRecommended`, add it explicitly)
 
 ### Run a development build
 
@@ -102,7 +102,7 @@ npm run gulp vscode-win32-x64-inno-updater
 npm run gulp vscode-win32-x64-user-setup
 ```
 
-The app is emitted to `..\VSCode-win32-x64\Remnants.exe`; the installer lands in `.build\win32-x64\user-setup\` (Inno's hardcoded output name is `VSCodeSetup.exe` — rename it to `RemnantsUserSetup.exe`).
+The app is emitted to `..\VSCode-win32-x64\Remnants.exe`; the installer lands in `.build\win32-x64\user-setup\` (Inno's hardcoded output name is `VSCodeSetup.exe`; rename it to `RemnantsUserSetup.exe`).
 
 ### Type-check
 
@@ -128,7 +128,7 @@ Remnants follows the Code - OSS layered architecture.
 
 ## Contributing
 
-This is a personal project, but issues and pull requests are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Security reports go through [SECURITY.md](SECURITY.md).
+This is a personal project, but issues and pull requests are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md). Security reports go through [SECURITY.md](SECURITY.md).
 
 ## License
 

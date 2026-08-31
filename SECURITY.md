@@ -2,7 +2,7 @@
 
 ## Reporting a vulnerability
 
-If you discover a security vulnerability in Remnants, please report it **privately** — do not open a public issue.
+If you discover a security vulnerability in Remnants, please report it **privately**; do not open a public issue.
 
 - Use GitHub's [private vulnerability reporting](https://github.com/dominikkoenitzer/Remnants/security/advisories/new) for this repository, **or**
 - Email the maintainer at the address on the [GitHub profile](https://github.com/dominikkoenitzer).
@@ -22,12 +22,12 @@ Remnants is a fork of [Code - OSS](https://github.com/microsoft/vscode). Vulnera
 ## Dependency advisories
 
 GitHub's Dependabot reports a large number of open advisories against this
-repository — **75 as of 2026-08-30** (1 critical, 29 high, 36 medium, 9 low).
+repository: **75 as of 2026-08-30** (1 critical, 29 high, 36 medium, 9 low).
 That number is worth explaining rather than leaving to interpretation.
 
 They come from upstream. Remnants is a snapshot of the VS Code tree at
 [`93cfdd48`](https://github.com/microsoft/vscode/commit/93cfdd489c3b228840d0f86ec77c3636277c93ea)
-(release 1.125.0), and it carries that tree's 20-odd lockfiles with it — the
+(release 1.125.0), and it carries that tree's 20-odd lockfiles with it: the
 editor's own dependencies plus those of the build scripts, the bundled
 extensions, the CLI, and the test harnesses. Dependabot scans all of them and
 attributes every transitive advisory to whoever owns the fork. Upstream carries
@@ -62,7 +62,7 @@ git log --oneline "$root"..HEAD -- package-lock.json   # every lockfile change
 
 What is actually done about them: Dependabot is enabled, and advisories that
 have a fix reachable without diverging from upstream are merged as they arrive.
-A few cannot produce a pull request at all — the patched `postcss` is reachable
+A few cannot produce a pull request at all: the patched `postcss` is reachable
 only by downgrading `gulp-sourcemaps`, so the security updater reports that
 conflict instead of opening one. The rest are resolved by rebasing onto a newer
 upstream release, which is the only honest way to fix a dependency you do not
