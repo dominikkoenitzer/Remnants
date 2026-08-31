@@ -47,9 +47,13 @@ Microsoft Marketplace, which the Code - OSS licence does not cover.
 
 ## What was added or changed
 
-- **Build and release pipeline**: GitHub Releases distribution for a Windows
-  user-setup installer, then hardened: pinned to `windows-2022` for the VS 2022
-  toolchain, and to Node 22 to match the in-sync lockfile.
+- **Build and release pipeline**: GitHub Releases distribution for Windows,
+  macOS and Linux, built per platform on GitHub-hosted runners and published as
+  one release. Pinned to `windows-2022` for the VS 2022 toolchain and to Node 22
+  to match the in-sync lockfile. Adds the packaging scripts upstream has no
+  equivalent of: a Linux tarball with its desktop integration rendered in and an
+  `install.sh` that works on any distro, an Arch `PKGBUILD`, and ad-hoc signing
+  for the macOS bundle so it launches on Apple silicon.
 - **`npm install` fix**: the upstream `postinstall` created AI-agent harness
   symlinks that broke installs once the harness was removed.
 - **Visual identity**: the Remnants shard icon, themes, product branding, and

@@ -3,7 +3,7 @@
 [![CI](https://github.com/dominikkoenitzer/Remnants/actions/workflows/ci.yml/badge.svg)](https://github.com/dominikkoenitzer/Remnants/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.txt)
 [![Latest release](https://img.shields.io/github/v/release/dominikkoenitzer/Remnants?sort=semver&display_name=tag)](https://github.com/dominikkoenitzer/Remnants/releases/latest)
-[![Platform](https://img.shields.io/badge/platform-Windows-blue.svg)](#install)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue.svg)](#install)
 [![Built on Code - OSS](https://img.shields.io/badge/built%20on-Code%20--%20OSS-1f7abf.svg)](https://github.com/microsoft/vscode)
 
 **A clean, AI-free code editor.** Remnants is a personal build derived from [Code - OSS](https://github.com/microsoft/vscode) (the open-source core of VS Code) with every built-in AI surface, telemetry hook, and corporate integration stripped out. It keeps everything that makes a great editor (fast editing, IntelliSense, an integrated terminal, Git, and debugging) and nothing else.
@@ -46,44 +46,146 @@ VS Code is an excellent editor wrapped in a growing layer of cloud services, cha
 
 Remnants uses the standard VS Code keybindings. A few of the most useful:
 
-| Action | Windows |
-| --- | --- |
-| Command Palette | `Ctrl+Shift+P` |
-| Quick Open (go to file) | `Ctrl+P` |
-| Toggle integrated terminal | `` Ctrl+` `` |
-| Global search | `Ctrl+Shift+F` |
-| Go to symbol | `Ctrl+Shift+O` |
-| Toggle sidebar | `Ctrl+B` |
-| Split editor | `Ctrl+\` |
-| Format document | `Shift+Alt+F` |
+| Action | Windows / Linux | macOS |
+| --- | --- | --- |
+| Command Palette | `Ctrl+Shift+P` | `Shift+Cmd+P` |
+| Quick Open (go to file) | `Ctrl+P` | `Cmd+P` |
+| Toggle integrated terminal | `` Ctrl+` `` | `` Ctrl+` `` |
+| Global search | `Ctrl+Shift+F` | `Shift+Cmd+F` |
+| Go to symbol | `Ctrl+Shift+O` | `Shift+Cmd+O` |
+| Toggle sidebar | `Ctrl+B` | `Cmd+B` |
+| Split editor | `Ctrl+\` | `Cmd+\` |
+| Format document | `Shift+Alt+F` | `Shift+Option+F` |
 
-The full reference lives under **Help → Keyboard Shortcuts Reference** inside the app.
+The full reference lives under **Help -> Keyboard Shortcuts Reference** inside the app.
 
 ## Install
 
+Download from the [**Releases** page](https://github.com/dominikkoenitzer/Remnants/releases/latest).
+Every asset is built by the [release workflow](.github/workflows/release.yml) on GitHub Actions.
+
+| Platform | Asset | Install with |
+| --- | --- | --- |
+| Windows x64 | `RemnantsUserSetup.exe` | run it (per-user, no admin) |
+| macOS (Apple silicon) | `Remnants-darwin-arm64-<version>.zip` | unzip, drag to Applications |
+| macOS (Intel) | `Remnants-darwin-x64-<version>.zip` | unzip, drag to Applications |
+| Linux x64 / arm64 | `Remnants-linux-<arch>-<version>.tar.gz` | `sudo ./install.sh` |
+| Arch Linux | `PKGBUILD` | `makepkg -si` |
+
+Remnants is not code-signed on any platform, so each one asks you to confirm the
+first launch once. The steps below say how.
+
 ### Windows (x64)
 
-1. Download the latest **`RemnantsUserSetup.exe`** from the [**Releases** page](https://github.com/dominikkoenitzer/Remnants/releases/latest).
-2. Run it. It's a per-user installer, so no administrator rights are needed; it installs into your user profile and adds **Remnants** to the Start menu.
-3. Remnants is not code-signed, so Windows SmartScreen may warn *"Windows protected your PC."* Click **More info → Run anyway** to continue.
+1. Download **`RemnantsUserSetup.exe`** and run it. It installs into your user
+   profile, so no administrator rights are needed, and adds **Remnants** to the
+   Start menu.
+2. SmartScreen may warn *"Windows protected your PC."* Click **More info -> Run
+   anyway**.
 
-> **First run:** Remnants behaves like VS Code, minus the AI and sign-in. There's nothing to log into. Install extensions from the built-in **Extensions** view; they resolve through [Open VSX](https://open-vsx.org). Your settings, keybindings, and extensions live under `%USERPROFILE%\.remnants`.
+### macOS (Apple silicon and Intel)
 
-No release published yet, or want a bleeding-edge build? [Build from source](#build-from-source) to produce the installer yourself.
+1. Download `Remnants-darwin-arm64-<version>.zip` (Apple silicon, M1 and later)
+   or `Remnants-darwin-x64-<version>.zip` (Intel).
+2. Unzip it and move **Remnants.app** into `/Applications`.
+3. The build is ad-hoc signed but not notarized, so clear the download
+   quarantine flag once:
 
-### macOS / Linux
+   ```sh
+   xattr -dr com.apple.quarantine /Applications/Remnants.app
+   ```
 
-macOS and Linux are inherited from Code - OSS and should build from source, but are **not currently verified** in this build, and there are no prebuilt downloads for them yet.
+   Without this, macOS reports that the app "is damaged and can't be opened".
+   That message means unnotarized, not corrupted.
+
+To get the `remnants` command in your shell, run **Shell Command: Install
+'remnants' command in PATH** from the Command Palette.
+
+### Linux (x64 and arm64)
+
+The tarball works on any distribution: it carries the app plus a desktop entry,
+icon, MIME types and shell completions.
+
+```sh
+tar -xzf Remnants-linux-x64-<version>.tar.gz
+cd Remnants-linux-x64
+sudo ./install.sh            # into /opt/remnants, plus a /usr/local/bin/remnants symlink
+```
+
+No root? `./install.sh --user` installs into `~/.local` instead. Either way,
+`./install.sh --help` lists the options, and `uninstall.sh` (with the same flag
+you installed with) removes everything again.
+
+#### Arch Linux
+
+Let pacman own the install instead. Download `PKGBUILD` from the release into an
+empty directory:
+
+```sh
+makepkg -si
+```
+
+That builds the `remnants-bin` package from the published tarball, verifies its
+checksum, and installs it to `/opt/remnants` with `/usr/bin/remnants` on your
+PATH. Remove it later with `sudo pacman -R remnants-bin`.
+
+#### Wayland (Hyprland, Sway, GNOME, KDE)
+
+Remnants runs natively on Wayland out of the box. The desktop entry launches with
+`--ozone-platform-hint=auto`, and the `remnants` shell command exports the
+equivalent `ELECTRON_OZONE_PLATFORM_HINT=auto`, so it picks Wayland when
+`WAYLAND_DISPLAY` is set and X11 otherwise. That matters most under fractional
+scaling, where XWayland renders the whole window blurry.
+
+To force XWayland instead, export `ELECTRON_OZONE_PLATFORM_HINT=x11`, or launch
+with `remnants --ozone-platform-hint=x11`.
+
+For window rules under Hyprland, confirm the app ID with `hyprctl clients` while
+Remnants is open (Electron derives it from the desktop entry, so it should be
+`remnants`), then match on it:
+
+```
+windowrulev2 = workspace 2, class:^(remnants)$
+```
+
+### Verify a download
+
+Each release ships a `SHA256SUMS` file covering every asset:
+
+```sh
+sha256sum -c SHA256SUMS --ignore-missing
+```
+
+### Where your data lives
+
+Uninstalling never touches these.
+
+| Platform | Settings, keybindings, profiles | Extensions |
+| --- | --- | --- |
+| Windows | `%APPDATA%\Remnants` | `%USERPROFILE%\.remnants\extensions` |
+| macOS | `~/Library/Application Support/Remnants` | `~/.remnants/extensions` |
+| Linux | `~/.config/Remnants` | `~/.remnants/extensions` |
 
 ## Build from source
 
-Remnants builds with the same toolchain as Code - OSS.
+Remnants builds with the same toolchain as Code - OSS. CI builds on **Node 22**,
+because the committed `package-lock.json` is only in sync under npm 10's
+resolver; npm 11 (bundled with Node 24) rejects `npm ci`. Node 24 matches
+`.nvmrc` and works for `npm install`.
 
-### Prerequisites (Windows)
+### Prerequisites
 
-- **Node.js 24**: matches `.nvmrc`, so `npm install` works without extra flags. (Node 22 also builds; set `VSCODE_SKIP_NODE_VERSION_CHECK=1` before `npm install` first. The CI and release builds run on Node 22 with that flag, since the committed lockfile is in sync under npm 10.)
-- **Python 3.13**
-- **Visual Studio 2022 C++ Build Tools** with the *Desktop development with C++* workload **and** the Spectre-mitigated libraries (`Microsoft.VisualStudio.Component.VC.Runtimes.x86.x64.Spectre`; this is not in `--includeRecommended`, add it explicitly)
+Common to every platform: **Node.js 22 or 24** and **Python 3.13** (node-gyp
+compiles the native modules from source, per `.npmrc`).
+
+| Platform | Also needs |
+| --- | --- |
+| Windows | **Visual Studio 2022 C++ Build Tools** with *Desktop development with C++* and the Spectre-mitigated libraries (`Microsoft.VisualStudio.Component.VC.Runtimes.x86.x64.Spectre`; not part of `--includeRecommended`, add it explicitly) |
+| macOS | Xcode Command Line Tools (`xcode-select --install`) |
+| Linux | `libkrb5-dev libx11-dev libxkbfile-dev libsecret-1-dev` on Debian/Ubuntu; `krb5 libx11 libxkbfile libsecret` on Arch |
+
+If you build with Node 22, set `VSCODE_SKIP_NODE_VERSION_CHECK=1` first to bypass
+the `.nvmrc` Node 24 pin.
 
 ### Run a development build
 
@@ -91,18 +193,32 @@ Remnants builds with the same toolchain as Code - OSS.
 npm install
 npm run transpile                  # fast esbuild build of client + built-in extensions
 npm run download-builtin-extensions
-scripts\code.bat                   # launches the dev build
+scripts/code.sh                    # scripts\code.bat on Windows
 ```
 
-### Produce the Windows installer
+### Produce the release artifacts
+
+Each packaging task emits the app next to the repository, as `../VSCode-<platform>-<arch>`.
 
 ```sh
+# Windows installer -> .build\win32-x64\user-setup\VSCodeSetup.exe
 npm run gulp vscode-win32-x64
 npm run gulp vscode-win32-x64-inno-updater
 npm run gulp vscode-win32-x64-user-setup
+
+# Linux tarball -> dist/Remnants-linux-x64-<version>.tar.gz
+npm run gulp vscode-linux-x64
+bash build/linux/package-tarball.sh x64 "$(node -p "require('./package.json').version")" dist
+
+# macOS app -> dist/Remnants-darwin-arm64-<version>.zip
+npm run gulp vscode-darwin-arm64
+bash build/darwin/package-zip.sh arm64 "$(node -p "require('./package.json').version")" dist
 ```
 
-The app is emitted to `..\VSCode-win32-x64\Remnants.exe`; the installer lands in `.build\win32-x64\user-setup\` (Inno's hardcoded output name is `VSCodeSetup.exe`; rename it to `RemnantsUserSetup.exe`).
+`build/linux/package-tarball.sh` renders the desktop entry, icon, MIME types and
+completions into the tarball and adds `install.sh`; `build/darwin/package-zip.sh`
+ad-hoc signs the bundle (required on Apple silicon) before zipping it with
+`ditto`. See [RELEASING.md](RELEASING.md) for cutting an actual release.
 
 ### Type-check
 

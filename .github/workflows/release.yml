@@ -1,52 +1,82 @@
-name: Release (Windows installer)
+name: Release
 
-# Manual only (~15-20 min full Electron packaging build), so this never runs on
-# push — dispatch it from the Actions tab when you want to cut a release.
-# See RELEASING.md.
+# Manual only (a full Electron packaging build per platform takes ~15-30 min), so
+# this never runs on push - dispatch it from the Actions tab when you want to cut
+# a release. See RELEASING.md.
 on:
   workflow_dispatch:
     inputs:
       version:
         description: "Version to release (defaults to package.json). Must match package.json; the tag will be v<version>."
         required: false
+      platforms:
+        description: "Which platforms to build"
+        type: choice
+        options:
+          - all
+          - windows
+          - linux
+          - macos
+        default: all
+      draft:
+        description: "Publish as a draft release"
+        type: boolean
+        default: false
 
 permissions:
-  contents: write # create the release and upload the installer
+  contents: write # create the release and upload the assets
 
 concurrency:
   group: release
   cancel-in-progress: false
 
+env:
+  VSCODE_SKIP_NODE_VERSION_CHECK: 1
+  GIT_LFS_SKIP_SMUDGE: 1
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+
 jobs:
-  windows-installer:
-    name: Build Windows x64 installer
-    # Pin to windows-2022, not windows-latest: .npmrc sets build_from_source=true
-    # so every native module compiles with node-gyp, and the bundled node-gyp can't
-    # use the Visual Studio 18 toolchain on the newer windows-latest image
-    # ("find VS unknown version"). windows-2022 ships the VS 2022 C++ tools this
-    # tree expects (see README "Prerequisites").
-    runs-on: windows-2022
-    timeout-minutes: 120
-    env:
-      VSCODE_SKIP_NODE_VERSION_CHECK: 1
-      GIT_LFS_SKIP_SMUDGE: 1
-      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+  # Resolve the version once so every build job and the publish job agree on it.
+  setup:
+    name: Resolve version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
 
       - name: Resolve and validate version
         id: version
-        shell: pwsh
+        env:
+          SUPPLIED: ${{ github.event.inputs.version }}
         run: |
-          $pkg = (Get-Content package.json -Raw | ConvertFrom-Json).version
-          $supplied = "${{ github.event.inputs.version }}".Trim()
-          if ($supplied -and $supplied -ne $pkg) {
-            throw "Dispatch version '$supplied' does not match package.json version '$pkg'. The installer and in-app version always come from package.json, so the tag must match it. Bump package.json or leave the input blank."
-          }
-          $ver = if ($supplied) { $supplied } else { $pkg }
-          "version=$ver" >> $env:GITHUB_OUTPUT
-          Write-Host "Releasing Remnants v$ver"
+          pkg=$(node -p "require('./package.json').version")
+          supplied=$(echo "$SUPPLIED" | tr -d '[:space:]')
+          if [ -n "$supplied" ] && [ "$supplied" != "$pkg" ]; then
+            echo "Dispatch version '$supplied' does not match package.json version '$pkg'." >&2
+            echo "The assets and the in-app version always come from package.json, so the tag must match it." >&2
+            echo "Bump package.json or leave the input blank." >&2
+            exit 1
+          fi
+          ver="${supplied:-$pkg}"
+          echo "version=$ver" >> "$GITHUB_OUTPUT"
+          echo "Releasing Remnants v$ver"
+
+  windows-x64:
+    name: Windows x64 installer
+    needs: setup
+    if: contains(fromJSON('["all","windows"]'), inputs.platforms || 'all')
+    # Pin to windows-2022, not windows-latest: .npmrc sets build_from_source=true
+    # so every native module compiles with node-gyp, and the bundled node-gyp can't
+    # use the Visual Studio 18 toolchain on the newer windows-latest image
+    # ("find VS unknown version"). windows-2022 ships the VS 2022 C++ tools this
+    # tree expects (see README "Build from source").
+    runs-on: windows-2022
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
 
       # Build on Node 22 (npm 10), matching the green CI job. The committed
       # package-lock.json is only in sync under npm 10's resolver; npm 11
@@ -76,36 +106,229 @@ jobs:
           npm run gulp vscode-win32-x64-inno-updater
           npm run gulp vscode-win32-x64-user-setup
 
-      - name: Rename installer
+      - name: Stage installer
         shell: pwsh
         run: |
           $src = ".build/win32-x64/user-setup/VSCodeSetup.exe"
-          if (-not (Test-Path $src)) { throw "Installer not found at $src — packaging build did not produce it." }
-          Copy-Item $src ".build/win32-x64/user-setup/RemnantsUserSetup.exe" -Force
+          if (-not (Test-Path $src)) { throw "Installer not found at $src - the packaging build did not produce it." }
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item $src "dist/RemnantsUserSetup.exe" -Force
 
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4
         with:
-          name: RemnantsUserSetup
-          path: .build/win32-x64/user-setup/RemnantsUserSetup.exe
+          name: release-windows-x64
+          path: dist/*
           if-no-files-found: error
+
+  linux:
+    name: Linux ${{ matrix.arch }} tarball
+    needs: setup
+    if: contains(fromJSON('["all","linux"]'), inputs.platforms || 'all')
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Built on the oldest image still supported, so the binaries link
+          # against an older glibc and stay loadable on older distros. glibc is
+          # backwards compatible, so this one x64 build serves Arch, Fedora and
+          # current Ubuntu alike.
+          - arch: x64
+            runner: ubuntu-22.04
+          - arch: arm64
+            runner: ubuntu-22.04-arm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      # Headers the native modules compile against (.npmrc sets
+      # build_from_source=true). Same list the CI type-check job installs.
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libkrb5-dev libx11-dev libxkbfile-dev libsecret-1-dev desktop-file-utils
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download built-in extensions
+        run: npm run download-builtin-extensions
+
+      - name: Build app
+        run: npm run gulp vscode-linux-${{ matrix.arch }}
+
+      - name: Stage tarball
+        env:
+          VERSION: ${{ needs.setup.outputs.version }}
+          ARCH: ${{ matrix.arch }}
+        run: bash build/linux/package-tarball.sh "$ARCH" "$VERSION" "$GITHUB_WORKSPACE/dist"
+
+      # Install the tarball exactly as a user would, check the binary actually
+      # runs, then uninstall it again. Catches a broken install.sh, a malformed
+      # desktop entry, or an app that cannot start, before any of it is published.
+      - name: Smoke-test the tarball
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: |
+          tmp=$(mktemp -d)
+          tar -xzf dist/Remnants-linux-"$ARCH"-*.tar.gz -C "$tmp"
+          cd "$tmp/Remnants-linux-$ARCH"
+          ./install.sh --user
+          test -x "$HOME/.local/lib/remnants/bin/remnants"
+          test -L "$HOME/.local/bin/remnants"
+          desktop-file-validate "$HOME/.local/share/applications/remnants.desktop"
+          desktop-file-validate "$HOME/.local/share/applications/remnants-url-handler.desktop"
+          # Runs the packaged Electron as plain node, so no display is needed.
+          "$HOME/.local/bin/remnants" --version
+          ./uninstall.sh --user
+          test ! -e "$HOME/.local/share/applications/remnants.desktop"
+          test ! -e "$HOME/.local/lib/remnants"
+          echo "Tarball install/uninstall round trip OK"
+
+      - name: Upload tarball artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-linux-${{ matrix.arch }}
+          path: dist/*
+          if-no-files-found: error
+
+  macos:
+    name: macOS ${{ matrix.arch }} app
+    needs: setup
+    if: contains(fromJSON('["all","macos"]'), inputs.platforms || 'all')
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: arm64
+            runner: macos-latest
+          - arch: x64
+            runner: macos-15-intel
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download built-in extensions
+        run: npm run download-builtin-extensions
+
+      - name: Build app
+        run: npm run gulp vscode-darwin-${{ matrix.arch }}
+
+      - name: Package app bundle
+        env:
+          VERSION: ${{ needs.setup.outputs.version }}
+          ARCH: ${{ matrix.arch }}
+        run: bash build/darwin/package-zip.sh "$ARCH" "$VERSION" "$GITHUB_WORKSPACE/dist"
+
+      - name: Upload app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-darwin-${{ matrix.arch }}
+          path: dist/*
+          if-no-files-found: error
+
+  publish:
+    name: Publish release
+    needs: [setup, windows-x64, linux, macos]
+    # Publish whatever built. A platform that failed, or was not selected, must
+    # not hold back the platforms that succeeded.
+    if: always() && needs.setup.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Download built assets
+        uses: actions/download-artifact@v4
+        with:
+          path: staging
+          pattern: release-*
+          merge-multiple: true
+
+      - name: Collect assets
+        run: |
+          mkdir -p dist
+          find staging -type f -exec mv -t dist {} +
+          if [ -z "$(ls -A dist)" ]; then
+            echo "No assets were produced - every build job failed or was skipped." >&2
+            exit 1
+          fi
+          ls -lh dist
+
+      # The Arch package pulls the published tarball by URL, so its checksum can
+      # only be filled in once that tarball exists. Render it here, next to the
+      # tarball it refers to.
+      - name: Render Arch PKGBUILD
+        env:
+          VERSION: ${{ needs.setup.outputs.version }}
+        run: bash build/linux/render-pkgbuild.sh "$VERSION" dist
+
+      # A single-platform re-run only rebuilds some of the assets, so merge this
+      # run's checksums over whatever the release already lists instead of
+      # replacing the file with a partial one.
+      - name: Checksum every asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.setup.outputs.version }}
+        run: |
+          new=$(mktemp)
+          prev=$(mktemp)
+          (cd dist && sha256sum -- *) > "$new"
+          gh release download "v$VERSION" -p SHA256SUMS -O "$prev" --clobber 2>/dev/null || : > "$prev"
+          # Entries from this run win; keep older ones for files it did not rebuild.
+          { cat "$new"; awk 'NR==FNR { seen[$2]; next } !($2 in seen)' "$new" "$prev"; } |
+            sort -k2 > dist/SHA256SUMS
+          cat dist/SHA256SUMS
 
       - name: Create or update GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
-        shell: pwsh
+          VERSION: ${{ needs.setup.outputs.version }}
+          DRAFT: ${{ inputs.draft }}
         run: |
-          $ver = "${{ steps.version.outputs.version }}"
-          $tag = "v$ver"
-          $asset = ".build/win32-x64/user-setup/RemnantsUserSetup.exe"
-          # NOTE: the doubled backticks below are intentional PowerShell escapes —
-          # in a double-quoted string ``  collapses to a single literal backtick,
-          # so the notes render as `More info -> Run anyway`. Do not "simplify" them.
-          $notes = "Windows (x64) user installer. AI-free build of Code - OSS $ver. Unsigned — on first launch click ``More info -> Run anyway`` past Windows SmartScreen."
-          gh release view $tag 2>$null | Out-Null
-          if ($LASTEXITCODE -eq 0) {
-            Write-Host "Release $tag already exists — updating its installer asset."
-            gh release upload $tag $asset --clobber
-          } else {
-            gh release create $tag $asset --title "Remnants v$ver" --notes $notes --target ${{ github.sha }}
-          }
+          tag="v$VERSION"
+          notes=$(mktemp)
+          bash build/release-notes.sh "$VERSION" dist > "$notes"
+          cat "$notes"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists - updating its assets and notes."
+            gh release upload "$tag" dist/* --clobber
+            gh release edit "$tag" --notes-file "$notes"
+          else
+            draft_flag=""
+            if [ "$DRAFT" = "true" ]; then draft_flag="--draft"; fi
+            gh release create "$tag" dist/* \
+              --title "Remnants v$VERSION" \
+              --notes-file "$notes" \
+              --target "${{ github.sha }}" \
+              $draft_flag
+          fi

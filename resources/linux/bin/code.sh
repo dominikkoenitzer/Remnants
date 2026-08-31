@@ -57,6 +57,15 @@ else
 	fi
 fi
 
+# Default to Electron's Wayland auto-detection, so launching from a terminal in a
+# Wayland session (Hyprland, Sway, GNOME, KDE) gets a native window rather than a
+# blurry XWayland one on fractional scaling. The desktop entry passes the
+# equivalent --ozone-platform-hint=auto. Export ELECTRON_OZONE_PLATFORM_HINT=x11
+# to opt out.
+if [ -z "${ELECTRON_OZONE_PLATFORM_HINT}" ]; then
+	export ELECTRON_OZONE_PLATFORM_HINT=auto
+fi
+
 ELECTRON="$VSCODE_PATH/@@APPNAME@@"
 CLI="$VSCODE_PATH/resources/app/out/cli.js"
 ELECTRON_RUN_AS_NODE=1 "$ELECTRON" "$CLI" "$@"

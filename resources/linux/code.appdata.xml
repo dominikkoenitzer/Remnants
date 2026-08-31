@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<component type="desktop">
+<component type="desktop-application">
 	<id>@@NAME@@.desktop</id>
+	<launchable type="desktop-id">@@NAME@@.desktop</launchable>
 	<metadata_license>@@LICENSE@@</metadata_license>
 	<project_license>@@LICENSE@@</project_license>
 	<name>@@NAME_LONG@@</name>
-	<url type="homepage">https://code.visualstudio.com</url>
-	<summary>Visual Studio Code. Code editing. Redefined.</summary>
+	<developer_name>Dominik Koenitzer</developer_name>
+	<url type="homepage">https://github.com/dominikkoenitzer/Remnants</url>
+	<url type="bugtracker">https://github.com/dominikkoenitzer/Remnants/issues</url>
+	<summary>A clean, AI-free code editor</summary>
 	<description>
-		<p>Visual Studio Code is a new choice of tool that combines the simplicity of a code editor with what developers need for the core edit-build-debug cycle. See https://code.visualstudio.com/docs/setup/linux for installation instructions and FAQ.</p>
+		<p>@@NAME_LONG@@ is a code editor derived from Code - OSS, the open-source core of Visual Studio Code, with every built-in AI surface, telemetry hook and account prompt removed.</p>
+		<p>It keeps what makes the editor good: fast editing, IntelliSense, an integrated terminal, source control and debugging. There is no chat panel, no agent, no sign-in, and nothing reports back. Extensions install from Open VSX.</p>
 	</description>
-	<screenshots>
-		<screenshot type="default">
-			<image>https://code.visualstudio.com/home/home-screenshot-linux-lg.png</image>
-			<caption>Editing TypeScript and searching for extensions</caption>
-		</screenshot>
-	</screenshots>
+	<categories>
+		<category>Development</category>
+		<category>IDE</category>
+		<category>TextEditor</category>
+	</categories>
 </component>
