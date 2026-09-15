@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" opacity="0.16">
+  <defs>
+    <linearGradient id="tab" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9CC8FD"/><stop offset="1" stop-color="#73B0FB"/></linearGradient>
+    <linearGradient id="cl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4F8DF7"/><stop offset="1" stop-color="#3B82F6"/></linearGradient>
+    <linearGradient id="cr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7FB5FB"/><stop offset="1" stop-color="#5AA0F9"/></linearGradient>
+    <linearGradient id="pl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1D4ED8"/><stop offset="1" stop-color="#15399E"/></linearGradient>
+    <linearGradient id="pr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2C6AEE"/><stop offset="1" stop-color="#2056DC"/></linearGradient>
+  </defs>
+  <polygon points="230,54 282,54 256,156" fill="url(#tab)"/>
+  <polygon points="230,54 256,156 252,262 120,244" fill="url(#cl)"/>
+  <polygon points="282,54 392,228 252,262 256,156" fill="url(#cr)"/>
+  <polygon points="120,244 252,262 242,474" fill="url(#pl)"/>
+  <polygon points="252,262 392,228 242,474" fill="url(#pr)"/>
+</svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Remnants brand mark — faceted shard. Mirrors resources/remnants-icon.svg. -->
+  <defs>
+    <linearGradient id="tab" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9CC8FD"/><stop offset="1" stop-color="#73B0FB"/></linearGradient>
+    <linearGradient id="cl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4F8DF7"/><stop offset="1" stop-color="#3B82F6"/></linearGradient>
+    <linearGradient id="cr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7FB5FB"/><stop offset="1" stop-color="#5AA0F9"/></linearGradient>
+    <linearGradient id="pl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1D4ED8"/><stop offset="1" stop-color="#15399E"/></linearGradient>
+    <linearGradient id="pr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2C6AEE"/><stop offset="1" stop-color="#2056DC"/></linearGradient>
+  </defs>
+  <polygon points="460,108 564,108 512,312" fill="url(#tab)"/>
+  <polygon points="460,108 512,312 504,524 240,488" fill="url(#cl)"/>
+  <polygon points="564,108 784,456 504,524 512,312" fill="url(#cr)"/>
+  <polygon points="240,488 504,524 484,948" fill="url(#pl)"/>
+  <polygon points="504,524 784,456 484,948" fill="url(#pr)"/>
+  <polyline points="512,312 504,524 484,948" fill="none" stroke="#CFE2FE" stroke-width="6" stroke-linejoin="round" stroke-opacity="0.30"/>
+  <polyline points="460,108 512,312 564,108" fill="none" stroke="#CFE2FE" stroke-width="5" stroke-linejoin="round" stroke-opacity="0.25"/>
+</svg>
