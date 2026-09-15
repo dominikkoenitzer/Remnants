@@ -1,0 +1,26 @@
+name: Feature request
+description: Suggest an idea for Remnants
+labels: ["feature-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Remnants is intentionally AI-free and telemetry-free. Requests to add Copilot, chat, agents, or telemetry are out of scope by design.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false

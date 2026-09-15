@@ -1,0 +1,79 @@
+# Maintainer: Dominik Koenitzer <dominik.koenitzer@gmail.com>
+#
+# Template. build/linux/render-pkgbuild.sh fills in the version, the source URLs
+# and the checksums after the release tarballs are built, and attaches the
+# result to the GitHub release as `PKGBUILD`. Do not run this file directly;
+# download the rendered one from the release page and run `makepkg -si`.
+
+pkgname=remnants-bin
+_appname=@@APPNAME@@
+pkgver=@@PKGVER@@
+pkgrel=1
+pkgdesc="@@PKGDESC@@"
+arch=(@@ARCHES@@)
+url="@@URL@@"
+license=('MIT')
+depends=('alsa-lib' 'at-spi2-core' 'bash' 'gcc-libs' 'gtk3' 'libcups' 'libnotify'
+	'libsecret' 'libxss' 'libxtst' 'nss' 'xdg-utils')
+optdepends=('gvfs: move deleted files to the trash'
+	'libdbusmenu-glib: global menu support'
+	'org.freedesktop.secrets: store Git provider credentials'
+	'gnome-keyring: an implementation of org.freedesktop.secrets'
+	'ripgrep: use the system ripgrep instead of the bundled copy')
+provides=("$_appname")
+conflicts=("$_appname")
+# Electron ships prebuilt binaries: stripping them breaks the bundle, and there
+# are no debug symbols to split out.
+options=('!strip' '!debug' '!lto')
+@@SOURCES@@
+
+package() {
+	local _dist
+	case "$CARCH" in
+	x86_64) _dist=x64 ;;
+	aarch64) _dist=arm64 ;;
+	*)
+		echo "unsupported architecture: $CARCH" >&2
+		return 1
+		;;
+	esac
+	local _src="$srcdir/Remnants-linux-$_dist"
+
+	install -dm755 "$pkgdir/opt/$_appname"
+	cp -a "$_src"/. "$pkgdir/opt/$_appname/"
+
+	# The manual-install helpers and the staged share/ tree are not part of a
+	# packaged install; the latter lands in its real locations below.
+	rm -f "$pkgdir/opt/$_appname/install.sh" "$pkgdir/opt/$_appname/uninstall.sh"
+	rm -rf "$pkgdir/opt/$_appname/share"
+
+	install -dm755 "$pkgdir/usr/bin"
+	ln -s "/opt/$_appname/bin/$_appname" "$pkgdir/usr/bin/$_appname"
+
+	install -Dm644 "$_src/share/applications/$_appname.desktop" \
+		"$pkgdir/usr/share/applications/$_appname.desktop"
+	install -Dm644 "$_src/share/applications/$_appname-url-handler.desktop" \
+		"$pkgdir/usr/share/applications/$_appname-url-handler.desktop"
+	install -Dm644 "$_src/share/icons/hicolor/512x512/apps/$_appname.png" \
+		"$pkgdir/usr/share/icons/hicolor/512x512/apps/$_appname.png"
+	install -Dm644 "$_src/share/metainfo/$_appname.appdata.xml" \
+		"$pkgdir/usr/share/metainfo/$_appname.appdata.xml"
+	install -Dm644 "$_src/share/mime/packages/$_appname-workspace.xml" \
+		"$pkgdir/usr/share/mime/packages/$_appname-workspace.xml"
+	install -Dm644 "$_src/share/bash-completion/completions/$_appname" \
+		"$pkgdir/usr/share/bash-completion/completions/$_appname"
+	install -Dm644 "$_src/share/zsh/site-functions/_$_appname" \
+		"$pkgdir/usr/share/zsh/site-functions/_$_appname"
+
+	if [ -f "$_src/resources/app/LICENSE.txt" ]; then
+		install -Dm644 "$_src/resources/app/LICENSE.txt" \
+			"$pkgdir/usr/share/licenses/$pkgname/LICENSE.txt"
+	fi
+
+	# Chromium falls back to this helper when the kernel denies unprivileged user
+	# namespaces. Arch allows them, so it normally goes unused, but the setuid bit
+	# keeps Remnants launching on hardened kernels that turn them off.
+	if [ -f "$pkgdir/opt/$_appname/chrome-sandbox" ]; then
+		chmod 4755 "$pkgdir/opt/$_appname/chrome-sandbox"
+	fi
+}
