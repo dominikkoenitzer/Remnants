@@ -46,9 +46,3 @@ dist
 .github/prompts/*.local.prompt.md
 .agents/skills/.local/
 .github/skills/.local/
-
-# AI agent tooling (local only)
-CLAUDE.md
-AGENTS.md
-.agents/
-skills-lock.json
