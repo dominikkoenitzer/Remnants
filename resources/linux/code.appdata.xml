@@ -5,7 +5,7 @@
 	<metadata_license>@@LICENSE@@</metadata_license>
 	<project_license>@@LICENSE@@</project_license>
 	<name>@@NAME_LONG@@</name>
-	<developer_name>Dominik Koenitzer</developer_name>
+	<developer_name>dominikkoenitzer</developer_name>
 	<url type="homepage">https://github.com/dominikkoenitzer/Remnants</url>
 	<url type="bugtracker">https://github.com/dominikkoenitzer/Remnants/issues</url>
 	<summary>A clean, AI-free code editor</summary>

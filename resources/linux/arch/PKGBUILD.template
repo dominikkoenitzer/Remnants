@@ -1,4 +1,4 @@
-# Maintainer: Dominik Koenitzer <dominik.koenitzer@gmail.com>
+# Maintainer: dominikkoenitzer <dominikkoenitzer@users.noreply.github.com>
 #
 # Template. build/linux/render-pkgbuild.sh fills in the version, the source URLs
 # and the checksums after the release tarballs are built, and attaches the
