@@ -22,7 +22,7 @@ Remnants is a fork of [Code - OSS](https://github.com/microsoft/vscode). Vulnera
 ## Dependency advisories
 
 GitHub's Dependabot reports a large number of open advisories against this
-repository: **75 as of 2026-08-30** (1 critical, 29 high, 36 medium, 9 low).
+repository: **42 as of 2026-09-16** (19 high, 21 medium, 2 low).
 That number is worth explaining rather than leaving to interpretation.
 
 They come from upstream. Remnants is a snapshot of the VS Code tree at
@@ -37,31 +37,39 @@ Where they sit:
 
 | Location | Alerts |
 | --- | --- |
-| Bundled extensions | 32 |
-| Root lockfile (editor + built-ins) | 12 |
-| Build tooling | 14 |
 | CLI (`Cargo.lock`) | 16 |
+| Root lockfile (editor + built-ins) | 10 |
+| Bundled extensions | 8 |
+| Build tooling | 7 |
 | Test harnesses | 1 |
 | Remote server | 0 |
 
-Of the 75, 26 are on development-only dependencies that never reach a build.
+Of the 42, 16 are on development-only dependencies that never reach a build.
 
 **None of them were introduced here.** Remnants is a subtractive fork: nothing
-was added to the root `package.json` to support anything it does. The commits
-on top of the import take **6** direct dependencies out of it, all of them AI
-SDKs, and put none back. What is left in that diff is version bumps, the build
-scripts those SDKs came with, and the fork's own metadata. The lockfile has
-grown since, but only behind the bumps, which carry their own transitive
-entries in with them. That is checkable in two commands:
+was added to the root `package.json` to support anything it does. Against the
+upstream tree it was taken from, this one takes **6** direct dependencies out,
+all of them AI SDKs, and puts none back. The lockfile has moved since, but only
+behind in-range refreshes, which carry their own transitive entries with them.
+Compare the two manifests yourself:
 
 ```bash
-root=$(git rev-list --max-parents=0 HEAD)
-git diff "$root" HEAD -- package.json                  # 6 names out, 0 in
-git log --oneline "$root"..HEAD -- package-lock.json   # every lockfile change
+base=93cfdd489c3b228840d0f86ec77c3636277c93ea
+curl -s "https://raw.githubusercontent.com/microsoft/vscode/$base/package.json" -o upstream.json
+node -e '
+const up = require("./upstream.json"), me = require("./package.json");
+const names = o => new Set([...Object.keys(o.dependencies || {}), ...Object.keys(o.devDependencies || {})]);
+const [U, M] = [names(up), names(me)];
+console.log("removed:", [...U].filter(n => !M.has(n)).join(", ") || "none");
+console.log("added:", [...M].filter(n => !U.has(n)).join(", ") || "none");
+'
+rm upstream.json
 ```
 
-What is actually done about them: Dependabot is enabled, and advisories that
-have a fix reachable without diverging from upstream are merged as they arrive.
+What is actually done about them: Dependabot's alerts are on, its pull requests
+are not. Advisories with a fix reachable inside the existing version ranges are
+closed by hand, by refreshing every lockfile in one pass. The sweep on
+2026-09-16 closed 49 of them, the only critical one among them.
 A few cannot produce a pull request at all: the patched `postcss` is reachable
 only by downgrading `gulp-sourcemaps`, so the security updater reports that
 conflict instead of opening one. The rest are resolved by rebasing onto a newer
