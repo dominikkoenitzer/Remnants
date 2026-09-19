@@ -35,9 +35,7 @@ export const enum AccessibilityWorkbenchSettingId {
 	DimUnfocusedEnabled = 'accessibility.dimUnfocused.enabled',
 	DimUnfocusedOpacity = 'accessibility.dimUnfocused.opacity',
 	HideAccessibleView = 'accessibility.hideAccessibleView',
-	AccessibleViewCloseOnKeyPress = 'accessibility.accessibleView.closeOnKeyPress',
-	VerboseChatProgressUpdates = 'accessibility.verboseChatProgressUpdates',
-	ShowChatCheckmarks = 'accessibility.chat.showCheckmarks'
+	AccessibleViewCloseOnKeyPress = 'accessibility.accessibleView.closeOnKeyPress'
 }
 
 export const enum ViewDimUnfocusedOpacityProperties {
@@ -50,10 +48,6 @@ export const enum AccessibilityVerbositySettingId {
 	Terminal = 'accessibility.verbosity.terminal',
 	DiffEditor = 'accessibility.verbosity.diffEditor',
 	MergeEditor = 'accessibility.verbosity.mergeEditor',
-	Chat = 'accessibility.verbosity.panelChat',
-	InlineChat = 'accessibility.verbosity.inlineChat',
-	TerminalInlineChat = 'accessibility.verbosity.terminalChat',
-	TerminalChatOutput = 'accessibility.verbosity.terminalChatOutput',
 	InlineCompletions = 'accessibility.verbosity.inlineCompletions',
 	KeybindingsEditor = 'accessibility.verbosity.keybindingsEditor',
 	Notebook = 'accessibility.verbosity.notebook',
@@ -136,18 +130,6 @@ const configuration: IConfigurationNode = {
 		},
 		[AccessibilityVerbositySettingId.DiffEditor]: {
 			description: localize('verbosity.diffEditor.description', 'Provide information about how to navigate changes in the diff editor when it is focused.'),
-			...baseVerbosityProperty
-		},
-		[AccessibilityVerbositySettingId.Chat]: {
-			description: localize('verbosity.chat.description', 'Provide information about how to access the chat help menu when the chat input is focused.'),
-			...baseVerbosityProperty
-		},
-		[AccessibilityVerbositySettingId.InlineChat]: {
-			description: localize('verbosity.interactiveEditor.description', 'Provide information about how to access the inline editor chat accessibility help menu and alert with hints that describe how to use the feature when the input is focused.'),
-			...baseVerbosityProperty
-		},
-		[AccessibilityVerbositySettingId.TerminalChatOutput]: {
-			description: localize('verbosity.terminalChatOutput.description', 'Provide information about how to open the chat terminal output in the Accessible View.'),
 			...baseVerbosityProperty
 		},
 		[AccessibilityVerbositySettingId.InlineCompletions]: {
@@ -827,16 +809,6 @@ const configuration: IConfigurationNode = {
 			'type': 'boolean',
 			'default': true,
 			'markdownDescription': localize('accessibility.windowTitleOptimized', "Controls whether the {0} should be optimized for screen readers when in screen reader mode. When enabled, the window title will have {1} appended to the end.", '`#window.title#`', '`activeEditorState`')
-		},
-		'accessibility.openChatEditedFiles': {
-			'type': 'boolean',
-			'default': false,
-			'markdownDescription': localize('accessibility.openChatEditedFiles', "Controls whether files should be opened when the chat agent has applied edits to them.")
-		},
-		'accessibility.verboseChatProgressUpdates': {
-			'type': 'boolean',
-			'default': true,
-			'markdownDescription': localize('accessibility.verboseChatProgressUpdates', "Controls whether verbose progress announcements should be made when a chat request is in progress, including information like searched text for <search term> with X results, created file <file_name>, or read file <file path>.")
 		}
 	}
 };
@@ -870,17 +842,6 @@ export function registerAccessibilityConfiguration() {
 				default: false,
 				tags: ['accessibility']
 			},
-			[AccessibilityWorkbenchSettingId.VerboseChatProgressUpdates]: {
-				'type': 'boolean',
-				'default': true,
-				'markdownDescription': localize('accessibility.verboseChatProgressUpdates', "Controls whether verbose progress announcements should be made when a chat request is in progress, including information like searched text for <search term> with X results, created file <file_name>, or read file <file path>.")
-			},
-			[AccessibilityWorkbenchSettingId.ShowChatCheckmarks]: {
-				'type': 'boolean',
-				'default': false,
-				'tags': ['accessibility'],
-				'markdownDescription': localize('accessibility.chat.showCheckmarks', "Controls whether checkmark icons are shown on completed tool calls and other collapsible items in chat responses.")
-			}
 		}
 	});
 }
