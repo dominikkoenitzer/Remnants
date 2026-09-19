@@ -19,16 +19,22 @@ to take on faith.
 > snapshot rather than as a git fork, so this repository does **not** carry
 > Microsoft's commit history and GitHub does not display it as a fork. That was
 > a mistake in how I set the repository up, not an attempt to claim the code.
-> The base commit above is the exact upstream revision this was cut from, and
-> every change of mine is a separate commit on top of it. The upstream tree is
-> marked `linguist-vendored` in [`.gitattributes`](.gitattributes) so it is
-> excluded from this repository's language statistics.
+> The base commit above is the exact upstream revision this was cut from. The
+> history was later reset, so the initial commit here is the tree with the
+> removals already applied, not the upstream import. None of the deletions
+> described below are visible as commits, and this repository cannot evidence
+> them on its own. What it can be checked against is upstream itself, which is
+> what the last section does. The upstream tree is marked `linguist-vendored`
+> in [`.gitattributes`](.gitattributes) so it is excluded from this
+> repository's language statistics.
 
 ## Net change
 
-Roughly **−759,000 lines removed** and **+2,800 added** across 18 commits. This
-is a subtractive project: the work is in deleting an entire feature surface
-cleanly without breaking the editor around it.
+Roughly **−759,000 lines removed** and **+2,800 added**. This is a subtractive
+project: the work is in deleting an entire feature surface cleanly without
+breaking the editor around it. The figures below are what the removals
+measured when they were made; since the history reset they are a record
+rather than something this repository can reproduce.
 
 ## What was removed
 
@@ -64,12 +70,25 @@ Microsoft Marketplace, which the Code - OSS licence does not cover.
 
 ## Verifying this yourself
 
+The removals predate this repository's history, so `git log` will not show
+them. What can be checked is this tree against the upstream revision it was
+cut from. Comparing the two manifests shows the dependency side of the
+removal, six AI SDKs taken out and nothing put back:
+
 ```bash
-git log --oneline --reverse          # every change, oldest first
-git log --stat <commit>              # the exact diff of any one of them
+base=93cfdd489c3b228840d0f86ec77c3636277c93ea
+curl -s "https://raw.githubusercontent.com/microsoft/vscode/$base/package.json" -o upstream.json
+node -e '
+const up = require("./upstream.json"), me = require("./package.json");
+const names = o => new Set([...Object.keys(o.dependencies || {}), ...Object.keys(o.devDependencies || {})]);
+const [U, M] = [names(up), names(me)];
+console.log("removed:", [...U].filter(n => !M.has(n)).join(", ") || "none");
+console.log("added:", [...M].filter(n => !U.has(n)).join(", ") || "none");
+'
+rm upstream.json
 ```
 
-Every commit after the initial import is mine and is scoped to one concern.
+For the rest, clone upstream at that commit and diff the two trees.
 
 ## Attribution
 
