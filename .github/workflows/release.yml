@@ -555,6 +555,8 @@ jobs:
             "$app/Contents/Resources/app/out/cli.js" --version | head -n1)
           test "$reported" = "$VERSION" || { echo "App reports version '$reported', expected '$VERSION'." >&2; exit 1; }
           echo "App bundle signature and launch OK, version $reported"
+          # The oldest macOS the bundle declares support for, for the README.
+          echo "Minimum macOS: $(defaults read "$app/Contents/Info.plist" LSMinimumSystemVersion)"
 
       - name: Upload app artifact
         uses: actions/upload-artifact@v4
