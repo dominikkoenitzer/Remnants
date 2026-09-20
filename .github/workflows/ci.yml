@@ -54,3 +54,14 @@ jobs:
 
       - name: Type-check (src)
         run: npm run compile-check-ts-native
+
+      # Loads every build/gulpfile.*.ts and lists the tasks they define. Seconds
+      # of work, and it catches a build script that no longer imports or parses -
+      # breakage that otherwise only surfaces 20 minutes into a release build.
+      - name: Load the build tasks
+        run: npm run gulp -- --tasks-simple > /dev/null
+
+      # The first thing every release job does after installing, and the step
+      # that breaks when a transitively hoisted build dependency changes shape.
+      - name: Download built-in extensions
+        run: npm run download-builtin-extensions
