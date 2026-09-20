@@ -326,7 +326,8 @@ jobs:
           find "$root" -type f \( -name '*.so' -o -name '*.so.*' -o -name '*.node'             -o -name remnants -o -name chrome-sandbox -o -name chrome_crashpad_handler \) |
             xargs -r -n1 objdump -T 2> /dev/null |
             grep -o 'GLIBC_[0-9.]*' | sort -uV | tail -1 |
-            sed 's/^/Needs at least /'
+            sed 's/^/Needs at least /' || echo "Could not measure the glibc floor."
+
 
       - name: Stage tarball
         env:
@@ -634,6 +635,25 @@ jobs:
           $reported = (& $cli --version | Select-Object -First 1).Trim()
           if ($reported -ne $env:VERSION) { throw "The arm64 build reports version '$reported', expected '$env:VERSION'." }
           "Windows arm64 installer runs on ARM hardware, version $reported"
+
+      - name: Download the archive
+        uses: actions/download-artifact@v4
+        with:
+          name: release-windows-arm64-extra
+          path: extra
+
+      - name: Run the archive
+        shell: pwsh
+        env:
+          VERSION: ${{ needs.setup.outputs.version }}
+        run: |
+          $tmp = Join-Path $env:RUNNER_TEMP "archive"
+          7z x -o"$tmp" "extra/Remnants-win32-arm64-$env:VERSION.zip" | Select-Object -Last 2
+          $cli = Join-Path $tmp "bin/remnants.cmd"
+          if (-not (Test-Path $cli)) { throw "The archive has no bin/remnants.cmd." }
+          $reported = (& $cli --version | Select-Object -First 1).Trim()
+          if ($reported -ne $env:VERSION) { throw "The archive reports version '$reported', expected '$env:VERSION'." }
+          "Windows arm64 archive runs unpacked on ARM hardware, version $reported"
 
   publish:
     name: Publish release

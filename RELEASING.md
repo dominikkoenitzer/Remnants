@@ -171,15 +171,14 @@ main executable on its own reports a much older one than the build really needs.
   | --- | --- |
   | Windows x64 installer | silent install, then `remnants --version` from the installed copy |
   | Windows arm64 installer | PE header says ARM64, then a separate `windows-11-arm` job installs and runs it |
-  | Windows archive | unpacked and run without any installer |
-  | Windows system installer | built and published; the payload is the one the user installer ships |
+  | Windows archive | unpacked and run, on x64 and on ARM hardware |
+  | Windows system installer | built and published, not installed: it refuses to sit next to the per-user install the same job just tested. Same payload, different Inno install mode |
   | macOS zip and dmg | ad-hoc signature verified, app launched, image mounted back and re-verified |
   | Linux tarball | install/uninstall round trip plus `remnants --version` |
   | deb | installed on the build host and again in a Debian 12 container |
   | rpm | installed in a Fedora container, so dnf has to resolve the computed dependencies |
 
   Both macOS jobs and both Linux jobs run on their target architecture, so those
-  builds are executed natively. The only assets never run end to end are the
-  Windows arm64 archive and system installer, which carry the same payload as the
-  arm64 user installer that is.
+  builds are executed natively, and the Windows arm64 assets are exercised on real
+  ARM hardware. The two system installers are the only assets never installed.
 - The README badge and Install link resolve to the latest release automatically.
