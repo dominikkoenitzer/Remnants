@@ -75,6 +75,10 @@ Every asset is built by the [release workflow](.github/workflows/release.yml) on
 | Any Linux x64 / arm64 | `Remnants-linux-<arch>-<version>.tar.gz` | `sudo ./install.sh` |
 | Arch Linux | `PKGBUILD` | `makepkg -si` |
 
+Remnants does not update itself and phones nowhere to check, so new versions are
+announced only on that page. **Watch -> Custom -> Releases** on the repository
+turns that into an email.
+
 Each release also carries a machine-wide Windows installer
 (`RemnantsSetup-<arch>.exe`), a Windows archive for machines where no installer
 may run (`Remnants-win32-<arch>-<version>.zip`) and the macOS app as a plain zip.
