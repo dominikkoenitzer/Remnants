@@ -896,6 +896,7 @@
     "watch-typecheck-web": "tsgo --project ./tsconfig.browser.json --noEmit --watch"
   },
   "dependencies": {
+    "@microsoft/applicationinsights-common": "^3.4.4",
     "@vscode/extension-telemetry": "^0.9.8",
     "@vscode/markdown-editor": "^0.0.2-1",
     "dompurify": "^3.4.8",
