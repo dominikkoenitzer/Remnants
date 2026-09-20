@@ -179,4 +179,12 @@ cat <<-EOF
 	\`\`\`sh
 	gh attestation verify <file> -R dominikkoenitzer/Remnants
 	\`\`\`
+
+	## How this build was checked
+
+	Nothing here is code-signed, so the workflow installs and runs what it is about
+	to publish: the Windows installer silently on x64 and on real ARM hardware, the
+	archive unpacked, the deb on Debian, the rpm on Fedora, the tarball on Ubuntu,
+	and the macOS app from both the zip and the mounted disk image. The Linux build
+	is additionally started on a virtual display, so the window is known to come up.
 EOF
