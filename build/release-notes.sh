@@ -22,10 +22,23 @@ row() {
 	fi
 }
 
-win_x64="RemnantsUserSetup-x64.exe"
-win_arm64="RemnantsUserSetup-arm64.exe"
-mac_arm64="Remnants-darwin-arm64-$version.zip"
-mac_x64="Remnants-darwin-x64-$version.zip"
+# Bullet for a secondary download format.
+alt() {
+	if has "$2"; then
+		printf -- '- `%s` - %s\n' "$2" "$1"
+	fi
+}
+
+win_user_x64="RemnantsUserSetup-x64.exe"
+win_user_arm64="RemnantsUserSetup-arm64.exe"
+win_sys_x64="RemnantsSetup-x64.exe"
+win_sys_arm64="RemnantsSetup-arm64.exe"
+win_zip_x64="Remnants-win32-x64-$version.zip"
+win_zip_arm64="Remnants-win32-arm64-$version.zip"
+mac_dmg_arm64="Remnants-darwin-arm64-$version.dmg"
+mac_dmg_x64="Remnants-darwin-x64-$version.dmg"
+mac_zip_arm64="Remnants-darwin-arm64-$version.zip"
+mac_zip_x64="Remnants-darwin-x64-$version.zip"
 deb_x64="remnants-$version-amd64.deb"
 deb_arm64="remnants-$version-arm64.deb"
 rpm_x64="remnants-$version-x86_64.rpm"
@@ -39,10 +52,10 @@ echo "## Downloads"
 echo
 echo "| Platform | File |"
 echo "| --- | --- |"
-row "Windows x64" "$win_x64"
-row "Windows arm64" "$win_arm64"
-row "macOS Apple silicon" "$mac_arm64"
-row "macOS Intel" "$mac_x64"
+row "Windows x64" "$win_user_x64"
+row "Windows arm64" "$win_user_arm64"
+row "macOS Apple silicon" "$mac_dmg_arm64"
+row "macOS Intel" "$mac_dmg_x64"
 row "Debian, Ubuntu x64" "$deb_x64"
 row "Debian, Ubuntu arm64" "$deb_arm64"
 row "Fedora, RHEL, openSUSE x64" "$rpm_x64"
@@ -52,28 +65,45 @@ row "Any Linux arm64" "$tar_arm64"
 row "Arch Linux" "PKGBUILD"
 echo
 
-if has "$win_x64" || has "$win_arm64"; then
+if has "$win_sys_x64" || has "$win_sys_arm64" || has "$win_zip_x64" || has "$win_zip_arm64" ||
+	has "$mac_zip_arm64" || has "$mac_zip_x64"; then
+	echo "Other formats:"
+	echo
+	alt "Windows machine-wide installer, needs administrator rights" "$win_sys_x64"
+	alt "Windows machine-wide installer, needs administrator rights" "$win_sys_arm64"
+	alt "Windows without an installer: unzip it and run Remnants.exe" "$win_zip_x64"
+	alt "Windows without an installer: unzip it and run Remnants.exe" "$win_zip_arm64"
+	alt "macOS app bundle as a zip instead of a disk image" "$mac_zip_arm64"
+	alt "macOS app bundle as a zip instead of a disk image" "$mac_zip_x64"
+	echo
+fi
+
+if has "$win_user_x64" || has "$win_user_arm64"; then
 	cat <<-EOF
 		## Windows
 
-		Run the installer for your architecture. Both are per-user installers, so no
-		administrator rights are needed. Remnants is not code-signed, so SmartScreen may
-		warn "Windows protected your PC": click **More info -> Run anyway**.
+		Run the installer for your architecture; arm64 is for Snapdragon and Surface ARM
+		machines. The user installer needs no administrator rights and installs into your
+		profile. Remnants is not code-signed, so SmartScreen may warn "Windows protected
+		your PC": click **More info -> Run anyway**.
 
 	EOF
 fi
 
-if has "$mac_arm64" || has "$mac_x64"; then
+if has "$mac_dmg_arm64" || has "$mac_dmg_x64" || has "$mac_zip_arm64" || has "$mac_zip_x64"; then
 	cat <<-EOF
 		## macOS
 
-		Unzip the download and move \`Remnants.app\` to \`/Applications\`. The build is
-		ad-hoc signed but not notarized, so clear the download quarantine once before the
-		first launch:
+		Open the disk image and drag **Remnants** onto the Applications shortcut. The
+		build is ad-hoc signed but not notarized, so clear the download quarantine once
+		before the first launch:
 
 		\`\`\`sh
 		xattr -dr com.apple.quarantine /Applications/Remnants.app
 		\`\`\`
+
+		Without that, macOS claims the app "is damaged". It is not: that message means
+		unnotarized.
 
 	EOF
 fi
@@ -89,8 +119,8 @@ if has "$deb_x64" || has "$deb_arm64" || has "$rpm_x64" || has "$rpm_arm64"; the
 		this releases page.
 
 		\`\`\`sh
-		sudo apt install ./$deb_x64   # Debian, Ubuntu
-		sudo dnf install ./$rpm_x64   # Fedora, RHEL
+		sudo apt install ./$deb_x64      # Debian, Ubuntu
+		sudo dnf install ./$rpm_x64      # Fedora, RHEL
 		sudo zypper install ./$rpm_x64   # openSUSE
 		\`\`\`
 
@@ -140,5 +170,13 @@ cat <<-EOF
 
 	\`\`\`sh
 	sha256sum -c SHA256SUMS --ignore-missing
+	\`\`\`
+
+	Every asset also carries a signed provenance attestation, which proves it was
+	built by the release workflow in this repository and not rebuilt or swapped
+	afterwards:
+
+	\`\`\`sh
+	gh attestation verify <file> -R dominikkoenitzer/Remnants
 	\`\`\`
 EOF

@@ -25,6 +25,8 @@ on:
 
 permissions:
   contents: write # create the release and upload the assets
+  id-token: write # sign the provenance attestations
+  attestations: write # publish them
 
 concurrency:
   group: release
@@ -173,6 +175,32 @@ jobs:
         with:
           name: release-windows-${{ matrix.arch }}
           path: dist/*
+          if-no-files-found: error
+
+      # The machine-wide installer and the plain archive are built after the
+      # per-user installer is safely uploaded, so a failure here cannot cost the
+      # release the asset that already passed its smoke test. The archive is for
+      # machines where no installer may run at all: unzip it and start the exe.
+      - name: Build system installer and archive
+        shell: pwsh
+        env:
+          VERSION: ${{ needs.setup.outputs.version }}
+        run: |
+          npm run gulp vscode-win32-${{ matrix.arch }}-system-setup
+          $src = ".build/win32-${{ matrix.arch }}/system-setup/VSCodeSetup.exe"
+          if (-not (Test-Path $src)) { throw "System installer not found at $src - the packaging build did not produce it." }
+          New-Item -ItemType Directory -Force extra | Out-Null
+          Copy-Item $src "extra/RemnantsSetup-${{ matrix.arch }}.exe" -Force
+          $app = Join-Path (Split-Path $env:GITHUB_WORKSPACE) "VSCode-win32-${{ matrix.arch }}"
+          # 7z rather than Compress-Archive, which takes many minutes on a tree
+          # with this many files.
+          7z a -tzip -mx1 "extra/Remnants-win32-${{ matrix.arch }}-$env:VERSION.zip" "$app/*" | Select-Object -Last 2
+
+      - name: Upload system installer and archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-windows-${{ matrix.arch }}-extra
+          path: extra/*
           if-no-files-found: error
 
   linux:
@@ -324,6 +352,24 @@ jobs:
           path: packages/*
           if-no-files-found: error
 
+      # An Ubuntu runner cannot install an rpm, so the package is installed in a
+      # Fedora container instead. dnf resolves the Requires list the build
+      # computed, which is the part that a metadata check cannot prove.
+      - name: Smoke-test the rpm on Fedora
+        env:
+          VERSION: ${{ needs.setup.outputs.version }}
+          RPM_ARCH: ${{ matrix.rpm_arch }}
+        run: |
+          docker run --rm -v "$PWD/packages:/packages:ro" -e VERSION -e RPM_ARCH fedora:latest bash -c '
+            set -eu
+            dnf install -y "/packages/remnants-$VERSION-$RPM_ARCH.rpm" > /dev/null
+            reported=$(remnants --version | head -n1)
+            test "$reported" = "$VERSION" || { echo "rpm reports version $reported, expected $VERSION" >&2; exit 1; }
+            dnf remove -y remnants > /dev/null
+            test ! -e /usr/bin/remnants
+            echo "rpm install/remove round trip OK on Fedora"
+          '
+
   macos:
     name: macOS ${{ matrix.arch }} app
     needs: setup
@@ -393,6 +439,36 @@ jobs:
         with:
           name: release-darwin-${{ matrix.arch }}
           path: dist/*
+          if-no-files-found: error
+
+      # A disk image is what a macOS user expects to download: mount it, drag the
+      # app onto the Applications shortcut, eject. Plain hdiutil, so it needs no
+      # extra tooling, and the app is copied from the tree package-zip.sh already
+      # signed.
+      - name: Build disk image
+        env:
+          VERSION: ${{ needs.setup.outputs.version }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          stage=$(mktemp -d)/Remnants
+          mkdir -p "$stage" extra
+          ditto "$(dirname "$GITHUB_WORKSPACE")/VSCode-darwin-$ARCH/Remnants.app" "$stage/Remnants.app"
+          ln -s /Applications "$stage/Applications"
+          dmg="extra/Remnants-darwin-$ARCH-$VERSION.dmg"
+          hdiutil create -volname Remnants -srcfolder "$stage" -ov -format UDZO -quiet "$dmg"
+          # Mount the image back and check the app inside it is intact.
+          mount=$(mktemp -d)
+          hdiutil attach "$dmg" -mountpoint "$mount" -nobrowse -quiet
+          codesign --verify --deep --strict "$mount/Remnants.app"
+          test -L "$mount/Applications"
+          hdiutil detach "$mount" -quiet
+          echo "Disk image OK"
+
+      - name: Upload disk image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-darwin-${{ matrix.arch }}-dmg
+          path: extra/*
           if-no-files-found: error
 
   publish:
@@ -481,3 +557,15 @@ jobs:
             sort -k2 > SHA256SUMS
           cat SHA256SUMS
           gh release upload "$tag" SHA256SUMS --clobber
+
+      # None of these binaries is code-signed, so this is how a download can be
+      # traced back to the workflow that produced it:
+      #   gh attestation verify <file> -R dominikkoenitzer/Remnants
+      # Runs last, after everything is published, so an attestation problem can
+      # never hold back the release itself.
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: |
+            dist/*
+            SHA256SUMS

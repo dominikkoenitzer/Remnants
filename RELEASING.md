@@ -7,6 +7,10 @@ per version, carrying every platform it supports:
 | --- | --- |
 | `RemnantsUserSetup-x64.exe` | Windows x64, per-user installer |
 | `RemnantsUserSetup-arm64.exe` | Windows arm64, per-user installer |
+| `RemnantsSetup-<arch>.exe` | Windows machine-wide installer |
+| `Remnants-win32-<arch>-<version>.zip` | Windows, no installer |
+| `Remnants-darwin-arm64-<version>.dmg` | macOS disk image, Apple silicon |
+| `Remnants-darwin-x64-<version>.dmg` | macOS disk image, Intel |
 | `Remnants-darwin-arm64-<version>.zip` | macOS, Apple silicon |
 | `Remnants-darwin-x64-<version>.zip` | macOS, Intel |
 | `remnants-<version>-amd64.deb` | Debian, Ubuntu x64 |
@@ -17,6 +21,11 @@ per version, carrying every platform it supports:
 | `Remnants-linux-arm64-<version>.tar.gz` | any Linux arm64 |
 | `PKGBUILD` | Arch Linux, builds `remnants-bin` from the x64/arm64 tarball |
 | `SHA256SUMS` | checksums for everything above |
+
+Every asset also gets a signed provenance attestation
+(`actions/attest-build-provenance`), so a download can be traced back to this
+workflow with `gh attestation verify <file> -R dominikkoenitzer/Remnants` even
+though none of the binaries is code-signed.
 
 The README's [Install](README.md#install) section points users there.
 
@@ -132,7 +141,9 @@ gh release create "v$version" dist/* \
   apt or yum source.
 - **`build/darwin/package-zip.sh`** ad-hoc signs `Remnants.app`, verifies the
   signature, checks the binary runs headlessly, and zips it with `ditto` so
-  symlinks and the signature survive.
+  symlinks and the signature survive. The disk image is built afterwards in the
+  workflow with plain `hdiutil` from that same signed bundle, plus a symlink to
+  `/Applications` to drag onto.
 - **`build/linux/render-pkgbuild.sh`** fills
   `resources/linux/arch/PKGBUILD.template` in with the version, the release URLs and
   the tarball checksums. It covers only the architectures that actually built, and
@@ -144,10 +155,11 @@ gh release create "v$version" dist/* \
 
 ## After releasing
 
-- Every platform is smoke-tested before its assets are uploaded: the Windows job
-  installs the x64 setup silently and runs `remnants --version`, the Linux job does
-  an install/uninstall round trip with both the tarball and the deb and inspects the
-  rpm, and the macOS job verifies the ad-hoc signature and launches the app. The
-  arm64 assets cannot execute on their runners, so they are only checked
-  structurally; verify those on real hardware when you can.
+- Every platform is smoke-tested in the build job: the Windows job installs the x64
+  setup silently and runs `remnants --version`, the Linux job does an
+  install/uninstall round trip with the tarball and the deb and installs the rpm in
+  a Fedora container, and the macOS job verifies the ad-hoc signature, launches the
+  app and mounts the disk image back. The arm64 Windows and macOS assets cannot
+  execute on their runners, so they are only checked structurally (PE header,
+  signature); verify those on real hardware when you can.
 - The README badge and Install link resolve to the latest release automatically.
