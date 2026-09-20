@@ -66,20 +66,24 @@ Every asset is built by the [release workflow](.github/workflows/release.yml) on
 
 | Platform | Asset | Install with |
 | --- | --- | --- |
-| Windows x64 | `RemnantsUserSetup.exe` | run it (per-user, no admin) |
+| Windows x64 | `RemnantsUserSetup-x64.exe` | run it (per-user, no admin) |
+| Windows arm64 | `RemnantsUserSetup-arm64.exe` | run it (per-user, no admin) |
 | macOS (Apple silicon) | `Remnants-darwin-arm64-<version>.zip` | unzip, drag to Applications |
 | macOS (Intel) | `Remnants-darwin-x64-<version>.zip` | unzip, drag to Applications |
-| Linux x64 / arm64 | `Remnants-linux-<arch>-<version>.tar.gz` | `sudo ./install.sh` |
+| Debian, Ubuntu x64 / arm64 | `remnants-<version>-<amd64,arm64>.deb` | `sudo apt install ./<file>` |
+| Fedora, RHEL, openSUSE x64 / arm64 | `remnants-<version>-<x86_64,aarch64>.rpm` | `sudo dnf install ./<file>` |
+| Any Linux x64 / arm64 | `Remnants-linux-<arch>-<version>.tar.gz` | `sudo ./install.sh` |
 | Arch Linux | `PKGBUILD` | `makepkg -si` |
 
 Remnants is not code-signed on any platform, so each one asks you to confirm the
 first launch once. The steps below say how.
 
-### Windows (x64)
+### Windows (x64 and arm64)
 
-1. Download **`RemnantsUserSetup.exe`** and run it. It installs into your user
-   profile, so no administrator rights are needed, and adds **Remnants** to the
-   Start menu.
+1. Download **`RemnantsUserSetup-x64.exe`**, or **`RemnantsUserSetup-arm64.exe`**
+   on an ARM machine (Snapdragon laptops, Surface Pro X and later, Windows on a
+   Mac VM), and run it. It installs into your user profile, so no administrator
+   rights are needed, and adds **Remnants** to the Start menu.
 2. SmartScreen may warn *"Windows protected your PC."* Click **More info -> Run
    anyway**.
 
@@ -102,6 +106,23 @@ To get the `remnants` command in your shell, run **Shell Command: Install
 'remnants' command in PATH** from the Command Palette.
 
 ### Linux (x64 and arm64)
+
+On Debian, Ubuntu, Fedora, RHEL or openSUSE, install the package for your distro
+and let the package manager own it:
+
+```sh
+sudo apt install ./remnants-<version>-amd64.deb       # Debian, Ubuntu, Mint
+sudo dnf install ./remnants-<version>-x86_64.rpm      # Fedora, RHEL
+sudo zypper install ./remnants-<version>-x86_64.rpm   # openSUSE
+```
+
+Use the `arm64` / `aarch64` files on ARM hardware. Both packages install the app
+to `/usr/share/remnants`, put `remnants` on your PATH, and register the desktop
+entry, icon, MIME types and shell completions. `sudo apt remove remnants` or
+`sudo dnf remove remnants` takes it all back out. Neither package adds a
+repository or an update channel: new versions come from the releases page.
+
+#### Any other distribution
 
 The tarball works on any distribution: it carries the app plus a desktop entry,
 icon, MIME types and shell completions.
@@ -180,7 +201,7 @@ compiles the native modules from source, per `.npmrc`).
 
 | Platform | Also needs |
 | --- | --- |
-| Windows | **Visual Studio 2022 C++ Build Tools** with *Desktop development with C++* and the Spectre-mitigated libraries (`Microsoft.VisualStudio.Component.VC.Runtimes.x86.x64.Spectre`; not part of `--includeRecommended`, add it explicitly) |
+| Windows | **Visual Studio 2022 C++ Build Tools** with *Desktop development with C++* and the Spectre-mitigated libraries (`Microsoft.VisualStudio.Component.VC.Runtimes.x86.x64.Spectre`; not part of `--includeRecommended`, add it explicitly). Building the arm64 installer also needs the ARM64 C++ tools and their Spectre libraries |
 | macOS | Xcode Command Line Tools (`xcode-select --install`) |
 | Linux | `libkrb5-dev libx11-dev libxkbfile-dev libsecret-1-dev` on Debian/Ubuntu; `krb5 libx11 libxkbfile libsecret` on Arch |
 
@@ -205,10 +226,16 @@ Each packaging task emits the app next to the repository, as `../VSCode-<platfor
 npm run gulp vscode-win32-x64
 npm run gulp vscode-win32-x64-inno-updater
 npm run gulp vscode-win32-x64-user-setup
+# swap x64 for arm64 to cross-build the ARM installer on the same machine
 
 # Linux tarball -> dist/Remnants-linux-x64-<version>.tar.gz
 npm run gulp vscode-linux-x64
 bash build/linux/package-tarball.sh x64 "$(node -p "require('./package.json').version")" dist
+
+# Linux packages -> .build/linux/deb/amd64/deb/*.deb and .build/linux/rpm/x86_64/*.rpm
+# (needs dpkg-dev, fakeroot and rpm; the deb task downloads a Chromium sysroot)
+npm run gulp vscode-linux-x64-prepare-deb && npm run gulp vscode-linux-x64-build-deb
+npm run gulp vscode-linux-x64-prepare-rpm && npm run gulp vscode-linux-x64-build-rpm
 
 # macOS app -> dist/Remnants-darwin-arm64-<version>.zip
 npm run gulp vscode-darwin-arm64

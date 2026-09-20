@@ -63,17 +63,22 @@ jobs:
           echo "version=$ver" >> "$GITHUB_OUTPUT"
           echo "Releasing Remnants v$ver"
 
-  windows-x64:
-    name: Windows x64 installer
+  windows:
+    name: Windows ${{ matrix.arch }} installer
     needs: setup
     if: contains(fromJSON('["all","windows"]'), inputs.platforms || 'all')
     # Pin to windows-2022, not windows-latest: .npmrc sets build_from_source=true
     # so every native module compiles with node-gyp, and the bundled node-gyp can't
     # use the Visual Studio 18 toolchain on the newer windows-latest image
     # ("find VS unknown version"). windows-2022 ships the VS 2022 C++ tools this
-    # tree expects (see README "Build from source").
+    # tree expects, including the ARM64 cross compiler (see README "Build from
+    # source").
     runs-on: windows-2022
     timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x64, arm64]
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -94,35 +99,84 @@ jobs:
         with:
           python-version: "3.13"
 
+      # npm_config_arch is what makes node-gyp compile the native modules for the
+      # target architecture. The arm64 installer is cross-built on an x64 runner,
+      # the same way upstream builds it.
       - name: Install dependencies
         run: npm ci
+        env:
+          npm_config_arch: ${{ matrix.arch }}
 
       - name: Download built-in extensions
         run: npm run download-builtin-extensions
 
       - name: Build app and installer
         run: |
-          npm run gulp vscode-win32-x64
-          npm run gulp vscode-win32-x64-inno-updater
-          npm run gulp vscode-win32-x64-user-setup
+          npm run gulp vscode-win32-${{ matrix.arch }}
+          npm run gulp vscode-win32-${{ matrix.arch }}-inno-updater
+          npm run gulp vscode-win32-${{ matrix.arch }}-user-setup
+
+      # The packaged tree lands next to the repo. Confirm the executable really is
+      # machine code for the target architecture before shipping it: a
+      # misconfigured cross build quietly produces an x64 binary inside an arm64
+      # installer.
+      - name: Verify the build architecture
+        shell: pwsh
+        run: |
+          $exe = Join-Path (Split-Path $env:GITHUB_WORKSPACE) "VSCode-win32-${{ matrix.arch }}/Remnants.exe"
+          if (-not (Test-Path $exe)) { throw "Packaged app not found at $exe." }
+          $stream = [System.IO.File]::OpenRead($exe)
+          try {
+            $reader = New-Object System.IO.BinaryReader($stream)
+            $stream.Position = 0x3C
+            $stream.Position = $reader.ReadInt32() + 4
+            $machine = $reader.ReadUInt16()
+          } finally { $stream.Dispose() }
+          $expected = @{ 'x64' = 0x8664; 'arm64' = 0xAA64 }['${{ matrix.arch }}']
+          if ($machine -ne $expected) {
+            throw ("Remnants.exe reports machine 0x{0:X4}, expected 0x{1:X4}." -f $machine, $expected)
+          }
+          "Remnants.exe is ${{ matrix.arch }}, machine 0x{0:X4}" -f $machine
 
       - name: Stage installer
         shell: pwsh
         run: |
-          $src = ".build/win32-x64/user-setup/VSCodeSetup.exe"
+          $src = ".build/win32-${{ matrix.arch }}/user-setup/VSCodeSetup.exe"
           if (-not (Test-Path $src)) { throw "Installer not found at $src - the packaging build did not produce it." }
           New-Item -ItemType Directory -Force dist | Out-Null
-          Copy-Item $src "dist/RemnantsUserSetup.exe" -Force
+          Copy-Item $src "dist/RemnantsUserSetup-${{ matrix.arch }}.exe" -Force
+
+      # Install the x64 installer exactly as a user would and check the app
+      # actually runs, before any of it is published. /MERGETASKS=!runcode keeps
+      # Inno from launching the editor at the end of a silent install. The arm64
+      # installer cannot execute on an x64 runner, so it only gets the header
+      # check above.
+      - name: Smoke-test the installer
+        if: matrix.arch == 'x64'
+        shell: pwsh
+        run: |
+          $installer = Resolve-Path "dist/RemnantsUserSetup-x64.exe"
+          Start-Process $installer -Wait -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/MERGETASKS=!runcode'
+          $root = Join-Path $env:LOCALAPPDATA "Programs/Remnants"
+          if (-not (Test-Path (Join-Path $root "Remnants.exe"))) { throw "Remnants.exe is missing after a silent install." }
+          $cli = Join-Path $root "bin/remnants.cmd"
+          if (-not (Test-Path $cli)) { throw "The remnants command is missing after a silent install." }
+          # Runs the packaged Electron as plain node, so no desktop session is needed.
+          $reported = (& $cli --version | Select-Object -First 1).Trim()
+          if ($reported -ne "${{ needs.setup.outputs.version }}") {
+            throw "Installed build reports version '$reported', expected '${{ needs.setup.outputs.version }}'."
+          }
+          "Installer round trip OK, version $reported"
 
       - name: Upload installer artifact
         uses: actions/upload-artifact@v4
         with:
-          name: release-windows-x64
+          name: release-windows-${{ matrix.arch }}
           path: dist/*
           if-no-files-found: error
 
   linux:
-    name: Linux ${{ matrix.arch }} tarball
+    name: Linux ${{ matrix.arch }} packages
     needs: setup
     if: contains(fromJSON('["all","linux"]'), inputs.platforms || 'all')
     runs-on: ${{ matrix.runner }}
@@ -137,8 +191,12 @@ jobs:
           # current Ubuntu alike.
           - arch: x64
             runner: ubuntu-22.04
+            deb_arch: amd64
+            rpm_arch: x86_64
           - arch: arm64
             runner: ubuntu-22.04-arm
+            deb_arch: arm64
+            rpm_arch: aarch64
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -155,11 +213,18 @@ jobs:
           python-version: "3.13"
 
       # Headers the native modules compile against (.npmrc sets
-      # build_from_source=true). Same list the CI type-check job installs.
+      # build_from_source=true), plus the tools that build the deb and the rpm.
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libkrb5-dev libx11-dev libxkbfile-dev libsecret-1-dev desktop-file-utils
+          sudo apt-get install -y libkrb5-dev libx11-dev libxkbfile-dev libsecret-1-dev \
+            desktop-file-utils dpkg-dev fakeroot rpm
+          # The rpm dependency scanner calls this helper directly; newer rpm
+          # releases ship only the rpmdeps binary that it wraps.
+          if [ ! -x /usr/lib/rpm/find-requires ]; then
+            printf '%s\n' '#!/bin/sh' 'exec /usr/lib/rpm/rpmdeps --requires' | sudo tee /usr/lib/rpm/find-requires >/dev/null
+            sudo chmod +x /usr/lib/rpm/find-requires
+          fi
 
       - name: Install dependencies
         run: npm ci
@@ -198,11 +263,65 @@ jobs:
           test ! -e "$HOME/.local/lib/remnants"
           echo "Tarball install/uninstall round trip OK"
 
+      # Upload the tarball before building the distro packages, so a packaging
+      # failure never costs the release an artifact that already passed.
       - name: Upload tarball artifact
         uses: actions/upload-artifact@v4
         with:
           name: release-linux-${{ matrix.arch }}
           path: dist/*
+          if-no-files-found: error
+
+      # The deb dependency list is computed with dpkg-shlibdeps against the
+      # Chromium and VS Code sysroots, which this step downloads. The token is
+      # sent as HTTP basic auth, so it needs the x-access-token username form.
+      - name: Build deb package
+        env:
+          GITHUB_TOKEN: x-access-token:${{ github.token }}
+        run: |
+          npm run gulp vscode-linux-${{ matrix.arch }}-prepare-deb
+          npm run gulp vscode-linux-${{ matrix.arch }}-build-deb
+
+      - name: Build rpm package
+        run: |
+          npm run gulp vscode-linux-${{ matrix.arch }}-prepare-rpm
+          npm run gulp vscode-linux-${{ matrix.arch }}-build-rpm
+
+      # dpkg-deb and rpmbuild encode a build timestamp in the file name. Rename to
+      # a stable name so re-running a release replaces its assets instead of
+      # piling new ones up next to the old.
+      - name: Stage packages
+        env:
+          VERSION: ${{ needs.setup.outputs.version }}
+        run: |
+          mkdir -p packages
+          cp .build/linux/deb/${{ matrix.deb_arch }}/deb/*.deb "packages/remnants-$VERSION-${{ matrix.deb_arch }}.deb"
+          cp .build/linux/rpm/${{ matrix.rpm_arch }}/*.rpm "packages/remnants-$VERSION-${{ matrix.rpm_arch }}.rpm"
+          ls -lh packages
+
+      # Install the deb the way a Debian or Ubuntu user would, run the installed
+      # command, then remove it again. The rpm cannot be installed here, so it is
+      # only inspected.
+      - name: Smoke-test the packages
+        env:
+          VERSION: ${{ needs.setup.outputs.version }}
+        run: |
+          sudo apt-get install -y "./packages/remnants-$VERSION-${{ matrix.deb_arch }}.deb"
+          reported=$(remnants --version | head -n1)
+          test "$reported" = "$VERSION" || { echo "deb reports version '$reported', expected '$VERSION'." >&2; exit 1; }
+          desktop-file-validate /usr/share/applications/remnants.desktop
+          sudo apt-get remove -y remnants
+          test ! -e /usr/bin/remnants
+          echo "deb install/remove round trip OK"
+          rpm -qip "packages/remnants-$VERSION-${{ matrix.rpm_arch }}.rpm"
+          rpm -qlp "packages/remnants-$VERSION-${{ matrix.rpm_arch }}.rpm" | grep -q '^/usr/bin/remnants$'
+          echo "rpm metadata OK"
+
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-linux-${{ matrix.arch }}-packages
+          path: packages/*
           if-no-files-found: error
 
   macos:
@@ -249,6 +368,26 @@ jobs:
           ARCH: ${{ matrix.arch }}
         run: bash build/darwin/package-zip.sh "$ARCH" "$VERSION" "$GITHUB_WORKSPACE/dist"
 
+      # Unzip what is about to be published and check that macOS accepts the
+      # signature and that the app runs. An ad-hoc signature that did not stick
+      # makes Apple silicon refuse to launch the app at all.
+      - name: Smoke-test the app bundle
+        env:
+          VERSION: ${{ needs.setup.outputs.version }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          tmp=$(mktemp -d)
+          ditto -xk "dist/Remnants-darwin-$ARCH-$VERSION.zip" "$tmp"
+          app="$tmp/Remnants.app"
+          test -d "$app"
+          codesign --verify --deep --strict "$app"
+          # Same invocation the bundled bin/remnants shim uses: the packaged
+          # Electron as plain node, so no display is needed.
+          reported=$(ELECTRON_RUN_AS_NODE=1 "$app/Contents/MacOS/Remnants" \
+            "$app/Contents/Resources/app/out/cli.js" --version | head -n1)
+          test "$reported" = "$VERSION" || { echo "App reports version '$reported', expected '$VERSION'." >&2; exit 1; }
+          echo "App bundle signature and launch OK, version $reported"
+
       - name: Upload app artifact
         uses: actions/upload-artifact@v4
         with:
@@ -258,7 +397,7 @@ jobs:
 
   publish:
     name: Publish release
-    needs: [setup, windows-x64, linux, macos]
+    needs: [setup, windows, linux, macos]
     # Publish whatever built. A platform that failed, or was not selected, must
     # not hold back the platforms that succeeded.
     if: always() && needs.setup.result == 'success'
@@ -292,23 +431,6 @@ jobs:
           VERSION: ${{ needs.setup.outputs.version }}
         run: bash build/linux/render-pkgbuild.sh "$VERSION" dist
 
-      # A single-platform re-run only rebuilds some of the assets, so merge this
-      # run's checksums over whatever the release already lists instead of
-      # replacing the file with a partial one.
-      - name: Checksum every asset
-        env:
-          GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ needs.setup.outputs.version }}
-        run: |
-          new=$(mktemp)
-          prev=$(mktemp)
-          (cd dist && sha256sum -- *) > "$new"
-          gh release download "v$VERSION" -p SHA256SUMS -O "$prev" --clobber 2>/dev/null || : > "$prev"
-          # Entries from this run win; keep older ones for files it did not rebuild.
-          { cat "$new"; awk 'NR==FNR { seen[$2]; next } !($2 in seen)' "$new" "$prev"; } |
-            sort -k2 > dist/SHA256SUMS
-          cat dist/SHA256SUMS
-
       - name: Create or update GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -316,19 +438,46 @@ jobs:
           DRAFT: ${{ inputs.draft }}
         run: |
           tag="v$VERSION"
-          notes=$(mktemp)
-          bash build/release-notes.sh "$VERSION" dist > "$notes"
-          cat "$notes"
           if gh release view "$tag" >/dev/null 2>&1; then
-            echo "Release $tag already exists - updating its assets and notes."
+            echo "Release $tag already exists - updating its assets."
             gh release upload "$tag" dist/* --clobber
-            gh release edit "$tag" --notes-file "$notes"
           else
             draft_flag=""
             if [ "$DRAFT" = "true" ]; then draft_flag="--draft"; fi
             gh release create "$tag" dist/* \
               --title "Remnants v$VERSION" \
-              --notes-file "$notes" \
+              --notes "Publishing." \
               --target "${{ github.sha }}" \
               $draft_flag
           fi
+
+      # Notes and checksums describe the release as it now stands, not only what
+      # this run rebuilt, so a single-platform re-run cannot drop the other
+      # platforms from either file.
+      - name: Write release notes and checksums
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.setup.outputs.version }}
+        run: |
+          tag="v$VERSION"
+          assets=$(mktemp)
+          gh release view "$tag" --json assets --jq '.assets[].name' | grep -v '^SHA256SUMS$' | sort > "$assets"
+          cat "$assets"
+
+          notes=$(mktemp)
+          bash build/release-notes.sh "$VERSION" "$assets" > "$notes"
+          cat "$notes"
+          gh release edit "$tag" --notes-file "$notes"
+
+          new=$(mktemp)
+          prev=$(mktemp)
+          (cd dist && sha256sum -- *) | grep -v ' SHA256SUMS$' > "$new"
+          gh release download "$tag" -p SHA256SUMS -O "$prev" --clobber 2>/dev/null || : > "$prev"
+          # Entries from this run win, older ones survive for assets it did not
+          # rebuild, and entries for assets that are no longer on the release are
+          # dropped.
+          { cat "$new"; awk 'NR==FNR { seen[$2]; next } !($2 in seen)' "$new" "$prev"; } |
+            awk 'NR==FNR { keep[$1]; next } ($2 in keep)' "$assets" - |
+            sort -k2 > SHA256SUMS
+          cat SHA256SUMS
+          gh release upload "$tag" SHA256SUMS --clobber

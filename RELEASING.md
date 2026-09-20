@@ -1,15 +1,20 @@
 # Releasing Remnants
 
 Remnants ships from a single [GitHub Release](https://github.com/dominikkoenitzer/Remnants/releases)
-per version, carrying one asset per platform:
+per version, carrying every platform it supports:
 
 | Asset | Platform |
 | --- | --- |
-| `RemnantsUserSetup.exe` | Windows x64, per-user installer |
+| `RemnantsUserSetup-x64.exe` | Windows x64, per-user installer |
+| `RemnantsUserSetup-arm64.exe` | Windows arm64, per-user installer |
 | `Remnants-darwin-arm64-<version>.zip` | macOS, Apple silicon |
 | `Remnants-darwin-x64-<version>.zip` | macOS, Intel |
-| `Remnants-linux-x64-<version>.tar.gz` | Linux x64 |
-| `Remnants-linux-arm64-<version>.tar.gz` | Linux arm64 |
+| `remnants-<version>-amd64.deb` | Debian, Ubuntu x64 |
+| `remnants-<version>-arm64.deb` | Debian, Ubuntu arm64 |
+| `remnants-<version>-x86_64.rpm` | Fedora, RHEL, openSUSE x64 |
+| `remnants-<version>-aarch64.rpm` | Fedora, RHEL, openSUSE arm64 |
+| `Remnants-linux-x64-<version>.tar.gz` | any Linux x64 |
+| `Remnants-linux-arm64-<version>.tar.gz` | any Linux arm64 |
 | `PKGBUILD` | Arch Linux, builds `remnants-bin` from the x64/arm64 tarball |
 | `SHA256SUMS` | checksums for everything above |
 
@@ -50,6 +55,11 @@ that one.
   `build_from_source=true`, so every native module compiles with node-gyp, and the
   bundled node-gyp cannot use the Visual Studio 18 toolchain on `windows-latest`
   ("find VS unknown version").
+- **`npm_config_arch` on the Windows job.** Both installers are built on the same
+  x64 runner; that variable is what makes node-gyp compile the native modules for
+  arm64. Without it the arm64 installer would carry x64 `.node` files. The job
+  reads the PE header of the packaged `Remnants.exe` afterwards to prove the
+  architecture is the one it claims.
 - **Node 22 everywhere.** The committed `package-lock.json` is only in sync under
   npm 10's resolver; npm 11 (bundled with Node 24) rejects `npm ci` over the
   `ssh2 > cpu-features` override. `VSCODE_SKIP_NODE_VERSION_CHECK=1` bypasses the
@@ -71,15 +81,22 @@ npm install
 npm run download-builtin-extensions
 version=$(node -p "require('./package.json').version")
 
-# Windows (from a Windows machine)
+# Windows (from a Windows machine; swap x64 for arm64 to cross-build the ARM
+# installer, with npm_config_arch=arm64 set before npm install)
 npm run gulp vscode-win32-x64
 npm run gulp vscode-win32-x64-inno-updater
 npm run gulp vscode-win32-x64-user-setup
-# -> .build\win32-x64\user-setup\VSCodeSetup.exe, rename to RemnantsUserSetup.exe
+# -> .build\win32-x64\user-setup\VSCodeSetup.exe, rename to RemnantsUserSetup-x64.exe
 
-# Linux
+# Linux tarball
 npm run gulp vscode-linux-x64
 bash build/linux/package-tarball.sh x64 "$version" dist
+
+# Linux packages (needs dpkg-dev, fakeroot and rpm)
+npm run gulp vscode-linux-x64-prepare-deb && npm run gulp vscode-linux-x64-build-deb
+npm run gulp vscode-linux-x64-prepare-rpm && npm run gulp vscode-linux-x64-build-rpm
+cp .build/linux/deb/amd64/deb/*.deb "dist/remnants-$version-amd64.deb"
+cp .build/linux/rpm/x86_64/*.rpm "dist/remnants-$version-x86_64.rpm"
 
 # macOS (from a Mac; x64 assets need an Intel Mac or Rosetta)
 npm run gulp vscode-darwin-arm64
@@ -96,7 +113,7 @@ this repo (`gh auth login`):
 ```sh
 gh release create "v$version" dist/* \
   --title "Remnants v$version" \
-  --notes-file <(bash build/release-notes.sh "$version" dist)
+  --notes-file <(ls dist > /tmp/assets && bash build/release-notes.sh "$version" /tmp/assets)
 ```
 
 ## What the packaging scripts do
@@ -104,10 +121,15 @@ gh release create "v$version" dist/* \
 - **`build/linux/package-tarball.sh`** renames `../VSCode-linux-<arch>` to
   `Remnants-linux-<arch>`, renders the desktop entry, URL handler, icon, AppStream
   metadata, MIME type and shell completions from the templates in `resources/linux`,
-  adds `install.sh` / `uninstall.sh`, and tars it. Only the deb/rpm/snap gulp tasks
-  generate those integration files otherwise, and those need a Chromium sysroot plus
-  `dpkg-shlibdeps` to compute distro dependencies. A tarball needs none of that and
-  installs anywhere, so it is what we ship.
+  adds `install.sh` / `uninstall.sh`, and tars it. It needs no sysroot and installs
+  on any distribution, which is why it ships next to the deb and the rpm.
+- **The deb and rpm gulp tasks** package the same build for apt and dnf. The deb
+  task downloads a Chromium sysroot and runs `dpkg-shlibdeps` to compute the distro
+  dependencies; `build/linux/dependencies-generator.ts` skips binaries this fork
+  does not build (the tunnel CLI) and warns about dependency drift instead of
+  failing the build. The Debian and RPM templates in `resources/linux` carry no
+  Microsoft repository, key or branding: installing a Remnants package changes no
+  apt or yum source.
 - **`build/darwin/package-zip.sh`** ad-hoc signs `Remnants.app`, verifies the
   signature, checks the binary runs headlessly, and zips it with `ditto` so
   symlinks and the signature survive.
@@ -115,13 +137,17 @@ gh release create "v$version" dist/* \
   `resources/linux/arch/PKGBUILD.template` in with the version, the release URLs and
   the tarball checksums. It covers only the architectures that actually built, and
   skips itself if no Linux tarball is present.
-- **`build/release-notes.sh`** writes the release body, mentioning only the
-  platforms present in `dist/`.
+- **`build/release-notes.sh`** writes the release body from a list of asset names,
+  mentioning only the platforms the release actually has. The publish job feeds it
+  the release's own asset list, so re-running one platform never drops the others
+  from the notes or from `SHA256SUMS`.
 
 ## After releasing
 
-- The Linux job already installs the tarball, launches the binary and uninstalls it
-  again as a smoke test, so a broken Linux asset fails the build rather than
-  shipping. Windows and macOS are not installed end to end in CI; verify those on a
-  clean machine.
+- Every platform is smoke-tested before its assets are uploaded: the Windows job
+  installs the x64 setup silently and runs `remnants --version`, the Linux job does
+  an install/uninstall round trip with both the tarball and the deb and inspects the
+  rpm, and the macOS job verifies the ad-hoc signature and launches the app. The
+  arm64 assets cannot execute on their runners, so they are only checked
+  structurally; verify those on real hardware when you can.
 - The README badge and Install link resolve to the latest release automatically.
