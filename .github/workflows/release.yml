@@ -206,6 +206,22 @@ jobs:
           # with this many files.
           7z a -tzip -mx1 "extra/Remnants-win32-${{ matrix.arch }}-$env:VERSION.zip" "$app/*" | Select-Object -Last 2
 
+      # The archive ships without an installer, so check that an unpacked copy
+      # runs as-is. 7z again, because Expand-Archive crawls on a tree this size.
+      - name: Smoke-test the archive
+        if: matrix.arch == 'x64'
+        shell: pwsh
+        env:
+          VERSION: ${{ needs.setup.outputs.version }}
+        run: |
+          $tmp = Join-Path $env:RUNNER_TEMP "archive"
+          7z x -o"$tmp" "extra/Remnants-win32-x64-$env:VERSION.zip" | Select-Object -Last 2
+          $cli = Join-Path $tmp "bin/remnants.cmd"
+          if (-not (Test-Path $cli)) { throw "The archive has no bin/remnants.cmd." }
+          $reported = (& $cli --version | Select-Object -First 1).Trim()
+          if ($reported -ne $env:VERSION) { throw "The archive reports version '$reported', expected '$env:VERSION'." }
+          "Archive runs unpacked, version $reported"
+
       - name: Upload system installer and archive
         uses: actions/upload-artifact@v4
         with:
@@ -392,6 +408,26 @@ jobs:
           path: packages/*
           if-no-files-found: error
 
+      # The deb was installed on the build host itself, which is the distro it
+      # was built on. Debian stable is a different one, and it is where the
+      # computed dependency list has to hold up.
+      - name: Smoke-test the deb on Debian
+        env:
+          VERSION: ${{ needs.setup.outputs.version }}
+          DEB_ARCH: ${{ matrix.deb_arch }}
+        run: |
+          docker run --rm -v "$PWD/packages:/packages:ro" -e VERSION -e DEB_ARCH debian:12 bash -c '
+            set -eu
+            export DEBIAN_FRONTEND=noninteractive
+            apt-get update > /dev/null
+            apt-get install -y "/packages/remnants-$VERSION-$DEB_ARCH.deb" > /dev/null
+            reported=$(remnants --version | head -n1)
+            test "$reported" = "$VERSION" || { echo "deb reports version $reported, expected $VERSION" >&2; exit 1; }
+            apt-get remove -y remnants > /dev/null
+            test ! -e /usr/bin/remnants
+            echo "deb install/remove round trip OK on Debian 12"
+          '
+
       # An Ubuntu runner cannot install an rpm, so the package is installed in a
       # Fedora container instead. dnf resolves the Requires list the build
       # computed, which is the part that a metadata check cannot prove.
@@ -520,6 +556,37 @@ jobs:
           name: release-darwin-${{ matrix.arch }}-dmg
           path: extra/*
           if-no-files-found: error
+
+  # The one asset its own build job cannot execute: the arm64 installer is
+  # cross-built on an x64 runner. This installs it on real ARM hardware and runs
+  # the editor, so nothing reaches an ARM machine untested. Deliberately not in
+  # the publish job's needs - it verifies, it does not gate.
+  verify-windows-arm64:
+    name: Verify the Windows arm64 installer
+    needs: [setup, windows]
+    if: contains(fromJSON('["all","windows"]'), inputs.platforms || 'all')
+    runs-on: windows-11-arm
+    timeout-minutes: 30
+    steps:
+      - name: Download the installer
+        uses: actions/download-artifact@v4
+        with:
+          name: release-windows-arm64
+          path: dist
+
+      - name: Install it and run the editor
+        shell: pwsh
+        env:
+          VERSION: ${{ needs.setup.outputs.version }}
+        run: |
+          $installer = Resolve-Path "dist/RemnantsUserSetup-arm64.exe"
+          Start-Process $installer -Wait -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/MERGETASKS=!runcode'
+          $root = Join-Path $env:LOCALAPPDATA "Programs/Remnants"
+          if (-not (Test-Path (Join-Path $root "Remnants.exe"))) { throw "Remnants.exe is missing after a silent install." }
+          $cli = Join-Path $root "bin/remnants.cmd"
+          $reported = (& $cli --version | Select-Object -First 1).Trim()
+          if ($reported -ne $env:VERSION) { throw "The arm64 build reports version '$reported', expected '$env:VERSION'." }
+          "Windows arm64 installer runs on ARM hardware, version $reported"
 
   publish:
     name: Publish release
