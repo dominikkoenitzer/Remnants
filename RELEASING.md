@@ -51,8 +51,13 @@ push. A full run takes roughly 30-45 minutes, with the platforms in parallel.
 4. The build jobs upload their assets as run artifacts; the `publish` job collects
    them, renders `PKGBUILD` and `SHA256SUMS`, and creates or updates the release.
 
-Re-running for an existing tag is safe: `publish` re-uploads the assets to that
-release (`--clobber`) and refreshes the notes instead of failing. Because each
+Re-running for an existing tag is safe in the sense that nothing breaks: `publish`
+re-uploads the assets to that release (`--clobber`) and refreshes the notes instead
+of failing. It is not free, though. The builds are not byte-reproducible, so every
+re-run gives the same version new checksums, and anyone who already verified a
+download finds it changed underneath them. Once a version is published and its
+assets are verified, leave them alone and let improvements ride the next version,
+unless something about them is actually broken. Because each
 platform is a separate job, a failure on one still ships the others - the `publish`
 job runs on `always()` and takes whatever artifacts exist. If it published a partial
 set, fix the broken platform and re-run the workflow with **platforms** set to just
