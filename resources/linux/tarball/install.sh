@@ -66,6 +66,21 @@ else
 	fi
 fi
 
+# A minimal system can be missing libraries Electron links against, and the
+# loader's own error names a path inside the install rather than what to fetch.
+# ldd names the libraries themselves, before anything has been copied anywhere.
+if command -v ldd >/dev/null 2>&1; then
+	missing=$(ldd "$here/$APP" 2>/dev/null | awk '/not found/ { print $1 }' | sort -u)
+	if [ -n "$missing" ]; then
+		echo "These shared libraries are missing on this system:" >&2
+		echo "$missing" | sed 's/^/  /' >&2
+		echo >&2
+		echo "$NAME will not start until they are installed. The .deb and .rpm packages" >&2
+		echo "on the release page pull them in for you; this tarball cannot." >&2
+		echo >&2
+	fi
+fi
+
 echo "Installing $NAME $VERSION into $prefix"
 
 # tar rather than cp so symlinks and the executable bits survive. install.sh,
