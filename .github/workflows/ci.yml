@@ -61,6 +61,19 @@ jobs:
       - name: Load the build tasks
         run: npm run gulp -- --tasks-simple > /dev/null
 
+      # Bundling is where a broken extension dependency shows up, and a type
+      # check never gets there: an extension whose dependency stopped pulling in
+      # a package it imports still type-checks fine and only fails twenty
+      # minutes into a release build. The browser bundlers are left out because
+      # the packaging task drives them with arguments they need.
+      - name: Bundle the built-in extensions
+        run: |
+          status=0
+          for script in extensions/*/esbuild.mts; do
+            node "$script" || { echo "$script failed" >&2; status=1; }
+          done
+          exit $status
+
       # The first thing every release job does after installing, and the step
       # that breaks when a transitively hoisted build dependency changes shape.
       - name: Download built-in extensions
