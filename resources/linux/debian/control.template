@@ -5,14 +5,10 @@ Depends: @@DEPENDS@@
 Recommends: @@RECOMMENDS@@
 Priority: optional
 Architecture: @@ARCHITECTURE@@
-Maintainer: Microsoft Corporation <vscode-linux@microsoft.com>
-Homepage: https://code.visualstudio.com/
+Maintainer: dominikkoenitzer <dominikkoenitzer@users.noreply.github.com>
+Homepage: https://github.com/dominikkoenitzer/Remnants
 Installed-Size: @@INSTALLEDSIZE@@
-Provides: visual-studio-@@NAME@@
-Conflicts: visual-studio-@@NAME@@
-Replaces: visual-studio-@@NAME@@
-Description: Code editing. Redefined.
- Visual Studio Code is a new choice of tool that combines the simplicity of
- a code editor with what developers need for the core edit-build-debug cycle.
- See https://code.visualstudio.com/docs/setup/linux for installation
- instructions and FAQ.
+Description: A clean, AI-free code editor
+ Remnants is a build of Code - OSS with every built-in AI feature removed:
+ no chat panel, no completions service, no sign-in and no telemetry.
+ Extensions come from Open VSX.
