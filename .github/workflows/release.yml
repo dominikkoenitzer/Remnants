@@ -318,6 +318,11 @@ jobs:
             }
             if (!process.exitCode) { console.log("Open VSX gallery, telemetry off, no bundled AI dependencies."); }
           ' "$app"
+          # The highest glibc symbol version the binary needs, which is what
+          # decides how old a distro can be and what the README claims.
+          objdump -T "$(dirname "$app")/remnants" |
+            grep -o 'GLIBC_[0-9.]*' | sort -uV | tail -1 |
+            sed 's/^/Needs at least /'
 
       - name: Stage tarball
         env:
