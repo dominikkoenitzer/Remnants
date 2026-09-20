@@ -322,7 +322,8 @@ jobs:
           # is what decides how old a distro can be and what the README claims.
           # The executable alone is not enough: the bundled libraries and the
           # native modules are what actually set the floor.
-          find "$(dirname "$(dirname "$app")")" -type f |
+          root=$(dirname "$(dirname "$app")")
+          find "$root" -type f \( -name '*.so' -o -name '*.so.*' -o -name '*.node'             -o -name remnants -o -name chrome-sandbox -o -name chrome_crashpad_handler \) |
             xargs -r -n1 objdump -T 2> /dev/null |
             grep -o 'GLIBC_[0-9.]*' | sort -uV | tail -1 |
             sed 's/^/Needs at least /'

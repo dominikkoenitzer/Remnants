@@ -153,6 +153,15 @@ gh release create "v$version" dist/* \
   the release's own asset list, so re-running one platform never drops the others
   from the notes or from `SHA256SUMS`.
 
+## Supported platform floors
+
+The Linux job prints the highest glibc symbol version anything in the build needs
+("Needs at least GLIBC_2.34" at the time of writing) and the macOS job prints the
+bundle's `LSMinimumSystemVersion`. Both end up in the README and the release notes,
+so read them out of the log after a dependency or Electron bump rather than
+assuming they held: a single bundled library is enough to move the floor, and the
+main executable on its own reports a much older one than the build really needs.
+
 ## After releasing
 
 - Every asset is exercised before or right after it is published, on hardware of its
