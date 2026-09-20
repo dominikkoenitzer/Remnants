@@ -110,6 +110,7 @@ cp .build/linux/rpm/x86_64/*.rpm "dist/remnants-$version-x86_64.rpm"
 # macOS (from a Mac; x64 assets need an Intel Mac or Rosetta)
 npm run gulp vscode-darwin-arm64
 bash build/darwin/package-zip.sh arm64 "$version" dist
+bash build/darwin/package-dmg.sh arm64 "$version" dist   # after the zip, which signs the bundle
 
 # Arch package + checksums, once the tarballs are in dist/
 bash build/linux/render-pkgbuild.sh "$version" dist
@@ -141,9 +142,12 @@ gh release create "v$version" dist/* \
   apt or yum source.
 - **`build/darwin/package-zip.sh`** ad-hoc signs `Remnants.app`, verifies the
   signature, checks the binary runs headlessly, and zips it with `ditto` so
-  symlinks and the signature survive. The disk image is built afterwards in the
-  workflow with plain `hdiutil` from that same signed bundle, plus a symlink to
-  `/Applications` to drag onto.
+  symlinks and the signature survive.
+- **`build/darwin/package-dmg.sh`** builds the disk image from that same signed
+  bundle with plain `hdiutil`, adding the `/Applications` symlink to drag onto,
+  then mounts the finished image and re-verifies the bundle inside it. Run it
+  after `package-zip.sh`: it copies the bundle as it stands, and an unsigned one
+  will not launch on Apple silicon.
 - **`build/linux/render-pkgbuild.sh`** fills
   `resources/linux/arch/PKGBUILD.template` in with the version, the release URLs and
   the tarball checksums. It covers only the architectures that actually built, and
