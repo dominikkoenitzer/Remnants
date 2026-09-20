@@ -389,6 +389,9 @@ jobs:
           fi
           echo "Renderer process up: the workbench started."
           kill "$pid" 2> /dev/null || true
+          # Electron leaves helper processes behind, and a lingering child can
+          # hold the step open after the script itself is done.
+          pkill -f "$data" 2> /dev/null || true
           SCRIPT
           timeout 240 xvfb-run -a bash "$tmp/launch.sh" "$tmp/Remnants-linux-x64/remnants" "$tmp"
 
