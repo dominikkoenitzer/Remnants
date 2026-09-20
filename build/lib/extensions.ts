@@ -245,7 +245,7 @@ export function fromMarketplace(serviceUrl: string, { name: extensionName, versi
 	})
 		.pipe(vinylZip.src())
 		.pipe(filter('extension/**'))
-		.pipe(rename(p => p.dirname = p.dirname!.replace(/^extension\/?/, '')))
+		.pipe(rename(p => { p.dirname = p.dirname!.replace(/^extension\/?/, ''); }))
 		.pipe(packageJsonFilter)
 		.pipe(buffer())
 		.pipe(jsonEditor({ __metadata: metadata }))
@@ -270,7 +270,7 @@ export function fromVsix(vsixPath: string, { name: extensionName, version, sha25
 		}))
 		.pipe(vinylZip.src())
 		.pipe(filter('extension/**'))
-		.pipe(rename(p => p.dirname = p.dirname!.replace(/^extension\/?/, '')))
+		.pipe(rename(p => { p.dirname = p.dirname!.replace(/^extension\/?/, ''); }))
 		.pipe(packageJsonFilter)
 		.pipe(buffer())
 		.pipe(jsonEditor({ __metadata: metadata }))
@@ -291,7 +291,7 @@ export function fromGithub({ name, version, repo, sha256, metadata }: IExtension
 		.pipe(buffer())
 		.pipe(vinylZip.src())
 		.pipe(filter('extension/**'))
-		.pipe(rename(p => p.dirname = p.dirname!.replace(/^extension\/?/, '')))
+		.pipe(rename(p => { p.dirname = p.dirname!.replace(/^extension\/?/, ''); }))
 		.pipe(packageJsonFilter)
 		.pipe(buffer())
 		.pipe(jsonEditor({ __metadata: metadata }))
@@ -425,7 +425,7 @@ function doPackageLocalExtensionsStream(forWeb: boolean, disableMangle: boolean,
 		es.merge(
 			...localExtensionsDescriptions.map(extension => {
 				return fromLocal(extension.path, forWeb, disableMangle)
-					.pipe(rename(p => p.dirname = `extensions/${extension.name}/${p.dirname}`));
+					.pipe(rename(p => { p.dirname = `extensions/${extension.name}/${p.dirname}`; }));
 			})
 		)
 	);
@@ -464,7 +464,7 @@ export function packageMarketplaceExtensionsStream(forWeb: boolean): Stream {
 		es.merge(
 			...marketplaceExtensionsDescriptions
 				.map(extension => {
-					const src = getExtensionStream(extension).pipe(rename(p => p.dirname = `extensions/${p.dirname}`));
+					const src = getExtensionStream(extension).pipe(rename(p => { p.dirname = `extensions/${p.dirname}`; }));
 					return updateExtensionPackageJSON(src, (data: any) => {
 						delete data.scripts;
 						delete data.dependencies;

@@ -64,4 +64,13 @@ jobs:
       # The first thing every release job does after installing, and the step
       # that breaks when a transitively hoisted build dependency changes shape.
       - name: Download built-in extensions
-        run: npm run download-builtin-extensions
+        run: |
+          npm run download-builtin-extensions
+          # The downloader exits 0 even when the unpack silently drops files, so
+          # check what it actually wrote: an extension without its package.json
+          # is what a broken build dependency looks like here, and it would only
+          # surface as an unrelated gulp failure twenty minutes later.
+          for dir in .build/builtInExtensions/*/; do
+            test -f "$dir/package.json" || { echo "$dir was unpacked incompletely: no package.json." >&2; exit 1; }
+          done
+          ls .build/builtInExtensions

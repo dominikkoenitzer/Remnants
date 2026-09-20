@@ -110,7 +110,17 @@ jobs:
           npm_config_arch: ${{ matrix.arch }}
 
       - name: Download built-in extensions
-        run: npm run download-builtin-extensions
+        shell: bash
+        run: |
+          npm run download-builtin-extensions
+          # The downloader exits 0 even when the unpack silently drops files, so
+          # check what it actually wrote: an extension without its package.json
+          # is what a broken build dependency looks like here, and it would only
+          # surface as an unrelated gulp failure twenty minutes later.
+          for dir in .build/builtInExtensions/*/; do
+            test -f "$dir/package.json" || { echo "$dir was unpacked incompletely: no package.json." >&2; exit 1; }
+          done
+          ls .build/builtInExtensions
 
       - name: Build app and installer
         run: |
@@ -258,10 +268,40 @@ jobs:
         run: npm ci
 
       - name: Download built-in extensions
-        run: npm run download-builtin-extensions
+        shell: bash
+        run: |
+          npm run download-builtin-extensions
+          # The downloader exits 0 even when the unpack silently drops files, so
+          # check what it actually wrote: an extension without its package.json
+          # is what a broken build dependency looks like here, and it would only
+          # surface as an unrelated gulp failure twenty minutes later.
+          for dir in .build/builtInExtensions/*/; do
+            test -f "$dir/package.json" || { echo "$dir was unpacked incompletely: no package.json." >&2; exit 1; }
+          done
+          ls .build/builtInExtensions
 
       - name: Build app
         run: npm run gulp vscode-linux-${{ matrix.arch }}
+
+      # What the README promises about this fork, asserted against the tree that
+      # is about to be packaged rather than against the source it was built from.
+      - name: Verify the build identity
+        run: |
+          app="$(dirname "$GITHUB_WORKSPACE")/VSCode-linux-${{ matrix.arch }}/resources/app"
+          node -e '
+            const fs = require("fs");
+            const app = process.argv[1];
+            const product = JSON.parse(fs.readFileSync(app + "/product.json", "utf8"));
+            const fail = (m) => { console.error("Identity check failed: " + m); process.exitCode = 1; };
+            const gallery = (product.extensionsGallery || {}).serviceUrl || "";
+            if (!gallery.includes("open-vsx.org")) { fail("the extension gallery is not Open VSX, it is " + gallery); }
+            if (product.enableTelemetry !== false) { fail("telemetry is not disabled"); }
+            if ("defaultChatAgent" in product) { fail("product.json carries a default chat agent"); }
+            for (const gone of ["@github/copilot", "@github/copilot-sdk", "@vscode/copilot-api", "@anthropic-ai/sdk"]) {
+              if (fs.existsSync(app + "/node_modules/" + gone)) { fail(gone + " is bundled"); }
+            }
+            if (!process.exitCode) { console.log("Open VSX gallery, telemetry off, no bundled AI dependencies."); }
+          ' "$app"
 
       - name: Stage tarball
         env:
@@ -403,7 +443,17 @@ jobs:
         run: npm ci
 
       - name: Download built-in extensions
-        run: npm run download-builtin-extensions
+        shell: bash
+        run: |
+          npm run download-builtin-extensions
+          # The downloader exits 0 even when the unpack silently drops files, so
+          # check what it actually wrote: an extension without its package.json
+          # is what a broken build dependency looks like here, and it would only
+          # surface as an unrelated gulp failure twenty minutes later.
+          for dir in .build/builtInExtensions/*/; do
+            test -f "$dir/package.json" || { echo "$dir was unpacked incompletely: no package.json." >&2; exit 1; }
+          done
+          ls .build/builtInExtensions
 
       - name: Build app
         run: npm run gulp vscode-darwin-${{ matrix.arch }}
