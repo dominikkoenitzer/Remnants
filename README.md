@@ -68,12 +68,16 @@ Every asset is built by the [release workflow](.github/workflows/release.yml) on
 | --- | --- | --- |
 | Windows x64 | `RemnantsUserSetup-x64.exe` | run it (per-user, no admin) |
 | Windows arm64 | `RemnantsUserSetup-arm64.exe` | run it (per-user, no admin) |
-| macOS (Apple silicon) | `Remnants-darwin-arm64-<version>.zip` | unzip, drag to Applications |
-| macOS (Intel) | `Remnants-darwin-x64-<version>.zip` | unzip, drag to Applications |
+| macOS (Apple silicon) | `Remnants-darwin-arm64-<version>.dmg` | open, drag to Applications |
+| macOS (Intel) | `Remnants-darwin-x64-<version>.dmg` | open, drag to Applications |
 | Debian, Ubuntu x64 / arm64 | `remnants-<version>-<amd64,arm64>.deb` | `sudo apt install ./<file>` |
 | Fedora, RHEL, openSUSE x64 / arm64 | `remnants-<version>-<x86_64,aarch64>.rpm` | `sudo dnf install ./<file>` |
 | Any Linux x64 / arm64 | `Remnants-linux-<arch>-<version>.tar.gz` | `sudo ./install.sh` |
 | Arch Linux | `PKGBUILD` | `makepkg -si` |
+
+Each release also carries a machine-wide Windows installer
+(`RemnantsSetup-<arch>.exe`), a Windows archive for machines where no installer
+may run (`Remnants-win32-<arch>-<version>.zip`) and the macOS app as a plain zip.
 
 Remnants is not code-signed on any platform, so each one asks you to confirm the
 first launch once. The steps below say how.
@@ -89,9 +93,10 @@ first launch once. The steps below say how.
 
 ### macOS (Apple silicon and Intel)
 
-1. Download `Remnants-darwin-arm64-<version>.zip` (Apple silicon, M1 and later)
-   or `Remnants-darwin-x64-<version>.zip` (Intel).
-2. Unzip it and move **Remnants.app** into `/Applications`.
+1. Download `Remnants-darwin-arm64-<version>.dmg` (Apple silicon, M1 and later)
+   or `Remnants-darwin-x64-<version>.dmg` (Intel).
+2. Open it and drag **Remnants** onto the Applications shortcut. (The same build
+   is also published as a `.zip` if you prefer that.)
 3. The build is ad-hoc signed but not notarized, so clear the download
    quarantine flag once:
 
@@ -175,6 +180,14 @@ Each release ships a `SHA256SUMS` file covering every asset:
 
 ```sh
 sha256sum -c SHA256SUMS --ignore-missing
+```
+
+Every asset also carries a signed build provenance attestation. Nothing here is
+code-signed, so this is how you prove a file came from the release workflow in
+this repository and was not swapped afterwards:
+
+```sh
+gh attestation verify <file> -R dominikkoenitzer/Remnants
 ```
 
 ### Where your data lives
