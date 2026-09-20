@@ -320,7 +320,7 @@ jobs:
           ' "$app"
           # The highest glibc symbol version the binary needs, which is what
           # decides how old a distro can be and what the README claims.
-          objdump -T "$(dirname "$app")/remnants" |
+          objdump -T "$(dirname "$(dirname "$app")")/remnants" |
             grep -o 'GLIBC_[0-9.]*' | sort -uV | tail -1 |
             sed 's/^/Needs at least /'
 
@@ -360,40 +360,6 @@ jobs:
           name: release-linux-${{ matrix.arch }}
           path: dist/*
           if-no-files-found: error
-
-      # Everything else runs the packaged Electron as plain node, which never
-      # starts Chromium. This launches the real app on a virtual display and
-      # waits for a renderer process, which only exists once the workbench
-      # window is actually up. Runs after the upload, so a flake here cannot
-      # cost the release an asset that already passed.
-      - name: Launch the app on a virtual display
-        if: matrix.arch == 'x64'
-        run: |
-          sudo apt-get install -y xvfb
-          tmp=$(mktemp -d)
-          tar -xzf dist/Remnants-linux-x64-*.tar.gz -C "$tmp"
-          cat > "$tmp/launch.sh" <<'SCRIPT'
-          set -eu
-          app=$1
-          data=$2
-          "$app" --no-sandbox --disable-gpu --user-data-dir="$data/ud" --extensions-dir="$data/ext" &
-          pid=$!
-          for _ in $(seq 1 30); do
-            pgrep -f -- '--type=renderer' > /dev/null && break
-            sleep 2
-          done
-          if ! pgrep -f -- '--type=renderer' > /dev/null; then
-            echo "No renderer process appeared: the workbench never came up." >&2
-            kill "$pid" 2> /dev/null || true
-            exit 1
-          fi
-          echo "Renderer process up: the workbench started."
-          kill "$pid" 2> /dev/null || true
-          # Electron leaves helper processes behind, and a lingering child can
-          # hold the step open after the script itself is done.
-          pkill -f "$data" 2> /dev/null || true
-          SCRIPT
-          timeout 240 xvfb-run -a bash "$tmp/launch.sh" "$tmp/Remnants-linux-x64/remnants" "$tmp"
 
       # The deb dependency list is computed with dpkg-shlibdeps against the
       # Chromium and VS Code sysroots, which this step downloads. The token is
@@ -460,7 +426,8 @@ jobs:
             export DEBIAN_FRONTEND=noninteractive
             apt-get update > /dev/null
             apt-get install -y "/packages/remnants-$VERSION-$DEB_ARCH.deb" > /dev/null
-            reported=$(remnants --version | head -n1)
+            # The CLI wrapper refuses to start as root without one of these.
+            reported=$(remnants --user-data-dir=/tmp/remnants-check --version | head -n1)
             test "$reported" = "$VERSION" || { echo "deb reports version $reported, expected $VERSION" >&2; exit 1; }
             apt-get remove -y remnants > /dev/null
             test ! -e /usr/bin/remnants
@@ -478,12 +445,47 @@ jobs:
           docker run --rm -v "$PWD/packages:/packages:ro" -e VERSION -e RPM_ARCH fedora:latest bash -c '
             set -eu
             dnf install -y "/packages/remnants-$VERSION-$RPM_ARCH.rpm" > /dev/null
-            reported=$(remnants --version | head -n1)
+            # The CLI wrapper refuses to start as root without one of these.
+            reported=$(remnants --user-data-dir=/tmp/remnants-check --version | head -n1)
             test "$reported" = "$VERSION" || { echo "rpm reports version $reported, expected $VERSION" >&2; exit 1; }
             dnf remove -y remnants > /dev/null
             test ! -e /usr/bin/remnants
             echo "rpm install/remove round trip OK on Fedora"
           '
+
+      # Everything else runs the packaged Electron as plain node, which never
+      # starts Chromium. This launches the real app on a virtual display and
+      # waits for a renderer process, which only exists once the workbench
+      # window is actually up. Last in the job, after every asset is uploaded,
+      # so a failure here reports without costing the release anything.
+      - name: Launch the app on a virtual display
+        if: matrix.arch == 'x64'
+        run: |
+          sudo apt-get install -y xvfb
+          tmp=$(mktemp -d)
+          tar -xzf dist/Remnants-linux-x64-*.tar.gz -C "$tmp"
+          cat > "$tmp/launch.sh" <<'SCRIPT'
+          set -eu
+          app=$1
+          data=$2
+          "$app" --no-sandbox --disable-gpu --user-data-dir="$data/ud" --extensions-dir="$data/ext" &
+          pid=$!
+          for _ in $(seq 1 30); do
+            pgrep -f -- '--type=renderer' > /dev/null && break
+            sleep 2
+          done
+          if ! pgrep -f -- '--type=renderer' > /dev/null; then
+            echo "No renderer process appeared: the workbench never came up." >&2
+            kill "$pid" 2> /dev/null || true
+            exit 1
+          fi
+          echo "Renderer process up: the workbench started."
+          # Killing the main process takes the helpers with it. Do not pkill on
+          # the data directory: this script's own argv contains that path.
+          kill "$pid" 2> /dev/null || true
+          SCRIPT
+          timeout 240 xvfb-run -a bash "$tmp/launch.sh" "$tmp/Remnants-linux-x64/remnants" "$tmp"
+
 
   macos:
     name: macOS ${{ matrix.arch }} app
