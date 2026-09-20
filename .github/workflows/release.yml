@@ -575,28 +575,14 @@ jobs:
           path: dist/*
           if-no-files-found: error
 
-      # A disk image is what a macOS user expects to download: mount it, drag the
-      # app onto the Applications shortcut, eject. Plain hdiutil, so it needs no
-      # extra tooling, and the app is copied from the tree package-zip.sh already
-      # signed.
+      # A disk image is what a macOS user expects to download: mount it, drag
+      # the app onto the Applications shortcut, eject. The script mounts the
+      # finished image back and re-verifies the bundle inside it.
       - name: Build disk image
         env:
           VERSION: ${{ needs.setup.outputs.version }}
           ARCH: ${{ matrix.arch }}
-        run: |
-          stage=$(mktemp -d)/Remnants
-          mkdir -p "$stage" extra
-          ditto "$(dirname "$GITHUB_WORKSPACE")/VSCode-darwin-$ARCH/Remnants.app" "$stage/Remnants.app"
-          ln -s /Applications "$stage/Applications"
-          dmg="extra/Remnants-darwin-$ARCH-$VERSION.dmg"
-          hdiutil create -volname Remnants -srcfolder "$stage" -ov -format UDZO -quiet "$dmg"
-          # Mount the image back and check the app inside it is intact.
-          mount=$(mktemp -d)
-          hdiutil attach "$dmg" -mountpoint "$mount" -nobrowse -quiet
-          codesign --verify --deep --strict "$mount/Remnants.app"
-          test -L "$mount/Applications"
-          hdiutil detach "$mount" -quiet
-          echo "Disk image OK"
+        run: bash build/darwin/package-dmg.sh "$ARCH" "$VERSION" "$GITHUB_WORKSPACE/extra"
 
       - name: Upload disk image artifact
         uses: actions/upload-artifact@v4
