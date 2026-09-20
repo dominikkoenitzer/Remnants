@@ -155,11 +155,22 @@ gh release create "v$version" dist/* \
 
 ## After releasing
 
-- Every platform is smoke-tested in the build job: the Windows job installs the x64
-  setup silently and runs `remnants --version`, the Linux job does an
-  install/uninstall round trip with the tarball and the deb and installs the rpm in
-  a Fedora container, and the macOS job verifies the ad-hoc signature, launches the
-  app and mounts the disk image back. The arm64 Windows and macOS assets cannot
-  execute on their runners, so they are only checked structurally (PE header,
-  signature); verify those on real hardware when you can.
+- Every asset is exercised before or right after it is published, on hardware of its
+  own architecture wherever a runner exists for it:
+
+  | Asset | What the run proves |
+  | --- | --- |
+  | Windows x64 installer | silent install, then `remnants --version` from the installed copy |
+  | Windows arm64 installer | PE header says ARM64, then a separate `windows-11-arm` job installs and runs it |
+  | Windows archive | unpacked and run without any installer |
+  | Windows system installer | built and published; the payload is the one the user installer ships |
+  | macOS zip and dmg | ad-hoc signature verified, app launched, image mounted back and re-verified |
+  | Linux tarball | install/uninstall round trip plus `remnants --version` |
+  | deb | installed on the build host and again in a Debian 12 container |
+  | rpm | installed in a Fedora container, so dnf has to resolve the computed dependencies |
+
+  Both macOS jobs and both Linux jobs run on their target architecture, so those
+  builds are executed natively. The only assets never run end to end are the
+  Windows arm64 archive and system installer, which carry the same payload as the
+  arm64 user installer that is.
 - The README badge and Install link resolve to the latest release automatically.
