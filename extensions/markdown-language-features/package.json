@@ -898,7 +898,7 @@
   "dependencies": {
     "@microsoft/applicationinsights-common": "^3.4.4",
     "@vscode/extension-telemetry": "^0.9.8",
-    "@vscode/markdown-editor": "^0.0.2-1",
+    "@vscode/markdown-editor": "0.0.2-1",
     "dompurify": "^3.4.8",
     "highlight.js": "^11.8.0",
     "katex": "^0.16.33",
