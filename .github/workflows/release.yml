@@ -361,6 +361,37 @@ jobs:
           path: dist/*
           if-no-files-found: error
 
+      # Everything else runs the packaged Electron as plain node, which never
+      # starts Chromium. This launches the real app on a virtual display and
+      # waits for a renderer process, which only exists once the workbench
+      # window is actually up. Runs after the upload, so a flake here cannot
+      # cost the release an asset that already passed.
+      - name: Launch the app on a virtual display
+        if: matrix.arch == 'x64'
+        run: |
+          sudo apt-get install -y xvfb
+          tmp=$(mktemp -d)
+          tar -xzf dist/Remnants-linux-x64-*.tar.gz -C "$tmp"
+          cat > "$tmp/launch.sh" <<'SCRIPT'
+          set -eu
+          app=$1
+          data=$2
+          "$app" --no-sandbox --disable-gpu --user-data-dir="$data/ud" --extensions-dir="$data/ext" &
+          pid=$!
+          for _ in $(seq 1 30); do
+            pgrep -f -- '--type=renderer' > /dev/null && break
+            sleep 2
+          done
+          if ! pgrep -f -- '--type=renderer' > /dev/null; then
+            echo "No renderer process appeared: the workbench never came up." >&2
+            kill "$pid" 2> /dev/null || true
+            exit 1
+          fi
+          echo "Renderer process up: the workbench started."
+          kill "$pid" 2> /dev/null || true
+          SCRIPT
+          timeout 240 xvfb-run -a bash "$tmp/launch.sh" "$tmp/Remnants-linux-x64/remnants" "$tmp"
+
       # The deb dependency list is computed with dpkg-shlibdeps against the
       # Chromium and VS Code sysroots, which this step downloads. The token is
       # sent as HTTP basic auth, so it needs the x-access-token username form.
