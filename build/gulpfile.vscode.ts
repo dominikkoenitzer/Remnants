@@ -385,7 +385,7 @@ function packageTask(platform: string, arch: string, sourceFolderName: string, d
 			], { base: '.' }));
 		} else if (platform === 'linux') {
 			const policyDest = gulp.src('.build/policies/linux/**', { base: '.build/policies/linux' })
-				.pipe(rename(f => f.dirname = `policies/${f.dirname}`));
+				.pipe(rename(f => { f.dirname = `policies/${f.dirname}`; }));
 			all = es.merge(all, gulp.src('resources/linux/code.png', { base: '.' }), policyDest);
 		} else if (platform === 'darwin') {
 			const shortcut = gulp.src('resources/darwin/bin/code.sh')
@@ -393,7 +393,7 @@ function packageTask(platform: string, arch: string, sourceFolderName: string, d
 				.pipe(replace('@@NAME@@', product.nameShort))
 				.pipe(rename('bin/code'));
 			const policyDest = gulp.src('.build/policies/darwin/**', { base: '.build/policies/darwin' })
-				.pipe(rename(f => f.dirname = `policies/${f.dirname}`));
+				.pipe(rename(f => { f.dirname = `policies/${f.dirname}`; }));
 			all = es.merge(all, shortcut, policyDest);
 		}
 
@@ -467,7 +467,7 @@ function packageTask(platform: string, arch: string, sourceFolderName: string, d
 				.pipe(rename(product.nameShort + '.VisualElementsManifest.xml')));
 
 			result = es.merge(result, gulp.src('.build/policies/win32/**', { base: '.build/policies/win32' })
-				.pipe(rename(f => f.dirname = `policies/${f.dirname}`)));
+				.pipe(rename(f => { f.dirname = `policies/${f.dirname}`; })));
 
 			if (quality === 'stable' || quality === 'insider') {
 				result = es.merge(result, gulp.src('.build/win32/appx/**', { base: '.build/win32' }));
@@ -483,7 +483,7 @@ function packageTask(platform: string, arch: string, sourceFolderName: string, d
 					.pipe(replace('@@FileExplorerContextMenuID@@', quality === 'stable' ? 'OpenWithCode' : 'OpenWithCodeInsiders'))
 					.pipe(replace('@@FileExplorerContextMenuCLSID@@', (product as { win32ContextMenu?: Record<string, { clsid: string }> }).win32ContextMenu![arch].clsid))
 					.pipe(replace('@@FileExplorerContextMenuDLL@@', `${quality === 'stable' ? 'code' : 'code_insider'}_explorer_command_${arch}.dll`))
-					.pipe(rename(f => f.dirname = `appx/manifest`)));
+					.pipe(rename(f => { f.dirname = `appx/manifest`; })));
 			}
 		} else if (platform === 'linux') {
 			result = es.merge(result, gulp.src('resources/linux/bin/code.sh', { base: '.' })
