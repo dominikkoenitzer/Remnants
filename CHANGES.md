@@ -53,13 +53,28 @@ Microsoft Marketplace, which the Code - OSS licence does not cover.
 
 ## What was added or changed
 
-- **Build and release pipeline**: GitHub Releases distribution for Windows,
-  macOS and Linux, built per platform on GitHub-hosted runners and published as
-  one release. Pinned to `windows-2022` for the VS 2022 toolchain and to Node 22
-  to match the in-sync lockfile. Adds the packaging scripts upstream has no
-  equivalent of: a Linux tarball with its desktop integration rendered in and an
-  `install.sh` that works on any distro, an Arch `PKGBUILD`, and ad-hoc signing
-  for the macOS bundle so it launches on Apple silicon.
+- **Build and release pipeline**: GitHub Releases distribution for Windows
+  (x64 and arm64: per-user installer, machine-wide installer, plain archive),
+  macOS (disk image and zip, Apple silicon and Intel) and Linux (deb, rpm,
+  tarball, Arch `PKGBUILD`, x64 and arm64), built per platform on GitHub-hosted
+  runners and published as one release with a checksum file and a signed
+  provenance attestation per asset. Pinned to `windows-2022` for the VS 2022
+  toolchain and to Node 22 to match the in-sync lockfile. Adds the packaging
+  scripts upstream has no equivalent of: a Linux tarball with its desktop
+  integration rendered in and an `install.sh` that works on any distro, the Arch
+  `PKGBUILD`, and ad-hoc signing for the macOS bundle so it launches on Apple
+  silicon. Every asset is installed and run by the workflow that builds it,
+  including the arm64 Windows installer on real ARM hardware and the deb and rpm
+  in Debian and Fedora containers.
+- **Fixes to upstream build scripts**, all of which upstream carries latently and
+  only a newer dependency exposes: `gulp-rename` callbacks no longer implicitly
+  return the assigned path; `build/package.json` declares the `glob` version its
+  scripts import rather than relying on hoisting; the Debian and RPM packaging
+  templates no longer register the Microsoft apt or yum repository and its
+  signing key; `build/linux/dependencies-generator.ts` skips binaries this fork
+  does not build; three extensions declare the
+  `@microsoft/applicationinsights-common` that `@vscode/extension-telemetry`
+  imports without declaring.
 - **`npm install` fix**: the upstream `postinstall` created AI-agent harness
   symlinks that broke installs once the harness was removed.
 - **Visual identity**: the Remnants shard icon, themes, product branding, and
