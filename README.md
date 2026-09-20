@@ -83,6 +83,12 @@ Each release also carries a machine-wide Windows installer
 (`RemnantsSetup-<arch>.exe`), a Windows archive for machines where no installer
 may run (`Remnants-win32-<arch>-<version>.zip`) and the macOS app as a plain zip.
 
+| Platform | Needs |
+| --- | --- |
+| Windows | 10 or later, x64 or arm64 |
+| macOS | 12 Monterey or later, Apple silicon or Intel |
+| Linux | glibc 2.34 or newer, x64 or arm64 - Ubuntu 22.04+, Debian 12+, Fedora 35+, RHEL 9+ |
+
 Remnants is not code-signed on any platform, so each one asks you to confirm the
 first launch once. The steps below say how.
 

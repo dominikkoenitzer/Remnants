@@ -158,6 +158,12 @@ if has PKGBUILD; then
 fi
 
 cat <<-EOF
+	## Requirements
+
+	Windows 10 or later, macOS 12 Monterey or later, or a Linux with glibc 2.34 or
+	newer (Ubuntu 22.04+, Debian 12+, Fedora 35+, RHEL 9+). x64 and arm64 on all
+	three.
+
 	## Wayland
 
 	The Linux desktop entry launches with \`--ozone-platform-hint=auto\`, so Remnants
