@@ -181,7 +181,7 @@ jobs:
           "Installer round trip OK, version $reported"
 
       - name: Upload installer artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-windows-${{ matrix.arch }}
           path: dist/*
@@ -223,7 +223,7 @@ jobs:
           "Archive runs unpacked, version $reported"
 
       - name: Upload system installer and archive
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-windows-${{ matrix.arch }}-extra
           path: extra/*
@@ -360,7 +360,7 @@ jobs:
       # Upload the tarball before building the distro packages, so a packaging
       # failure never costs the release an artifact that already passed.
       - name: Upload tarball artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-linux-${{ matrix.arch }}
           path: dist/*
@@ -412,7 +412,7 @@ jobs:
           echo "rpm metadata OK"
 
       - name: Upload package artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-linux-${{ matrix.arch }}-packages
           path: packages/*
@@ -569,7 +569,7 @@ jobs:
           echo "Minimum macOS: $(defaults read "$app/Contents/Info.plist" LSMinimumSystemVersion)"
 
       - name: Upload app artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-darwin-${{ matrix.arch }}
           path: dist/*
@@ -585,7 +585,7 @@ jobs:
         run: bash build/darwin/package-dmg.sh "$ARCH" "$VERSION" "$GITHUB_WORKSPACE/extra"
 
       - name: Upload disk image artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-darwin-${{ matrix.arch }}-dmg
           path: extra/*
