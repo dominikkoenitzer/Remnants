@@ -1,0 +1,51 @@
+version: 2
+updates:
+  # This fork carries 56 lockfiles across the root, the build scripts, every
+  # bundled extension and the test harnesses, so the directories are globbed
+  # rather than listed. Majors are ignored on purpose: the tree tracks
+  # upstream's pins, and a major bump here breaks the build long before it
+  # shows up as a failing test. Those are still taken by hand, deliberately.
+  # The PR limit is what keeps a weekly sweep over 56 directories from
+  # arriving as 56 pull requests.
+  - package-ecosystem: npm
+    directories:
+      - "/"
+      - "/build"
+      - "/build/**"
+      - "/extensions/**"
+      - "/remote"
+      - "/remote/web"
+      - "/test/**"
+      - "/.vscode/extensions/**"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+    commit-message:
+      prefix: deps
+    labels:
+      - dependencies
+
+  # GitHub Actions used in workflows
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: ci
+    labels:
+      - dependencies
+      - ci
