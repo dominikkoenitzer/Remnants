@@ -95,7 +95,7 @@
     "@types/semver": "^7.8.0",
     "@vscode/codicons": "^0.0.46-16",
     "@vscode/deviceid": "^0.1.1",
-    "@vscode/diff": "0.0.2-7",
+    "@vscode/diff": "0.0.2-52",
     "@vscode/iconv-lite-umd": "0.7.1",
     "@vscode/native-watchdog": "^1.4.6",
     "@vscode/policy-watcher": "^1.4.0",
