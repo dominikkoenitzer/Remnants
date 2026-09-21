@@ -15,6 +15,13 @@ on:
       - "LICENSE.txt"
       - ".github/ISSUE_TEMPLATE/**"
       - ".github/PULL_REQUEST_TEMPLATE.md"
+  # On a timer as well as on every push. Nothing here changes between those
+  # runs; what changes underneath it does. A new toolchain, a new runner
+  # image, a yanked dependency. Any of those turns a green build red with no
+  # commit, and without this nobody finds out until the next push.
+  schedule:
+    - cron: '35 */6 * * *'
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
