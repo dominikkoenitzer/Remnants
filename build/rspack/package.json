@@ -14,6 +14,6 @@
   },
   "dependencies": {
     "@vscode/component-explorer": "^0.2.1-149",
-    "@vscode/component-explorer-webpack-plugin": "^0.3.1-24"
+    "@vscode/component-explorer-webpack-plugin": "^0.3.1-141"
   }
 }
