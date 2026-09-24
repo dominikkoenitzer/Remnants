@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@vscode/component-explorer": "^0.2.1-27",
+    "@vscode/component-explorer": "^0.2.1-149",
     "@vscode/component-explorer-vite-plugin": "^0.2.1-26",
     "@vscode/rollup-plugin-esm-url": "^1.0.1-1",
     "rollup": "*",
