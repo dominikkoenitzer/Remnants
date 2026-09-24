@@ -32,6 +32,10 @@ updates:
       - dependency-name: "*"
         update-types:
           - "version-update:semver-major"
+      # The npm electron package only supplies the TypeScript types. The
+      # Electron that ships is the .npmrc target plus ms_build_id, so the types
+      # move together with that target, by hand, never ahead of it.
+      - dependency-name: "electron"
     commit-message:
       prefix: deps
     labels:
