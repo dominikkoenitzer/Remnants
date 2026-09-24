@@ -21,6 +21,11 @@ updates:
       interval: weekly
       day: monday
     open-pull-requests-limit: 5
+    # Lockfiles only, never package.json: the exact pins (source-map,
+    # esbuild, gulp-rename, kerberos, @types/markdown-it and the rest) match
+    # upstream on purpose and move only when upstream moves them. Without this,
+    # a "minor" group rewrote 37 of them in one PR and broke the build.
+    versioning-strategy: lockfile-only
     groups:
       minor-patch:
         patterns:
