@@ -84,10 +84,10 @@
     "vscode:prepublish": "npm run compile"
   },
   "dependencies": {
-    "node-fetch": "2.6.7",
+    "node-fetch": "2.7.0",
     "@microsoft/applicationinsights-common": "^3.4.4",
     "@vscode/extension-telemetry": "^0.9.8",
-    "vscode-tas-client": "^0.1.84"
+    "vscode-tas-client": "^0.3.3"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
