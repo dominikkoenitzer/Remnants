@@ -41,6 +41,10 @@ updates:
       # Electron that ships is the .npmrc target plus ms_build_id, so the types
       # move together with that target, by hand, never ahead of it.
       - dependency-name: "electron"
+      # 1.72 made the signal argument of renderOutputItem required, and the
+      # notebook-renderers tests call it with two arguments on 1.60.0 like
+      # upstream does. It moves when upstream moves the tests.
+      - dependency-name: "@types/vscode-notebook-renderer"
     commit-message:
       prefix: deps
     labels:
