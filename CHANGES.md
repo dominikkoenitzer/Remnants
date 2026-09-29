@@ -104,8 +104,11 @@ merge base, landed as ordinary commits on top of the existing history.
   Copilot survey editor, the Copilot entitlement filters for experiments, the
   Agents Window entries in the issue reporter, recents and the Windows jump list,
   the Copilot runtime version in the About dialog and in managed settings
-  requests, and the Copilot, Foundry Local, SDK canary and CAPI steps in the
-  build and Azure pipelines.
+  requests, the setting mirror that copied settings into the agent host, the
+  Agents window Markdown editor experiment, the chat and agent rules in the
+  Modern UI styles, the agent host metadata lint rule, and the Copilot, Foundry
+  Local, SDK canary and CAPI steps in the build and Azure pipelines, including
+  the Copilot-gated flaky smoke pipeline.
 - **Dependencies**: the AI SDKs upstream added or bumped (the Copilot SDK and
   API, the Anthropic and Claude agent SDKs, Codex, Foundry Local, the Dev
   Container CLI) are not installed. Lockfiles were regenerated from upstream's
