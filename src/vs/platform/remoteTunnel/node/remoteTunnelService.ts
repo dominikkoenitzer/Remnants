@@ -118,44 +118,6 @@ export class RemoteTunnelService extends Disposable implements IRemoteTunnelServ
 		return this._tunnelStatus;
 	}
 
-<<<<<<< remnants/main
-	private readonly defaultOnOutput = (a: string, isErr: boolean) => {
-		if (isErr) {
-			this._logger.error(a);
-		} else {
-			this._logger.info(a);
-		}
-	};
-
-	private getTunnelCommandLocation() {
-		if (!this._tunnelCommand) {
-			let binParentLocation;
-			if (isMacintosh) {
-				// appRoot = /Applications/Remnants - Insiders.app/Contents/Resources/app
-				// bin = /Applications/Remnants - Insiders.app/Contents/Resources/app/bin
-				binParentLocation = this.environmentService.appRoot;
-			} else if (isWindows) {
-				if (this.productService.win32VersionedUpdate) {
-					// appRoot = C:\Users\<name>\AppData\Local\Programs\Microsoft Remnants Insiders\<version>\resources\app
-					// bin = C:\Users\<name>\AppData\Local\Programs\Microsoft Remnants Insiders\bin
-					binParentLocation = dirname(dirname(dirname(this.environmentService.appRoot)));
-				} else {
-					// appRoot = C:\Users\<name>\AppData\Local\Programs\Microsoft Remnants Insiders\resources\app
-					// bin = C:\Users\<name>\AppData\Local\Programs\Microsoft Remnants Insiders\bin
-					binParentLocation = dirname(dirname(this.environmentService.appRoot));
-				}
-			} else {
-				// appRoot = /usr/share/code-insiders/resources/app
-				// bin = /usr/share/code-insiders/bin
-				binParentLocation = dirname(dirname(this.environmentService.appRoot));
-			}
-			this._tunnelCommand = join(binParentLocation, 'bin', `${this.productService.tunnelApplicationName}${isWindows ? '.exe' : ''}`);
-		}
-		return this._tunnelCommand;
-	}
-
-=======
->>>>>>> 1.139.1
 	async startTunnel(mode: ActiveTunnelMode): Promise<TunnelStatus> {
 		if (isSameMode(this._mode, mode) && this._tunnelStatus.type !== 'disconnected') {
 			return this._tunnelStatus;

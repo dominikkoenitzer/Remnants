@@ -371,10 +371,6 @@ type CommentAnimation = {
  */
 class ElementPicker {
 	private static readonly _DRAG_THRESHOLD_PX = 4;
-<<<<<<< remnants/main
-	private static readonly _CURSOR_DEFAULT = '/* Remnants injected style */ * { cursor: default !important; }';
-	private static readonly _CURSOR_CROSSHAIR = '/* Remnants injected style */ * { cursor: crosshair !important; }';
-=======
 	private static readonly _COMMENT_PIN_SIZE = 22;
 	private static readonly _COMMENT_PIN_RESTORE_FRAMES = 5;
 	private static readonly _COMMENT_PIN_RESTORE_TIMEOUT = 100;
@@ -382,9 +378,8 @@ class ElementPicker {
 	private static readonly _COMMENT_PREVIEW_HIDE_DELAY = 80;
 	private static readonly _COMMENT_SURFACE_ANIMATION_DURATION = 140;
 	private static readonly _COMMENT_SUPPORTING_FADE_DURATION = 120;
-	private static readonly _CURSOR_DEFAULT = '/* VS Code injected style */ * { cursor: default !important; }';
-	private static readonly _CURSOR_CROSSHAIR = '/* VS Code injected style */ * { cursor: crosshair !important; }';
->>>>>>> 1.139.1
+	private static readonly _CURSOR_DEFAULT = '/* Remnants injected style */ * { cursor: default !important; }';
+	private static readonly _CURSOR_CROSSHAIR = '/* Remnants injected style */ * { cursor: crosshair !important; }';
 
 	private _selectionActive = false;
 	private _continuous = false;

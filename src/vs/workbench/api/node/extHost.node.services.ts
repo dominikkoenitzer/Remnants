@@ -52,8 +52,4 @@ registerSingleton(IExtHostTask, ExtHostTask, InstantiationType.Eager);
 registerSingleton(IExtHostTerminalService, ExtHostTerminalService, InstantiationType.Eager);
 registerSingleton(IExtHostTunnelService, NodeExtHostTunnelService, InstantiationType.Eager);
 registerSingleton(IExtHostVariableResolverProvider, NodeExtHostVariableResolverProviderService, InstantiationType.Eager);
-<<<<<<< remnants/main
-=======
-registerSingleton(IExtHostMpcService, NodeExtHostMpcService, InstantiationType.Eager);
 registerSingleton(IExtHostBrowserTunnelProxy, NodeExtHostBrowserTunnelProxy, InstantiationType.Eager);
->>>>>>> 1.139.1
