@@ -44,7 +44,6 @@ import {
 	IBrowserViewVisibilityEvent,
 	IBrowserViewCertificateError,
 	IElementData,
-	IBrowserElementCommentsUpdate,
 	IBrowserElementSelectionOptions,
 	IBrowserViewOwner,
 	IBrowserViewEditorOpenOptions,
@@ -430,7 +429,6 @@ export interface IBrowserViewModel extends IDisposable {
 	readonly onDidClose: Event<void>;
 	readonly onWillDispose: Event<void>;
 	readonly onDidSelectElement: Event<IElementData>;
-	readonly onDidRemoveElementComment: Event<string>;
 	readonly onDidChangeElementSelectionState: Event<IBrowserElementSelectionState>;
 	readonly onDidPickArea: Event<IBrowserViewRect | undefined>;
 	readonly onDidChangeAreaSelectionActive: Event<boolean>;
@@ -463,7 +461,6 @@ export interface IBrowserViewModel extends IDisposable {
 	resetZoom(): Promise<void>;
 	getConsoleLogs(): Promise<string>;
 	toggleElementSelection(enabled?: boolean, options?: IBrowserElementSelectionOptions): Promise<void>;
-	setElementComments(update: IBrowserElementCommentsUpdate): Promise<void>;
 	toggleAreaSelection(enabled?: boolean): Promise<void>;
 	setDevice(device: IBrowserDeviceProfile | undefined): Promise<void>;
 }
@@ -926,20 +923,12 @@ export class BrowserViewModel extends Disposable implements IBrowserViewModel {
 		return this.browserViewService.toggleElementSelection(this.id, enabled, options);
 	}
 
-	async setElementComments(update: IBrowserElementCommentsUpdate): Promise<void> {
-		return this.browserViewService.setElementComments(this.id, update);
-	}
-
 	async toggleAreaSelection(enabled?: boolean): Promise<void> {
 		return this.browserViewService.toggleAreaSelection(this.id, enabled);
 	}
 
 	get onDidSelectElement(): Event<IElementData> {
 		return this.browserViewService.onDynamicDidSelectElement(this.id);
-	}
-
-	get onDidRemoveElementComment(): Event<string> {
-		return this.browserViewService.onDynamicDidRemoveElementComment(this.id);
 	}
 
 	get onDidChangeElementSelectionState(): Event<IBrowserElementSelectionState> {
