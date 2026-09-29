@@ -12,9 +12,8 @@ import { StringText } from '../../../../../editor/common/core/text/abstractText.
 import { EditSources, TextModelEditSource } from '../../../../../editor/common/textModelEditSource.js';
 import { ensureNoDisposablesAreLeakedInTestSuite } from '../../../../../base/test/common/utils.js';
 import { EditKeySourceData, EditSourceData, IDocumentWithAnnotatedEdits } from '../../browser/helpers/documentWithAnnotatedEdits.js';
-import { DocumentEditSourceTracker } from '../../browser/telemetry/editTracker.js';
+import { DocumentEditSourceTracker, IExternalEditCorrelation, IExternalEditCorrelationResolution } from '../../browser/telemetry/editTracker.js';
 import { Emitter, Event } from '../../../../../base/common/event.js';
-import { IExternalEditCorrelation, IExternalEditCorrelationResolution } from '../../browser/telemetry/agentHostEditMarkerService.js';
 
 suite('DocumentEditSourceTracker', () => {
 	const disposables = ensureNoDisposablesAreLeakedInTestSuite();

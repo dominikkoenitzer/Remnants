@@ -14,7 +14,6 @@ import { InstantiationType, registerSingleton } from '../../../../platform/insta
 import { IAiEditTelemetryService } from './telemetry/aiEditTelemetry/aiEditTelemetryService.js';
 import { AiEditTelemetryServiceImpl } from './telemetry/aiEditTelemetry/aiEditTelemetryServiceImpl.js';
 import { IRandomService, RandomService } from './randomService.js';
-import { AgentHostEditTelemetryEnabledConfigKey } from '../../../../platform/agentHost/common/agentHostSchema.js';
 
 registerWorkbenchContribution2('EditTelemetryContribution', EditTelemetryContribution, WorkbenchPhase.AfterRestored);
 
@@ -32,8 +31,7 @@ configurationRegistry.registerConfiguration({
 			tags: ['experimental'],
 			experiment: {
 				mode: 'auto'
-			},
-			agentHost: { key: AgentHostEditTelemetryEnabledConfigKey },
+			}
 		},
 		[EDIT_TELEMETRY_DETAILS_SETTING_ID]: {
 			markdownDescription: localize('telemetry.editStats.detailed.enabled', "Controls whether to enable telemetry for detailed edit statistics (only sends statistics if general telemetry is enabled)."),
