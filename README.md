@@ -275,7 +275,7 @@ ad-hoc signs the bundle (required on Apple silicon) before zipping it with
 ### Type-check
 
 ```sh
-npm run compile-check-ts-native    # type-checks ./src without emitting
+npm run typecheck-client           # type-checks ./src without emitting
 ```
 
 ## Project structure
