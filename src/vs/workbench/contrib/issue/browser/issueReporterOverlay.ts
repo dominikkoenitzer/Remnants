@@ -597,15 +597,12 @@ export class IssueReporterOverlay {
 		this.updateExtensionOptions();
 		this.updateExtensionFieldVisibility();
 
-		// Default the target to the most likely option when the reporter opens.
-		// In the Agents Window we preselect Agents Window; otherwise default to
-		// VS Code (the most common target). Extension is preselected only when an
-		// extension id was already provided. The user can always override.
+		// Default the target to the most likely option when the reporter opens:
+		// the product itself, the most common target. Extension is preselected only
+		// when an extension id was already provided. The user can always override.
 		if (!this.selectedIssueSource) {
 			if (this.data.extensionId) {
 				this.selectedIssueSource = IssueSource.Extension;
-			} else if (this.data.isSessionsWindow) {
-				this.selectedIssueSource = IssueSource.AgentsWindow;
 			} else {
 				this.selectedIssueSource = IssueSource.VSCode;
 			}
@@ -839,14 +836,13 @@ export class IssueReporterOverlay {
 	private updateIssueSourceFlags(): void {
 		const fileOnExtension = this.selectedIssueSource === IssueSource.Extension;
 		const fileOnMarketplace = this.selectedIssueSource === IssueSource.Marketplace;
-		const fileOnProduct = this.selectedIssueSource === IssueSource.VSCode || this.selectedIssueSource === IssueSource.AgentsWindow || this.selectedIssueSource === IssueSource.Unknown;
-		const fileOnAgentsWindow = this.selectedIssueSource === IssueSource.AgentsWindow;
+		const fileOnProduct = this.selectedIssueSource === IssueSource.VSCode || this.selectedIssueSource === IssueSource.Unknown;
 		this.model.update({
 			issueSource: this.selectedIssueSource,
 			fileOnExtension,
 			fileOnMarketplace,
 			fileOnProduct,
-			isSessionsWindow: fileOnAgentsWindow ? true : this.data.isSessionsWindow,
+			isSessionsWindow: this.data.isSessionsWindow,
 			selectedExtension: this.selectedExtension,
 		});
 		this.data.issueSource = this.selectedIssueSource;
@@ -866,9 +862,6 @@ export class IssueReporterOverlay {
 				break;
 			case IssueSource.Marketplace:
 				this.titleInput.setPlaceHolder(localize('marketplacePlaceholder', "E.g. Cannot disable installed extension"));
-				break;
-			case IssueSource.AgentsWindow:
-				this.titleInput.setPlaceHolder(localize('agentsWindowPlaceholder', "E.g. Sessions list does not refresh after creating a new session"));
 				break;
 			case IssueSource.VSCode:
 				this.titleInput.setPlaceHolder(localize('vscodePlaceholder', "E.g. Workbench is missing problems panel"));
