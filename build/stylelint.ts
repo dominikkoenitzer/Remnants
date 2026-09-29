@@ -30,9 +30,9 @@ export default function gulpstylelint(reporter: Reporter, designTokensEverywhere
 	let errorCount = 0;
 	const monacoWorkbenchPattern = /\.monaco-workbench/;
 	const restrictedPathPattern = /^src[\/\\]vs[\/\\](base|platform|editor)[\/\\]/;
-	const productionCssPattern = /^(?:src[\/\]vs|extensions)[\/\]/;
-	const extensionCssPattern = /^extensions[\/\]/;
-	const testCssPattern = /[\/\](?:test|test-data|testData)[\/\]/;
+	const productionCssPattern = /^(?:src[\/\\]vs|extensions)[\/\\]/;
+	const extensionCssPattern = /^extensions[\/\\]/;
+	const testCssPattern = /[\/\\](?:test|test-data|testData)[\/\\]/;
 	const layerCheckerDisablePattern = /\/\*\s*stylelint-disable\s+layer-checker\s*\*\//;
 	const hasAnchorCheckerDisablePattern = /^\s*\/\*\s*stylelint-disable\s+has-anchor-checker\s*\*\/\s*$/;
 
