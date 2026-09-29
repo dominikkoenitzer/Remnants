@@ -19,16 +19,11 @@ suite('adaptManagedSettings', () => {
 
 	test('appends client identity to the request url', () => {
 		assert.deepStrictEqual({
-			withRuntime: appendManagedSettingsClientIdentity('https://api.github.com/copilot_internal/managed_settings', {
-				version: '1.132.0',
-				copilotVersions: { runtime: '0.0.344', sdk: '0.1.0' },
-			}),
 			withoutRuntime: appendManagedSettingsClientIdentity('https://api.github.com/copilot_internal/managed_settings', { version: '1.132.0' }),
 			preservesExistingQuery: appendManagedSettingsClientIdentity('https://api.github.com/copilot_internal/managed_settings?foo=bar', { version: '1.132.0' }),
 			dropsStaleRuntimeVersion: appendManagedSettingsClientIdentity('https://api.github.com/copilot_internal/managed_settings?copilot_runtime_version=0.0.1', { version: '1.132.0' }),
 			unparseableUrl: appendManagedSettingsClientIdentity('not a url', { version: '1.132.0' }),
 		}, {
-			withRuntime: 'https://api.github.com/copilot_internal/managed_settings?client_id=vscode&client_version=1.132.0&copilot_runtime_version=0.0.344',
 			withoutRuntime: 'https://api.github.com/copilot_internal/managed_settings?client_id=vscode&client_version=1.132.0',
 			preservesExistingQuery: 'https://api.github.com/copilot_internal/managed_settings?foo=bar&client_id=vscode&client_version=1.132.0',
 			dropsStaleRuntimeVersion: 'https://api.github.com/copilot_internal/managed_settings?client_id=vscode&client_version=1.132.0',
