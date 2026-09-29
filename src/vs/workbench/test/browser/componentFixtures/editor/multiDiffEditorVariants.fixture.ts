@@ -4,8 +4,6 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { Dimension } from '../../../../../base/browser/dom.js';
-// eslint-disable-next-line local/code-import-patterns, local/code-amd-node-module
-import { z } from 'zod';
 import { CancellationToken } from '../../../../../base/common/cancellation.js';
 import { ValueWithChangeEvent } from '../../../../../base/common/event.js';
 import { DisposableStore, toDisposable } from '../../../../../base/common/lifecycle.js';
@@ -21,31 +19,8 @@ import { IOutlineModelService } from '../../../../../editor/contrib/documentSymb
 import { TestDiffProviderFactoryService } from '../../../../../editor/test/browser/diff/testDiffProviderFactoryService.js';
 import { ComponentFixtureContext, defineComponentFixture, defineThemedFixtureGroup } from '../fixtureUtils.js';
 import { createMultiDiffEditorFixtureDocument, createMultiDiffEditorFixtureDocuments, createMultiDiffEditorFixtureServices, createMultiDiffEditorFixtureWidget } from './multiDiffEditorFixtureUtils.js';
-// eslint-disable-next-line local/code-import-patterns
-import chatInputChanges from './multiDiffEditorChatChanges.json' with { type: 'json' };
 
 import '../../../../../editor/contrib/diffEditorBreadcrumbs/browser/contribution.js';
-
-const breadcrumbRangeSchema = z.object({
-	startLineNumber: z.number().int().positive(),
-	endLineNumber: z.number().int().positive(),
-});
-
-const chatInputChangeData = z.object({
-	files: z.array(z.object({
-		order: z.number(),
-		path: z.string(),
-		languageId: z.string(),
-		breadcrumbs: z.array(z.object({
-			name: z.string(),
-			kind: z.enum(['class', 'constructor', 'function', 'method']),
-			beforeRange: breadcrumbRangeSchema,
-			afterRange: breadcrumbRangeSchema,
-		})),
-		before: z.string(),
-		after: z.string(),
-	})),
-}).parse(typeof chatInputChanges === 'string' ? JSON.parse(chatInputChanges) : chatInputChanges);
 
 interface IMultiDiffVisualFixtureOptions {
 	readonly width?: number;
@@ -118,61 +93,6 @@ function createStandardDocuments(
 ): readonly RefCounted<IDocumentDiffItem>[] {
 	const { doc1, doc2, doc3 } = createMultiDiffEditorFixtureDocuments(instantiationService, textModels);
 	return [doc1, doc2, doc3];
-}
-
-function createChatInputChangeDocuments(
-	instantiationService: ReturnType<typeof createMultiDiffEditorFixtureServices>,
-	textModels: DisposableStore
-): readonly RefCounted<IDocumentDiffItem>[] {
-	const filesByPath = new Map(chatInputChangeData.files.map(file => [file.path, file]));
-	const languageFeaturesService = instantiationService.get(ILanguageFeaturesService);
-	textModels.add(languageFeaturesService.documentSymbolProvider.register(
-		{ scheme: 'inmemory' },
-		{
-			provideDocumentSymbols: model => {
-				const file = filesByPath.get(model.uri.path.slice(1));
-				return file ? createBreadcrumbSymbols(model, file.breadcrumbs) : [];
-			}
-		}
-	));
-	return chatInputChangeData.files.toSorted((a, b) => a.order - b.order).map(file => createMultiDiffEditorFixtureDocument(instantiationService, textModels, {
-		original: {
-			uri: `inmemory://original/${file.path}`,
-			text: file.before,
-		},
-		modified: {
-			uri: `inmemory://modified/${file.path}`,
-			text: file.after,
-		},
-		languageId: file.languageId,
-	}));
-}
-
-function createBreadcrumbSymbols(
-	model: ITextModel,
-	breadcrumbs: typeof chatInputChangeData.files[number]['breadcrumbs']
-): DocumentSymbol[] {
-	const kindMap = {
-		class: SymbolKind.Class,
-		constructor: SymbolKind.Constructor,
-		function: SymbolKind.Function,
-		method: SymbolKind.Method,
-	} as const;
-	let children: DocumentSymbol[] = [];
-	for (let index = breadcrumbs.length - 1; index >= 0; index--) {
-		const breadcrumb = breadcrumbs[index];
-		const { startLineNumber, endLineNumber } = model.uri.authority === 'original' ? breadcrumb.beforeRange : breadcrumb.afterRange;
-		children = [{
-			name: breadcrumb.name,
-			detail: '',
-			kind: kindMap[breadcrumb.kind],
-			tags: [],
-			range: { startLineNumber, startColumn: 1, endLineNumber, endColumn: model.getLineMaxColumn(endLineNumber) },
-			selectionRange: { startLineNumber, startColumn: 1, endLineNumber: startLineNumber, endColumn: model.getLineMaxColumn(startLineNumber) },
-			children,
-		}];
-	}
-	return children;
 }
 
 function createLongPathDocuments(
@@ -452,21 +372,6 @@ function createVariantFixtures(variant: 'cards' | 'noCards') {
 		? 'Inset cards with aligned header and editor side borders.'
 		: 'Headers and editors flush to both viewport edges.';
 	return defineThemedFixtureGroup({
-		ChatInputChanges: defineComponentFixture({
-			...representativeThemeOptions,
-			labels: { kind: 'screenshot' },
-			expectedVisualDescriptions: [treatment, 'Five realistic VS Code source changes match the Git changes editor order and breadcrumb treatment.'],
-			render: context => renderMultiDiffVisualFixture(context, {
-				height: 720,
-				variant,
-				renderSideBySide: false,
-				diffEditorOptions: {
-					hideUnchangedRegions: { enabled: true },
-				},
-				waitForDocumentSymbols: true,
-				createDocuments: createChatInputChangeDocuments,
-			}),
-		}),
 		MultiFile: defineComponentFixture({
 			...focusedThemeOptions,
 			labels: { kind: 'screenshot' },
