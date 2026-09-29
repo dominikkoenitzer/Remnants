@@ -24,7 +24,7 @@ import { asJson, IRequestService } from '../../../../platform/request/common/req
 import { CancellationToken } from '../../../../base/common/cancellation.js';
 import { timeout } from '../../../../base/common/async.js';
 import { StopWatch } from '../../../../base/common/stopwatch.js';
-import { CopilotAssignmentFilterProvider, GitHubCoreAssignmentsFilterProvider } from './assignmentFilters.js';
+import { CopilotAssignmentFilterProvider } from './assignmentFilters.js';
 import { IDefaultAccountService } from '../../../../platform/defaultAccount/common/defaultAccount.js';
 import { AssignmentContextFilter } from './assignmentContextFilter.js';
 import { Disposable, DisposableStore, toDisposable } from '../../../../base/common/lifecycle.js';
@@ -480,10 +480,7 @@ export class WorkbenchAssignmentService extends Disposable implements IAssignmen
 				this.productService.date ?? '',
 				this.environmentService.isSessionsWindow ? WindowKind.Agents : WindowKind.Editor
 			);
-			const githubAssignmentsFilterProvider = this.instantiationService.createInstance(GitHubCoreAssignmentsFilterProvider);
-			this.tasSetupDisposables.add(githubAssignmentsFilterProvider);
-			this.tasSetupDisposables.add(githubAssignmentsFilterProvider.onDidChangeFilters(() => this.refetchAssignments()));
-			assignmentsFilterProviders = [coreAssignmentsFilterProvider, githubAssignmentsFilterProvider];
+			assignmentsFilterProviders = [coreAssignmentsFilterProvider];
 		}
 
 		const tasConfig = this.productService.tasConfig!;
