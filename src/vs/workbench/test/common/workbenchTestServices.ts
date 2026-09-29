@@ -7,6 +7,7 @@ import { DeferredPromise, timeout } from '../../../base/common/async.js';
 import { bufferToStream, readableToBuffer, VSBuffer, VSBufferReadable } from '../../../base/common/buffer.js';
 import { CancellationToken } from '../../../base/common/cancellation.js';
 import { Emitter, Event } from '../../../base/common/event.js';
+import { IMarkdownString } from '../../../base/common/htmlContent.js';
 import { Iterable } from '../../../base/common/iterator.js';
 import { Disposable, IDisposable, toDisposable } from '../../../base/common/lifecycle.js';
 import { ResourceMap, ResourceSet } from '../../../base/common/map.js';
@@ -350,7 +351,7 @@ export const NullFilesConfigurationService = new class implements IFilesConfigur
 	enableAutoSaveAfterShortDelay(resourceOrEditor: URI | EditorInput): IDisposable { throw new Error('Method not implemented.'); }
 	disableAutoSave(resourceOrEditor: URI | EditorInput): IDisposable { throw new Error('Method not implemented.'); }
 	isReadonly(resource: URI, stat?: IBaseFileStat | undefined): boolean { return false; }
-	async updateReadonly(_resource: URI | URI[], _readonly: boolean | 'toggle' | 'reset'): Promise<void> { }
+	async updateReadonly(_resource: URI | URI[], _readonly: boolean | IMarkdownString | 'toggle' | 'reset'): Promise<void> { }
 	preventSaveConflicts(resource: URI, language?: string | undefined): boolean { throw new Error('Method not implemented.'); }
 };
 
@@ -780,6 +781,51 @@ export class InMemoryTestFileService extends TestFileService {
 	}
 }
 
+<<<<<<< remnants/main
+=======
+export class TestChatEntitlementService implements IChatEntitlementService {
+
+	_serviceBrand: undefined;
+
+	context: Lazy<ChatEntitlementContext> | undefined;
+
+	readonly organisations: undefined;
+	readonly isInternal: boolean = false;
+	readonly sku = undefined;
+	readonly copilotTrackingId = undefined;
+
+	readonly onDidChangeQuotaExceeded = Event.None;
+	readonly onDidChangeQuotaRemaining = Event.None;
+	readonly onDidChangeUsageBasedBilling = Event.None;
+	readonly quotas = {};
+
+	update(token: CancellationToken): Promise<void> {
+		throw new Error('Method not implemented.');
+	}
+
+	readonly onDidChangeSentiment = Event.None;
+	readonly sentimentObs = observableValue({}, {});
+	readonly sentiment = {};
+
+	readonly onDidChangeEntitlement = Event.None;
+	entitlement: ChatEntitlement = ChatEntitlement.Unknown;
+	readonly entitlementObs = observableValue({}, ChatEntitlement.Unknown);
+
+	readonly anonymous = false;
+	onDidChangeAnonymous = Event.None;
+	readonly anonymousObs = observableValue({}, false);
+
+	acceptQuotas(): void { }
+	clearQuotas(): void { }
+	markAnonymousRateLimited(): void { }
+	markSetupCompleted(): void { }
+	setForceHidden(_hidden: boolean): void { }
+
+	readonly clientByokEnabled = false;
+	readonly hasByokModels = false;
+}
+
+>>>>>>> 1.139.1
 export class TestLifecycleService extends Disposable implements ILifecycleService {
 
 	declare readonly _serviceBrand: undefined;

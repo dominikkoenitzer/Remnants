@@ -829,4 +829,43 @@ export class SCMInputWidget {
 	}
 }
 
+<<<<<<< remnants/main
+=======
+registerAction2(class extends Action2 {
+	constructor() {
+		super({
+			id: SCMInputWidgetCommandId.SetupAction,
+			title: localize('scmInputGenerateCommitMessage', "Generate Commit Message"),
+			icon: Codicon.sparkle,
+			f1: false,
+			menu: {
+				id: MenuId.SCMInputBox,
+				when: ContextKeyExpr.and(
+					ChatContextKeys.Setup.hidden.negate(),
+					ChatContextKeys.Setup.disabledInWorkspace.negate(),
+					ChatContextKeys.Setup.completed.negate(),
+					ContextKeyExpr.equals('scmProvider', 'git')
+				)
+			}
+		});
+	}
+
+	override async run(accessor: ServicesAccessor, ...args: unknown[]): Promise<void> {
+		const commandService = accessor.get(ICommandService);
+
+		const result = await commandService.executeCommand(CHAT_SETUP_SUPPORT_ANONYMOUS_ACTION_ID, { telemetrySource: 'scm' });
+		if (!result) {
+			return;
+		}
+
+		const command = product.defaultChatAgent?.generateCommitMessageCommand;
+		if (!command) {
+			return;
+		}
+
+		await commandService.executeCommand(command, ...args);
+	}
+});
+
+>>>>>>> 1.139.1
 setupSimpleEditorSelectionStyling('.scm-view .scm-editor-container');

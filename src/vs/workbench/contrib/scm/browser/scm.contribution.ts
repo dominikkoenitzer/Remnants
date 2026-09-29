@@ -658,5 +658,44 @@ KeybindingsRegistry.registerCommandAndKeybindingRule({
 	}
 });
 
+<<<<<<< remnants/main
+=======
+registerAction2(class extends Action2 {
+	constructor() {
+		super({
+			id: 'scm.editor.triggerSetup',
+			title: localize('scmEditorResolveMergeConflict', "Resolve Conflicts with AI"),
+			icon: Codicon.chatSparkle,
+			f1: false,
+			menu: {
+				id: MenuId.EditorContent,
+				when: ContextKeyExpr.and(
+					ChatContextKeys.Setup.hidden.negate(),
+					ChatContextKeys.Setup.disabledInWorkspace.negate(),
+					ChatContextKeys.Setup.completed.negate(),
+					ContextKeyExpr.in(ResourceContextKey.Resource.key, 'git.mergeChanges'),
+					ContextKeyExpr.equals('git.activeResourceHasMergeConflicts', true)
+				)
+			}
+		});
+	}
+
+	override async run(accessor: ServicesAccessor, ...args: unknown[]): Promise<void> {
+		const commandService = accessor.get(ICommandService);
+
+		const result = await commandService.executeCommand(CHAT_SETUP_SUPPORT_ANONYMOUS_ACTION_ID, { telemetrySource: 'scm' });
+		if (!result) {
+			return;
+		}
+
+		const command = product.defaultChatAgent?.resolveMergeConflictsCommand;
+		if (!command) {
+			return;
+		}
+
+		await commandService.executeCommand(command, ...args);
+	}
+});
+>>>>>>> 1.139.1
 
 AccessibleViewRegistry.register(new SCMAccessibilityHelp());
