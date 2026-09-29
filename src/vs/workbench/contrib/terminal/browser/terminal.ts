@@ -254,38 +254,6 @@ export interface ITerminalChatService {
 	hasChatSessionAutoApproval(chatSessionResource: URI): boolean;
 
 	/**
-<<<<<<< remnants/main
-=======
-	 * Add a session-scoped auto-approve rule.
-	 * @param chatSessionResource The chat session resource URI
-	 * @param key The rule key (command or regex pattern)
-	 * @param value The rule value (approval boolean or object with approve and matchCommandLine)
-	 */
-	addSessionAutoApproveRule(chatSessionResource: URI, key: string, value: boolean | { approve: boolean; matchCommandLine?: boolean }): void;
-
-	/**
-	 * Get all session-scoped auto-approve rules for a specific chat session.
-	 * @param chatSessionResource The chat session resource URI
-	 * @returns A record of all session-scoped auto-approve rules for the session
-	 */
-	getSessionAutoApproveRules(chatSessionResource: URI): Readonly<Record<string, boolean | { approve: boolean; matchCommandLine?: boolean }>>;
-
-	/**
-	 * Generate auto-approve rule actions for a command line that was not evaluated by the
-	 * built-in run in terminal tool, such as terminal confirmations surfaced by agent host
-	 * sessions. The command line is parsed into sub-commands and evaluated against the
-	 * persisted configuration rules only (never workbench session rules, which agent hosts
-	 * do not consume) to produce the same persistent-rule suggestions the built-in tool
-	 * offers.
-	 * @param commandLine The full command line being confirmed
-	 * @param language The language to parse the command line with
-	 * @returns The actions to show in the confirmation dropdown, or undefined if the command
-	 * line could not be analyzed
-	 */
-	getAutoApproveActions(commandLine: string, language: 'shellscript' | 'powershell'): Promise<ToolConfirmationAction[] | undefined>;
-
-	/**
->>>>>>> 1.139.1
 	 * Signal that a foreground terminal tool invocation should continue in the background.
 	 * This causes the tool to return its current output immediately while the terminal keeps running.
 	 * @param terminalToolSessionId The tool session ID to continue in background
@@ -296,25 +264,6 @@ export interface ITerminalChatService {
 	 * Event fired when a terminal tool invocation should continue in the background.
 	 */
 	readonly onDidContinueInBackground: Event<string>;
-<<<<<<< remnants/main
-=======
-
-	/**
-	 * Register an AHP command source for a tool session. The source provides command detection
-	 * events for terminals connected via the Agent Host Protocol.
-	 * @param terminalToolSessionId The tool session ID to associate with the source
-	 * @param source The AHP command source
-	 * @returns A disposable that unregisters the source when disposed
-	 */
-	registerAhpCommandSource(terminalToolSessionId: string, source: IAhpTerminalCommandSource, promisedTerminal: Promise<ITerminalInstance>): IDisposable;
-
-	/**
-	 * Retrieve the AHP command source for a given tool session.
-	 * @param terminalToolSessionId The tool session ID to look up
-	 * @returns The AHP command source if registered, undefined otherwise
-	 */
-	getAhpCommandSource(terminalToolSessionId: string): IAhpTerminalCommandSource | undefined;
->>>>>>> 1.139.1
 }
 
 /**
