@@ -13,6 +13,7 @@ to take on faith.
 | Upstream | [microsoft/vscode](https://github.com/microsoft/vscode) |
 | Base commit | [`93cfdd48`](https://github.com/microsoft/vscode/commit/93cfdd489c3b228840d0f86ec77c3636277c93ea) (2026-06-15) |
 | Upstream release | 1.125.0 |
+| Current upstream release | 1.139.1, [`04c0d99f`](https://github.com/microsoft/vscode/commit/04c0d99f4fb0d8afe6ce4f0c58e31e183ac3e4b1) |
 | Upstream licence | MIT, retained in [`LICENSE.txt`](LICENSE.txt), with attribution in [`ThirdPartyNotices.txt`](ThirdPartyNotices.txt) |
 
 > **On the git history.** The upstream tree was imported as a single squashed
@@ -83,15 +84,56 @@ Microsoft Marketplace, which the Code - OSS licence does not cover.
 - **Repository automation**: upstream's `.github` replaced with a small CI
   workflow and release workflow; test fixtures excluded from secret scanning.
 
+## Catching up with upstream 1.139.1
+
+Remnants moved from upstream 1.125.0 to 1.139.1
+([`04c0d99f`](https://github.com/microsoft/vscode/commit/04c0d99f4fb0d8afe6ce4f0c58e31e183ac3e4b1)).
+The history rule still holds: no Microsoft commits were imported. The update is
+a three-way merge of the 1.139.1 tree onto this repository, using 1.125.0 as the
+merge base, landed as ordinary commits on top of the existing history.
+
+- **The removal was re-applied** by path list, so every AI directory and file
+  deleted for 1.125.0 stays deleted, including the files upstream added inside
+  those directories since.
+- **New upstream AI modules were removed** as well: agent editor comments (the
+  service, its extension API proposal and the Markdown editor bridge), the
+  on-device dictation runtime and local transcription services, the chat pills,
+  the terminal command auto-approval rules, the agent host process and its
+  session links, the agent host server options and end-to-end scripts, the
+  agent-host edit attribution in edit telemetry, the Codex account menu, the
+  Copilot survey editor, the Copilot entitlement filters for experiments, the
+  Agents Window entries in the issue reporter, recents and the Windows jump list,
+  the Copilot runtime version in the About dialog and in managed settings
+  requests, and the Copilot, Foundry Local, SDK canary and CAPI steps in the
+  build and Azure pipelines.
+- **Dependencies**: the AI SDKs upstream added or bumped (the Copilot SDK and
+  API, the Anthropic and Claude agent SDKs, Codex, Foundry Local, the Dev
+  Container CLI) are not installed. Lockfiles were regenerated from upstream's
+  entries, keeping their platform (`libc`) fields.
+- **Kept on purpose**, as before: the managed-settings and Copilot managed
+  settings policy plumbing, MCP authentication access and `mcp.json`
+  configuration plumbing, the inline-completions Copilot detection, the Agents
+  window extension capability settings, and the CLI `agent` commands, which stay
+  as Remnants already had them.
+- **Judgment calls**: the Linux desktop file is named `com.remnants.remnants`,
+  matching the macOS bundle identifier, because upstream now names it from a
+  product key. The 2026 themes keep the Remnants blue accent and borderless
+  look; upstream's new chat and agents colors were left out, and its new panel
+  section borders were added as transparent.
+- **Tooling**: [`upstream/`](upstream/README.md) holds the sync script, the
+  import gate and the path lists used for this update, so the next release can
+  be taken the same way.
+
 ## Verifying this yourself
 
 The removals predate this repository's history, so `git log` will not show
 them. What can be checked is this tree against the upstream revision it was
-cut from. Comparing the two manifests shows the dependency side of the
-removal, six AI SDKs taken out and nothing put back:
+cut from, or against the upstream release it now tracks. Comparing the
+two manifests shows the dependency side of the removal, with the AI SDKs
+taken out and nothing put back:
 
 ```bash
-base=93cfdd489c3b228840d0f86ec77c3636277c93ea
+base=04c0d99f4fb0d8afe6ce4f0c58e31e183ac3e4b1  # 1.139.1; use 93cfdd48... for the original 1.125.0 base
 curl -s "https://raw.githubusercontent.com/microsoft/vscode/$base/package.json" -o upstream.json
 node -e '
 const up = require("./upstream.json"), me = require("./package.json");
