@@ -33,6 +33,7 @@ import { isString } from '../../../../base/common/types.js';
 import { Delayer } from '../../../../base/common/async.js';
 import { IProductService } from '../../../../platform/product/common/productService.js';
 import { isWeb } from '../../../../base/common/platform.js';
+import { IDefaultAccountService } from '../../../../platform/defaultAccount/common/defaultAccount.js';
 
 const SOURCE = 'IWorkbenchExtensionEnablementService';
 
