@@ -847,10 +847,6 @@ class PolicyDiagnosticsAction extends Action2 {
 		} = services;
 		const configurationRegistry = Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration);
 
-<<<<<<< remnants/main
-		let content = '# Remnants Policy Diagnostics\n\n';
-		content += '*WARNING: This file may contain sensitive information.*\n\n';
-=======
 		const summary: IPolicyDiagnosticsSummary = {
 			accountPolicyGate: 'Unavailable',
 			managedSettingsSources: 'Unavailable',
@@ -862,7 +858,6 @@ class PolicyDiagnosticsAction extends Action2 {
 		};
 
 		let content = '';
->>>>>>> 1.139.1
 		content += '## System Information\n\n';
 		content += markdownTable(
 			['Property', 'Value'],
@@ -1330,7 +1325,7 @@ class PolicyDiagnosticsAction extends Action2 {
 			content += `*Error retrieving authentication information: ${markdownText(getErrorMessage(error))}*\n\n`;
 		}
 
-		const report = '# VS Code Policy Diagnostics\n\n' +
+		const report = '# Remnants Policy Diagnostics\n\n' +
 			'*WARNING: This file may contain sensitive information.*\n\n' +
 			'## Summary\n\n' +
 			markdownTable(

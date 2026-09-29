@@ -131,12 +131,6 @@ import { ILocalPtyService, LocalReconnectConstants, TerminalIpcChannels, Termina
 import { createLocalPtyChannel } from '../../platform/terminal/common/localPtyChannel.js';
 import { ElectronPtyHostStarter } from '../../platform/terminal/electron-main/electronPtyHostStarter.js';
 import { PtyHostService } from '../../platform/terminal/node/ptyHostService.js';
-<<<<<<< remnants/main
-=======
-import { parseExternalOpenSessionLinkUri } from '../../platform/agentHost/common/openSessionLink.js';
-import { ElectronAgentHostStarter } from '../../platform/agentHost/electron-main/electronAgentHostStarter.js';
-import { AgentHostProcessManager } from '../../platform/agentHost/node/agentHostService.js';
->>>>>>> 1.139.1
 import { NODE_REMOTE_RESOURCE_CHANNEL_NAME, NODE_REMOTE_RESOURCE_IPC_METHOD_NAME, NodeRemoteResourceResponse, NodeRemoteResourceRouter } from '../../platform/remote/common/electronRemoteResources.js';
 import { Lazy } from '../../base/common/lazy.js';
 import { IAuxiliaryWindowsMainService } from '../../platform/auxiliaryWindow/electron-main/auxiliaryWindows.js';
@@ -690,12 +684,8 @@ export class CodeApplication extends Disposable {
 	}
 
 	async startup(): Promise<void> {
-<<<<<<< remnants/main
-		this.logService.debug('Starting Remnants');
-=======
 		mark('code/willStartCodeApplication');
-		this.logService.debug('Starting VS Code');
->>>>>>> 1.139.1
+		this.logService.debug('Starting Remnants');
 		this.logService.debug(`from: ${this.environmentMainService.appRoot}`);
 		this.logService.debug('args:', this.environmentMainService.args);
 
