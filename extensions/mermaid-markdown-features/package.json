@@ -13,13 +13,6 @@
   "engines": {
     "vscode": "^1.104.0"
   },
-<<<<<<< remnants/main
-=======
-  "enabledApiProposals": [
-    "chatOutputRenderer",
-    "chatParticipantPrivate"
-  ],
->>>>>>> 1.139.1
   "capabilities": {
     "virtualWorkspaces": true,
     "untrustedWorkspaces": {

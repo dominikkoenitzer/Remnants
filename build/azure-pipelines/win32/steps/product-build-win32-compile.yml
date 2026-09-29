@@ -153,27 +153,9 @@ steps:
 
   - template: ../../common/install-builtin-extensions.yml@self
 
-<<<<<<< remnants/main
-=======
   - powershell: node build/npm/electronTypes.ts
     displayName: Prepare Electron types
 
-  - template: ../../common/agent-sdk-produce.yml@self
-    parameters:
-      vscodePlatform: win32
-
-  - template: ../../common/dictation-runtime-produce.yml@self
-    parameters:
-      vscodePlatform: win32
-
-  - pwsh: npx deemon --detach --wait -- node build/azure-pipelines/common/downloadCopilotVsix.ts
-    env:
-      SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-    displayName: Download Copilot VSIX (background)
-
-  - template: ../../common/mixin-vscode-capi.yml@self
-
->>>>>>> 1.139.1
   - powershell: npm run gulp core-ci
     env:
       GITHUB_TOKEN: "$(github-token-code-oss)"
@@ -202,13 +184,6 @@ steps:
     - powershell: node build/win32/explorer-dll-fetcher.ts .build/win32/appx
       displayName: Download Explorer dll
 
-<<<<<<< remnants/main
-=======
-  - pwsh: npx deemon --attach -- node build/azure-pipelines/common/downloadCopilotVsix.ts
-    env:
-      SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-    displayName: Download Copilot VSIX
-
   # Block on the CG NOTICE download and overwrite ThirdPartyNotices.txt
   # right before gulp packages it. Non-fatal: falls back to legacy on any problem.
   - ${{ if ne(parameters.VSCODE_CIBUILD, true) }}:
@@ -220,7 +195,6 @@ steps:
       # deemon --attach can exit non-zero if the background daemon died; never fail for that.
       continueOnError: true
 
->>>>>>> 1.139.1
   - powershell: |
       . build/azure-pipelines/win32/exec.ps1
       $ErrorActionPreference = "Stop"

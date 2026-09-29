@@ -211,28 +211,10 @@ steps:
 
   - template: ../../common/install-builtin-extensions.yml@self
 
-<<<<<<< remnants/main
-=======
   - script: node build/npm/electronTypes.ts
     displayName: Prepare Electron types
 
   - ${{ if ne(parameters.VSCODE_ARCH, 'armhf') }}:
-    - template: ../../common/agent-sdk-produce.yml@self
-      parameters:
-        vscodePlatform: linux
-
-    - template: ../../common/dictation-runtime-produce.yml@self
-      parameters:
-        vscodePlatform: linux
-
-  - script: npx deemon --detach --wait -- node build/azure-pipelines/common/downloadCopilotVsix.ts
-    env:
-      SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-    displayName: Download Copilot VSIX (background)
-
-  - template: ../../common/mixin-vscode-capi.yml@self
-
->>>>>>> 1.139.1
   - script: npm run gulp core-ci
     env:
       GITHUB_TOKEN: "$(github-token-code-oss)"
@@ -255,13 +237,6 @@ steps:
       displayName: Generate policy definitions
       retryCountOnTaskFailure: 3
 
-<<<<<<< remnants/main
-=======
-  - script: npx deemon --attach -- node build/azure-pipelines/common/downloadCopilotVsix.ts
-    env:
-      SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-    displayName: Download Copilot VSIX
-
   # Block on the CG NOTICE download and overwrite ThirdPartyNotices.txt
   # right before gulp packages it. Non-fatal: falls back to legacy on any problem.
   - ${{ if ne(parameters.VSCODE_CIBUILD, true) }}:
@@ -273,7 +248,6 @@ steps:
       # deemon --attach can exit non-zero if the background daemon died; never fail for that.
       continueOnError: true
 
->>>>>>> 1.139.1
   - script: |
       set -e
       npm run gulp vscode-linux-$(VSCODE_ARCH)-min-ci
