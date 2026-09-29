@@ -69,7 +69,7 @@ suite('TerminalProfileConfigurationTelemetry', () => {
 	});
 
 	test('reports settings that already have configured values', () => {
-		const configuredSettings = [profileSettings[0], profileSettings[7]];
+		const configuredSettings = [profileSettings[0], profileSettings[4]];
 		const configurationService = new TestConfigurationService(Object.fromEntries(configuredSettings.map(setting => [setting.settingId, setting.value])));
 		const telemetryService = new TestTelemetryService();
 		store.add(new TerminalProfileConfigurationTelemetry(configurationService, telemetryService));
