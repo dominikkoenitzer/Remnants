@@ -733,12 +733,6 @@ export class IssueReporterOverlay {
 		}
 	}
 
-<<<<<<< remnants/main
-	private getSourceOptions(): { label: string; value: IssueSource }[] {
-		const options: { label: string; value: IssueSource }[] = [
-			{ label: product.nameLong || localize('vscode', "Remnants"), value: IssueSource.VSCode },
-			{ label: localize('extensionSource', "A Remnants extension"), value: IssueSource.Extension },
-=======
 	private appendRequiredMarker(label: HTMLElement): void {
 		const marker = append(label, $('span.wizard-required-marker'));
 		marker.textContent = '*';
@@ -761,10 +755,8 @@ export class IssueReporterOverlay {
 
 	private getAllSourceOptions(): { label: string; value: IssueSource }[] {
 		return [
-			{ label: product.nameLong || localize('vscode', "Visual Studio Code"), value: IssueSource.VSCode },
-			{ label: localize('agentsWindow', "Agents Window"), value: IssueSource.AgentsWindow },
-			{ label: localize('extensionSource', "A VS Code extension"), value: IssueSource.Extension },
->>>>>>> 1.139.1
+			{ label: product.nameLong || localize('vscode', "Remnants"), value: IssueSource.VSCode },
+			{ label: localize('extensionSource', "A Remnants extension"), value: IssueSource.Extension },
 			{ label: localize('marketplace', "Extensions Marketplace"), value: IssueSource.Marketplace },
 		];
 	}
@@ -1070,13 +1062,7 @@ export class IssueReporterOverlay {
 	private getIssueSourceLabel(): string {
 		switch (this.selectedIssueSource) {
 			case IssueSource.VSCode:
-<<<<<<< remnants/main
 				return product.nameLong || localize('vscode', "Remnants");
-=======
-				return product.nameLong || localize('vscode', "Visual Studio Code");
-			case IssueSource.AgentsWindow:
-				return localize('agentsWindow', "Agents Window");
->>>>>>> 1.139.1
 			case IssueSource.Extension:
 				return this.selectedExtension?.displayName || this.selectedExtension?.name || localize('extensionSource', "A Remnants extension");
 			case IssueSource.Marketplace:
