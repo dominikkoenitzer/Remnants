@@ -45,7 +45,6 @@ export enum BrowserViewCommandId {
 
 	// Chat actions
 	AddElementToChat = `${commandPrefix}.addElementToChat`,
-	AddElementCommentToChat = `${commandPrefix}.addElementCommentToChat`,
 	AddConsoleLogsToChat = `${commandPrefix}.addConsoleLogsToChat`,
 	AddScreenshotToChat = `${commandPrefix}.addScreenshotToChat`,
 	AddAreaScreenshotToChat = `${commandPrefix}.addAreaScreenshotToChat`,
@@ -74,8 +73,7 @@ export interface IElementAncestor {
 }
 
 export enum BrowserElementSelectionMode {
-	Select = 'select',
-	Comment = 'comment'
+	Select = 'select'
 }
 
 export interface IBrowserElementSelectionOptions {
@@ -92,7 +90,6 @@ export interface IBrowserElementSelectionState {
 export interface IElementData {
 	readonly url?: string;
 	readonly elementId?: string;
-	readonly comment?: string;
 	readonly outerHTML: string;
 	readonly computedStyle: string;
 	readonly bounds: { readonly x: number; readonly y: number; readonly width: number; readonly height: number };
@@ -103,32 +100,11 @@ export interface IElementData {
 	readonly innerText?: string;
 }
 
-export interface IBrowserElementComment {
-	readonly elementId: string;
-	readonly body: string;
-}
-
-export interface IBrowserElementCommentsUpdate {
-	readonly comments?: readonly IBrowserElementComment[];
-	readonly pendingCommentIdsToDiscard?: readonly string[];
-}
-
 export interface IBrowserViewRect {
 	readonly x: number;
 	readonly y: number;
 	readonly width: number;
 	readonly height: number;
-}
-
-export interface IBrowserViewPreloadLocalizedStrings {
-	readonly addComment: string;
-	readonly addCommentPlaceholder: string;
-	readonly commentOnSelectedElement: string;
-	readonly elementComment: string;
-	readonly elementCommentWithBody: string;
-	readonly emptyElementComment: string;
-	readonly removeComment: string;
-	readonly removeElementComment: string;
 }
 
 export interface IBrowserViewTheme {
@@ -525,7 +501,6 @@ export interface IBrowserViewService {
 	onDynamicDidFindInPage(id: string): Event<IBrowserViewFindInPageResult>;
 	onDynamicDidClose(id: string): Event<void>;
 	onDynamicDidSelectElement(id: string): Event<IElementData>;
-	onDynamicDidRemoveElementComment(id: string): Event<string>;
 	onDynamicDidChangeElementSelectionState(id: string): Event<IBrowserElementSelectionState>;
 	onDynamicDidPickArea(id: string): Event<IBrowserViewRect | undefined>;
 	onDynamicDidChangeAreaSelectionActive(id: string): Event<boolean>;
@@ -766,14 +741,6 @@ export interface IBrowserViewService {
 	 * @param options Options to update while enabling or continuing element selection.
 	 */
 	toggleElementSelection(id: string, enabled?: boolean, options?: IBrowserElementSelectionOptions): Promise<void>;
-
-	/**
-	 * Synchronize the element comments displayed in a browser view.
-	 *
-	 * @param id The browser view identifier
-	 * @param update The comment state to synchronize
-	 */
-	setElementComments(id: string, update: IBrowserElementCommentsUpdate): Promise<void>;
 
 	/**
 	 * Toggle drag-to-select area picking on the top frame of a browser view.
