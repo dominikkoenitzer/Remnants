@@ -91,12 +91,6 @@ import './services/auxiliaryWindow/electron-browser/auxiliaryWindowService.js';
 import '../platform/extensionManagement/electron-browser/extensionsProfileScannerService.js';
 import '../platform/sandbox/electron-browser/sandboxHelperService.js';
 import '../platform/webContentExtractor/electron-browser/webContentExtractorService.js';
-<<<<<<< remnants/main
-=======
-import './services/agentHost/electron-browser/agentHostService.js';
-import '../platform/agentHost/electron-browser/remoteAgentHostService.js';
-import '../platform/agentHost/browser/agentHostEnablementService.js';
->>>>>>> 1.139.1
 import './services/browserView/electron-browser/playwrightWorkbenchService.js';
 import './services/process/electron-browser/processService.js';
 import './services/power/electron-browser/powerService.js';
@@ -187,11 +181,6 @@ import './contrib/multiDiffEditor/browser/multiDiffEditor.contribution.js';
 import './contrib/remoteTunnel/electron-browser/remoteTunnel.contribution.js';
 
 // Chat
-<<<<<<< remnants/main
-=======
-import './contrib/chat/electron-browser/chat.contribution.js';
-import './contrib/chat/electron-browser/tunnelHost.contribution.js';
->>>>>>> 1.139.1
 
 // Copilot Voice
 
