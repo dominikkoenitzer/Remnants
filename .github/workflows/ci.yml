@@ -60,7 +60,7 @@ jobs:
         run: npm ci
 
       - name: Type-check (src)
-        run: npm run compile-check-ts-native
+        run: npm run typecheck-client
 
       # Loads every build/gulpfile.*.ts and lists the tasks they define. Seconds
       # of work, and it catches a build script that no longer imports or parses -
