@@ -23,7 +23,7 @@ import { IRandomService } from '../randomService.js';
 
 const FOCUS_CORRELATION_DRAIN_TIMEOUT = 1_000;
 
-export type EditTelemetryCategory = 'nes' | 'inlineCompletionsCopilot' | 'inlineCompletionsNES' | 'inlineCompletionsOther' | 'otherAI' | 'agentHost' | 'user' | 'ide' | 'external' | 'unknown';
+export type EditTelemetryCategory = 'nes' | 'inlineCompletionsCopilot' | 'inlineCompletionsNES' | 'inlineCompletionsOther' | 'otherAI' | 'user' | 'ide' | 'external' | 'unknown';
 
 export function getEditTelemetryCategory(source: EditSource): EditTelemetryCategory {
 	if (source.category === 'ai' && source.kind === 'nes') { return 'nes'; }
@@ -34,7 +34,6 @@ export function getEditTelemetryCategory(source: EditSource): EditTelemetryCateg
 	if (source.category === 'ai' && source.kind === 'completion') { return 'inlineCompletionsOther'; }
 
 	if (source.category === 'ai') { return 'otherAI'; }
-	if (source.category === 'agentHost') { return 'agentHost'; }
 	if (source.category === 'user') { return 'user'; }
 	if (source.category === 'ide') { return 'ide'; }
 	if (source.category === 'external') { return 'external'; }
@@ -207,8 +206,7 @@ class TrackedDocumentInfo extends Disposable {
 		const internalKeys = t.getAllKeys();
 		const data = this.getTelemetryData(ranges);
 		const statsUuid = this._randomService.generateUuid();
-		const agentModifiedCount = mode === 'longterm' ? 0 : data.agentHostModifiedCount;
-		if (internalKeys.length === 0 && agentModifiedCount === 0) {
+		if (internalKeys.length === 0) {
 			return;
 		}
 		const totalModifiedCount = data.totalModifiedCharactersInFinalState;
@@ -259,8 +257,6 @@ class TrackedDocumentInfo extends Disposable {
 				statsUuid: statsUuid,
 				conversationId: repr.props.$$sessionId,
 				requestId: repr.props.$$requestId,
-				origin: repr.props.$origin,
-				harness: repr.props.$harness,
 				modifiedCount: value,
 				deltaModifiedCount: deltaModifiedCount,
 				totalModifiedCount,
@@ -278,7 +274,6 @@ class TrackedDocumentInfo extends Disposable {
 			inlineCompletionsCopilotModifiedCount: data.inlineCompletionsCopilotModifiedCount,
 			inlineCompletionsNESModifiedCount: data.inlineCompletionsNESModifiedCount,
 			otherAIModifiedCount: data.otherAIModifiedCount,
-			agentHostModifiedCount: agentModifiedCount,
 			unknownModifiedCount: data.unknownModifiedCount,
 			userModifiedCount: data.userModifiedCount,
 			ideModifiedCount: data.ideModifiedCount,
@@ -300,7 +295,6 @@ class TrackedDocumentInfo extends Disposable {
 			inlineCompletionsCopilotModifiedCount: sums.inlineCompletionsCopilot ?? 0,
 			inlineCompletionsNESModifiedCount: sums.inlineCompletionsNES ?? 0,
 			otherAIModifiedCount: sums.otherAI ?? 0,
-			agentHostModifiedCount: sums.agentHost ?? 0,
 			userModifiedCount: sums.user ?? 0,
 			ideModifiedCount: sums.ide ?? 0,
 			unknownModifiedCount: sums.unknown ?? 0,
