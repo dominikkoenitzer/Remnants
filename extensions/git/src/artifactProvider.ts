@@ -3,13 +3,8 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-<<<<<<< remnants/main
-import { LogOutputChannel, SourceControlArtifactProvider, SourceControlArtifactGroup, SourceControlArtifact, Event, EventEmitter, ThemeIcon, l10n, workspace, Uri, Disposable, Command } from 'vscode';
-import { coalesce, dispose, filterEvent, IDisposable } from './util';
-=======
 import { LogOutputChannel, SourceControlArtifactProvider, SourceControlArtifactGroup, SourceControlArtifact, Event, EventEmitter, l10n, workspace, Uri, Disposable, Command } from 'vscode';
-import { coalesce, dispose, filterEvent, IDisposable, isCopilotWorktreeFolder } from './util';
->>>>>>> 1.139.1
+import { coalesce, dispose, filterEvent, IDisposable } from './util';
 import { Repository } from './repository';
 import type { Ref, Worktree } from './api/git';
 import { RefType } from './api/git.constants';
@@ -191,15 +186,8 @@ export class GitArtifactProvider implements SourceControlArtifactProvider, IDisp
 						w.commitDetails?.message.split('\n')[0]
 					]).join(' \u2022 '),
 					icon: w.main
-<<<<<<< remnants/main
-						? new ThemeIcon('repo')
-						: new ThemeIcon('worktree')
-=======
 						? Icons.repository
-						: isCopilotWorktreeFolder(w.path)
-							? Icons.chatWorktree
-							: Icons.worktree
->>>>>>> 1.139.1
+						: Icons.worktree
 				}));
 			}
 		} catch (err) {
