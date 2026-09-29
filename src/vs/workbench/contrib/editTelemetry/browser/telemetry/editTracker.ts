@@ -9,8 +9,28 @@ import { observableSignal, runOnChange, IReader } from '../../../../../base/comm
 import { AnnotatedStringEdit } from '../../../../../editor/common/core/edits/stringEdit.js';
 import { OffsetRange } from '../../../../../editor/common/core/ranges/offsetRange.js';
 import { TextModelEditSource } from '../../../../../editor/common/textModelEditSource.js';
+import { Event } from '../../../../../base/common/event.js';
 import { IDocumentWithAnnotatedEdits, EditKeySourceData, EditSource, EditSourceBase } from '../helpers/documentWithAnnotatedEdits.js';
-import { IExternalEditCorrelation, IExternalEditCorrelationResolution } from './agentHostEditMarkerService.js';
+
+/**
+ * Correlates external (non-editor) document changes with a known producer so the
+ * tracker can suppress or re-attribute them instead of counting them as external.
+ */
+export interface IExternalEditCorrelation {
+	readonly onDidSuppress: Event<string>;
+	readonly onDidResolve?: Event<IExternalEditCorrelationResolution>;
+	readonly onDidInvalidate: Event<string>;
+	register(before: string, after: string): string;
+	isSuppressed(id: string): boolean;
+	getResolution?(id: string): IExternalEditCorrelationResolution | undefined;
+	waitForResolution?(ids: readonly string[], timeoutMs: number): Promise<void>;
+	release(id: string): void;
+}
+
+export interface IExternalEditCorrelationResolution {
+	readonly id: string;
+	readonly source?: TextModelEditSource;
+}
 
 const EXTERNAL_OBSERVATION_KEY_PREFIX = 'external-observation:';
 export type ExternalEditCorrelationPolicy = 'suppress' | 'reattribute';

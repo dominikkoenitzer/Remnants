@@ -12,7 +12,6 @@ import { EditTelemetryMode, EditTelemetryTrigger, sendEditSourcesDetailsTelemetr
 import { ITelemetryService } from '../../../../../platform/telemetry/common/telemetry.js';
 import { TextModelEditSource } from '../../../../../editor/common/textModelEditSource.js';
 import { IUserAttentionService } from '../../../../services/userAttention/common/userAttentionService.js';
-import { ITextFileService } from '../../../../services/textfile/common/textfiles.js';
 import { ILogService } from '../../../../../platform/log/common/log.js';
 import { AnnotatedDocument, IAnnotatedDocuments } from '../helpers/annotatedDocuments.js';
 import { CreateSuggestionIdForChatOrInlineChatCaller, EditTelemetryReportEditArcForChatOrInlineChatSender, EditTelemetryReportInlineEditArcSender } from './arcTelemetrySender.js';
@@ -21,7 +20,6 @@ import { DocumentEditSourceTracker, TrackedEdit } from './editTracker.js';
 import { sumByCategory } from '../helpers/utils.js';
 import { IScmRepoAdapter, ScmAdapter } from './scmAdapter.js';
 import { IRandomService } from '../randomService.js';
-import { AgentHostEditAttributionDeferredError, AgentHostEditAttributionUnknownOutcomeError, IAgentHostEditMarkerService, IPreparedAgentHostEditAttributionFlush } from './agentHostEditMarkerService.js';
 
 const FOCUS_CORRELATION_DRAIN_TIMEOUT = 1_000;
 
@@ -50,14 +48,13 @@ export class EditSourceTrackingImpl extends Disposable {
 	constructor(
 		private readonly _statsEnabled: IObservable<boolean>,
 		private readonly _annotatedDocuments: IAnnotatedDocuments,
-		private readonly _agentHostEditMarkerService: IAgentHostEditMarkerService | undefined,
 		@IInstantiationService private readonly _instantiationService: IInstantiationService,
 	) {
 		super();
 
 		const scmBridge = this._instantiationService.createInstance(ScmAdapter);
 		this._states = mapObservableArrayCached(this, this._annotatedDocuments.documents, (doc, store) => {
-			return [doc.document, store.add(this._instantiationService.createInstance(TrackedDocumentInfo, doc, scmBridge, this._statsEnabled, this._agentHostEditMarkerService))] as const;
+			return [doc.document, store.add(this._instantiationService.createInstance(TrackedDocumentInfo, doc, scmBridge, this._statsEnabled))] as const;
 		});
 		this.docsState = this._states.map((entries) => new Map(entries));
 
@@ -76,12 +73,10 @@ class TrackedDocumentInfo extends Disposable {
 		private readonly _doc: AnnotatedDocument,
 		private readonly _scm: ScmAdapter,
 		private readonly _statsEnabled: IObservable<boolean>,
-		private readonly _agentHostEditMarkerService: IAgentHostEditMarkerService | undefined,
 		@IInstantiationService private readonly _instantiationService: IInstantiationService,
 		@ITelemetryService private readonly _telemetryService: ITelemetryService,
 		@IRandomService private readonly _randomService: IRandomService,
 		@IUserAttentionService private readonly _userAttentionService: IUserAttentionService,
-		@ITextFileService private readonly _textFileService: ITextFileService,
 		@ILogService private readonly _logService: ILogService,
 	) {
 		super();
@@ -89,7 +84,6 @@ class TrackedDocumentInfo extends Disposable {
 		this._repo = derived(this, reader => this._scm.getRepo(_doc.document.uri, reader));
 
 		const docWithJustReason = createDocWithJustReason(_doc.documentWithAnnotations, this._store);
-		const externalEditCorrelation = this._agentHostEditMarkerService?.createCorrelation(_doc.document.uri);
 
 		const longtermResetSignal = observableSignal('resetSignal');
 
@@ -98,7 +92,7 @@ class TrackedDocumentInfo extends Disposable {
 			if (!this._statsEnabled.read(reader)) { return undefined; }
 			longtermResetSignal.read(reader);
 
-			const t = new DocumentEditSourceTracker(docWithJustReason, undefined, externalEditCorrelation);
+			const t = new DocumentEditSourceTracker(docWithJustReason, undefined);
 			const startFocusTime = this._userAttentionService.totalFocusTimeMs;
 			const startTime = Date.now();
 			reader.store.add(toDisposable(() => {
@@ -153,7 +147,7 @@ class TrackedDocumentInfo extends Disposable {
 				resetSignal.trigger(undefined);
 			}));
 
-			const t = new DocumentEditSourceTracker(docWithJustReason, undefined, externalEditCorrelation, 'reattribute');
+			const t = new DocumentEditSourceTracker(docWithJustReason, undefined, undefined, 'reattribute');
 			const startFocusTime = this._userAttentionService.totalFocusTimeMs;
 			const startTime = Date.now();
 			reader.store.add(toDisposable(() => {
@@ -181,7 +175,7 @@ class TrackedDocumentInfo extends Disposable {
 				focusResetSignal.trigger(undefined);
 			}));
 
-			const t = new DocumentEditSourceTracker(docWithJustReason, undefined, externalEditCorrelation, 'reattribute');
+			const t = new DocumentEditSourceTracker(docWithJustReason, undefined, undefined, 'reattribute');
 			const startFocusTime = this._userAttentionService.totalFocusTimeMs;
 			const startTime = Date.now();
 			reader.store.add(toDisposable(() => {
@@ -209,56 +203,15 @@ class TrackedDocumentInfo extends Disposable {
 			await t.waitForExternalEditCorrelations(FOCUS_CORRELATION_DRAIN_TIMEOUT);
 		}
 		t.applyPendingExternalEdits();
-		let ranges = t.getTrackedRanges();
-		let internalKeys = t.getAllKeys();
-		let data = this.getTelemetryData(ranges);
+		const ranges = t.getTrackedRanges();
+		const internalKeys = t.getAllKeys();
+		const data = this.getTelemetryData(ranges);
 		const statsUuid = this._randomService.generateUuid();
-		let preparedAgentFlush: IPreparedAgentHostEditAttributionFlush | undefined;
-		let deferSuppressedExternal = false;
-		const isDirty = this._textFileService.isDirty(this._doc.document.uri);
-		if (mode === 'longterm' && this._agentHostEditMarkerService) {
-			try {
-				preparedAgentFlush = await this._agentHostEditMarkerService.prepareFlush(
-					this._doc.document.uri,
-					trigger,
-					statsUuid,
-					isDirty,
-					this._doc.document.languageId.get(),
-				);
-			} catch (error) {
-				this._logService.error(`[EditSourceTrackingImpl] Failed to prepare Agent Host edit attribution: ${error}`);
-				deferSuppressedExternal = error instanceof AgentHostEditAttributionDeferredError || error instanceof AgentHostEditAttributionUnknownOutcomeError;
-			}
-		}
-		if (preparedAgentFlush) {
-			t.applyPendingExternalEdits();
-			ranges = t.getTrackedRanges();
-			internalKeys = t.getAllKeys();
-			data = this.getTelemetryData(ranges);
-			try {
-				await preparedAgentFlush.commit(data.totalModifiedCharactersInFinalState + preparedAgentFlush.agentModifiedCount);
-			} catch (error) {
-				this._logService.error(`[EditSourceTrackingImpl] Failed to commit Agent Host edit attribution: ${error}`);
-				if (!(error instanceof AgentHostEditAttributionUnknownOutcomeError)) {
-					preparedAgentFlush = undefined;
-				}
-				deferSuppressedExternal = error instanceof AgentHostEditAttributionDeferredError || error instanceof AgentHostEditAttributionUnknownOutcomeError;
-			}
-		}
-		const includeSuppressedExternal = !preparedAgentFlush && !deferSuppressedExternal && !isDirty && mode === 'longterm' && !!this._agentHostEditMarkerService;
-		if (includeSuppressedExternal) {
-			ranges = t.getTrackedRanges(undefined, true);
-			internalKeys = t.getAllKeys(true);
-			data = this.getTelemetryData(ranges);
-		}
-		const coverageGap = mode === 'longterm' && !isDirty && !deferSuppressedExternal && !preparedAgentFlush?.deferCoverageGap
-			? this._agentHostEditMarkerService?.takeCoverageGap?.(this._doc.document.uri, preparedAgentFlush?.coverageGapThroughSequence ?? preparedAgentFlush?.lastSequence)
-			: undefined;
-		const agentModifiedCount = mode === 'longterm' ? preparedAgentFlush?.agentModifiedCount ?? 0 : data.agentHostModifiedCount;
-		if (internalKeys.length === 0 && agentModifiedCount === 0 && !coverageGap) {
+		const agentModifiedCount = mode === 'longterm' ? 0 : data.agentHostModifiedCount;
+		if (internalKeys.length === 0 && agentModifiedCount === 0) {
 			return;
 		}
-		const totalModifiedCount = data.totalModifiedCharactersInFinalState + (preparedAgentFlush?.agentModifiedCount ?? 0);
+		const totalModifiedCount = data.totalModifiedCharactersInFinalState;
 
 		const telemetryKeys = new Map<string, {
 			readonly representative: TextModelEditSource;
@@ -273,7 +226,7 @@ class TrackedDocumentInfo extends Disposable {
 				modifiedCount: 0,
 				deltaModifiedCount: 0,
 			};
-			entry.deltaModifiedCount += t.getTotalInsertedCharactersCount(internalKey, includeSuppressedExternal);
+			entry.deltaModifiedCount += t.getTotalInsertedCharactersCount(internalKey);
 			telemetryKeys.set(telemetryKey, entry);
 		}
 		for (const range of ranges) {
@@ -335,11 +288,6 @@ class TrackedDocumentInfo extends Disposable {
 			focusTime,
 			actualTime,
 			trigger,
-			...(mode === 'longterm' ? {
-				agentHostAttributionCoverage: coverageGap ? 'partial' as const : 'complete' as const,
-				agentHostUntrackedEditCount: coverageGap?.editCount ?? 0,
-				agentHostUntrackedInsertedCount: coverageGap?.insertedCount ?? 0,
-			} : {}),
 		});
 	}
 
