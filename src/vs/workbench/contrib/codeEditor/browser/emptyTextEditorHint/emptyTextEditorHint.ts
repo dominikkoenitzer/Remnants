@@ -27,13 +27,7 @@ import { ChangeLanguageAction } from '../../../../browser/parts/editor/editorSta
 import { LOG_MODE_ID, OUTPUT_MODE_ID } from '../../../../services/output/common/output.js';
 import { SEARCH_RESULT_LANGUAGE_ID } from '../../../../services/search/common/search.js';
 import { AccessibilityVerbositySettingId } from '../../../accessibility/browser/accessibilityConfiguration.js';
-<<<<<<< remnants/main
-=======
-import { IChatAgentService } from '../../../chat/common/participants/chatAgents.js';
-import { ChatAgentLocation } from '../../../chat/common/constants.js';
-import { IInlineChatSessionService } from '../../../inlineChat/browser/inlineChatSessionService.js';
 import { EmptyTextEditorHintContributionId, IEmptyTextEditorHintContribution } from './emptyTextEditorHintTypes.js';
->>>>>>> 1.139.1
 import './emptyTextEditorHint.css';
 
 export const emptyTextEditorHintSetting = 'workbench.editor.empty.hint';
@@ -64,17 +58,6 @@ export class EmptyTextEditorHintContribution extends Disposable implements IEmpt
 				this.update();
 			}
 		}));
-<<<<<<< remnants/main
-=======
-		this._register(inlineChatSessionService.onWillStartSession(editor => {
-			if (this.editor === editor) {
-				this.disposeHint();
-			}
-		}));
-		this._register(inlineChatSessionService.onDidChangeSessions(() => {
-			this.update();
-		}));
->>>>>>> 1.139.1
 	}
 
 	protected shouldRenderHint() {

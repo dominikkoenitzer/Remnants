@@ -5,11 +5,11 @@
 
 import { Event } from '../../../../../base/common/event.js';
 import { localize, localize2 } from '../../../../../nls.js';
-import { IKeyMods, IQuickPickSeparator, IQuickInputService, IQuickPick, IQuickPickItem, ItemActivation } from '../../../../../platform/quickinput/common/quickInput.js';
+import { IKeyMods, IQuickPickSeparator, IQuickInputService, IQuickPick, ItemActivation } from '../../../../../platform/quickinput/common/quickInput.js';
 import { IEditorService, SIDE_GROUP } from '../../../../services/editor/common/editorService.js';
 import { IRange } from '../../../../../editor/common/core/range.js';
 import { Registry } from '../../../../../platform/registry/common/platform.js';
-import { IQuickAccessRegistry, Extensions as QuickaccessExtensions, IQuickAccessProviderRunOptions } from '../../../../../platform/quickinput/common/quickAccess.js';
+import { IQuickAccessRegistry, Extensions as QuickaccessExtensions } from '../../../../../platform/quickinput/common/quickAccess.js';
 import { AbstractGotoSymbolQuickAccessProvider, IGotoSymbolQuickPickItem } from '../../../../../editor/contrib/quickAccess/browser/gotoSymbolQuickAccess.js';
 import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
 import { IWorkbenchEditorConfiguration } from '../../../../common/editor.js';
@@ -34,16 +34,10 @@ import { ILanguageFeaturesService } from '../../../../../editor/common/services/
 import { ContextKeyExpr } from '../../../../../platform/contextkey/common/contextkey.js';
 import { accessibilityHelpIsShown, accessibleViewIsShown } from '../../../accessibility/browser/accessibilityConfiguration.js';
 import { matchesFuzzyIconAware, parseLabelWithIcons } from '../../../../../base/common/iconLabels.js';
-<<<<<<< remnants/main
-=======
-import { isAncestorOfActiveElement } from '../../../../../base/browser/dom.js';
-import { ChatOutline, IChatWidget, IChatWidgetService } from '../../../chat/browser/chat.js';
-import { ISymbolVariableEntry } from '../../../chat/common/attachments/chatVariableEntries.js';
-import { isRequestVM } from '../../../chat/common/model/chatViewModel.js';
 
 /**
- * A single navigable entry backing the "no text editor" symbol picks (chat
- * outline or editor-pane outline). Provides the label to render and how to
+ * A single navigable entry backing the "no text editor" symbol picks
+ * (editor-pane outline). Provides the label to render and how to
  * reveal/preview the underlying element.
  */
 interface INavigablePickEntry {
@@ -54,7 +48,6 @@ interface INavigablePickEntry {
 	reveal(): void;
 	preview(): IDisposable;
 }
->>>>>>> 1.139.1
 
 export class GotoSymbolQuickAccessProvider extends AbstractGotoSymbolQuickAccessProvider {
 
@@ -144,51 +137,15 @@ export class GotoSymbolQuickAccessProvider extends AbstractGotoSymbolQuickAccess
 
 	//#endregion
 
-	override provide(picker: IQuickPick<IQuickPickItem, { useSeparators: true }>, token: CancellationToken, runOptions?: IQuickAccessProviderRunOptions): IDisposable {
-		// A focused chat is the navigable resource, even when a regular file
-		// editor is also open side by side. The base `provide()` would otherwise
-		// route to the active text editor's symbols whenever one exists, so the
-		// chat case must be handled here before that decision is made.
-		const chatWidget = this.getActiveChatWidget();
-		if (chatWidget) {
-			picker.canAcceptInBackground = !!this.options?.canAcceptInBackground;
-			picker.matchOnLabel = picker.matchOnDescription = picker.matchOnDetail = picker.sortByLabel = false;
-			return this.doGetChatWidgetPicks(picker as IQuickPick<IGotoSymbolQuickPickItem, { useSeparators: true }>, chatWidget);
-		}
-
-		return super.provide(picker, token, runOptions);
-	}
-
 	protected override provideWithoutTextEditor(picker: IQuickPick<IGotoSymbolQuickPickItem, { useSeparators: true }>): IDisposable {
 		if (this.canPickWithOutlineService()) {
 			return this.doGetOutlinePicks(picker);
 		}
-
 		return super.provideWithoutTextEditor(picker);
 	}
 
 	private canPickWithOutlineService(): boolean {
 		return this.editorService.activeEditorPane ? this.outlineService.canCreateOutline(this.editorService.activeEditorPane) : false;
-	}
-
-	private getActiveChatWidget(): IChatWidget | undefined {
-		// Treat the chat as the navigable resource only when it actually has DOM
-		// focus. This is checked before the quick input steals focus (the picker
-		// is shown after `provide()` runs), works across windows via the focused
-		// document, and avoids hijacking Go to Symbol when a non-chat surface is
-		// focused. Only offer the chat when it has requests to navigate to.
-		const widget = this.chatWidgetService.lastFocusedWidget;
-		if (!widget || !isAncestorOfActiveElement(widget.domNode)) {
-			return undefined;
-		}
-		return widget.viewModel?.getItems().some(isRequestVM) ? widget : undefined;
-	}
-
-	private doGetChatWidgetPicks(picker: IQuickPick<IGotoSymbolQuickPickItem, { useSeparators: true }>, widget: IChatWidget): IDisposable {
-		const disposables = new DisposableStore();
-		const outline = disposables.add(new ChatOutline(widget, OutlineTarget.QuickPick));
-		this.installNavigablePicks(picker, disposables, this.outlineToNavigableEntries(outline));
-		return disposables;
 	}
 
 	private doGetOutlinePicks(picker: IQuickPick<IGotoSymbolQuickPickItem, { useSeparators: true }>): IDisposable {
