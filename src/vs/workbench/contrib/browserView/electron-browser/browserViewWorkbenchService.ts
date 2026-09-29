@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { BrowserViewCommandId, BrowserViewStorageScope, IBrowserViewEditorOpenOptions, IBrowserViewInfo, IBrowserViewOwner, IBrowserViewService, IBrowserViewTheme, ipcBrowserViewChannelName } from '../../../../platform/browserView/common/browserView.js';
-import { BrowserViewSharingState, IBrowserViewWorkbenchService, IBrowserViewModel, BrowserViewModel, IBrowserViewContextualFilter, IBrowserViewFilterContext, IBrowserViewOpenHandler, IBrowserViewWorkbenchCreateOptions } from '../common/browserView.js';
+import { IBrowserViewWorkbenchService, IBrowserViewModel, BrowserViewModel, IBrowserViewContextualFilter, IBrowserViewFilterContext, IBrowserViewOpenHandler, IBrowserViewWorkbenchCreateOptions } from '../common/browserView.js';
 import { IMainProcessService } from '../../../../platform/ipc/common/mainProcessService.js';
 import { ProxyChannel } from '../../../../base/parts/ipc/common/ipc.js';
 import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
@@ -12,7 +12,6 @@ import { IWorkspaceContextService, WorkbenchState } from '../../../../platform/w
 import { Emitter, Event } from '../../../../base/common/event.js';
 import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
 import { Disposable, IDisposable, toDisposable } from '../../../../base/common/lifecycle.js';
-import { process } from '../../../../base/parts/sandbox/electron-browser/globals.js';
 import { ACTIVE_GROUP, AUX_WINDOW_GROUP, IEditorService, PreferredGroup, SIDE_GROUP, USE_MODAL_EDITOR_SETTING, UseModalEditorMode } from '../../../services/editor/common/editorService.js';
 import { mainWindow } from '../../../../base/browser/window.js';
 import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
@@ -26,28 +25,13 @@ import { buttonForeground, buttonBackground, inputPlaceholderForeground } from '
 import { editorWidgetBackground, editorWidgetBorder, editorWidgetForeground, toolbarHoverBackground, widgetShadow } from '../../../../platform/theme/common/colors/editorColors.js';
 import { DEFAULT_FONT_FAMILY } from '../../../../base/browser/fonts.js';
 import { findGroup } from '../../../services/editor/common/editorGroupFinder.js';
-<<<<<<< remnants/main
-import { Schemas } from '../../../../base/common/network.js';
-import { IWorkbenchEnvironmentService } from '../../../services/environment/common/environmentService.js';
-import { ISharedProcessTunnelProxyService } from '../../../../platform/tunnel/common/sharedProcessTunnelProxyService.js';
-import { IRemoteAuthorityResolverService } from '../../../../platform/remote/common/remoteAuthorityResolver.js';
-=======
-import { ChatEditorInput } from '../../chat/browser/widgetHosts/editor/chatEditorInput.js';
-import { IChatWidgetService } from '../../chat/browser/chat.js';
 import { IAccessibilityService } from '../../../../platform/accessibility/common/accessibility.js';
 import { URI } from '../../../../base/common/uri.js';
-import { isEqual } from '../../../../base/common/resources.js';
 import { Schemas } from '../../../../base/common/network.js';
-import { getCopilotRootPaths } from '../../../../platform/agentHost/common/copilotHome.js';
-import { localChatSessionType } from '../../chat/common/chatSessionsService.js';
 import { INativeWorkbenchEnvironmentService } from '../../../services/environment/electron-browser/environmentService.js';
 import { ITunnelProxyInfo } from '../../../../platform/tunnel/common/tunnelProxy.js';
 import { generateUuid } from '../../../../base/common/uuid.js';
 import { raceTimeout } from '../../../../base/common/async.js';
-import { AgentNetworkDomainSettingId } from '../../../../platform/networkFilter/common/settings.js';
-import { INotificationService } from '../../../../platform/notification/common/notification.js';
-import { localize } from '../../../../nls.js';
->>>>>>> 1.139.1
 
 export const BrowserMaxHistoryEntriesSettingId = 'workbench.browser.maxHistoryEntries';
 export const BrowserRemoteProxyEnabledSettingId = 'workbench.browser.enableRemoteProxy';
@@ -95,25 +79,7 @@ export class BrowserViewWorkbenchService extends Disposable implements IBrowserV
 	private readonly _onDidChangeBrowserViews = this._register(new Emitter<void>());
 	readonly onDidChangeBrowserViews: Event<void> = this._onDidChangeBrowserViews.event;
 
-<<<<<<< remnants/main
 	private readonly _isSharingAvailable: boolean = false;
-=======
-	private static readonly _sharingAvailableContext = ContextKeyExpr.and(
-		ChatContextKeys.enabled,
-		ContextKeyExpr.has(`config.${ChatConfiguration.AgentEnabled}`),
-		ContextKeyExpr.has(`config.workbench.browser.enableChatTools`),
-		// If we're in Sessions Window, we require some additional conditions.
-		ContextKeyExpr.or(
-			IsSessionsWindowContext.negate(),
-			ContextKeyExpr.or(
-				ContextKeyExpr.equals('sessionType', localChatSessionType),
-				ContextKeyExpr.equals('sessions.isAgentHostSession', true),
-			),
-		),
-	)!;
-
-	private _isSharingAvailable: boolean = false;
->>>>>>> 1.139.1
 
 	private readonly _onDidChangeSharingAvailable = this._register(new Emitter<boolean>());
 	readonly onDidChangeSharingAvailable: Event<boolean> = this._onDidChangeSharingAvailable.event;
@@ -133,19 +99,9 @@ export class BrowserViewWorkbenchService extends Disposable implements IBrowserV
 		@IWorkspaceTrustManagementService private readonly workspaceTrustManagementService: IWorkspaceTrustManagementService,
 		@IWorkspaceTrustEnablementService private readonly workspaceTrustEnablementService: IWorkspaceTrustEnablementService,
 		@ILogService private readonly logService: ILogService,
-<<<<<<< remnants/main
-		@IWorkbenchEnvironmentService private readonly environmentService: IWorkbenchEnvironmentService,
-		@ISharedProcessTunnelProxyService private readonly tunnelProxyService: ISharedProcessTunnelProxyService,
-		@IRemoteAuthorityResolverService private readonly remoteAuthorityResolverService: IRemoteAuthorityResolverService,
-		@IThemeService private readonly themeService: IThemeService,
-=======
-		@IContextKeyService private readonly contextKeyService: IContextKeyService,
 		@INativeWorkbenchEnvironmentService private readonly environmentService: INativeWorkbenchEnvironmentService,
 		@IThemeService private readonly themeService: IThemeService,
-		@IChatWidgetService private readonly chatWidgetService: IChatWidgetService,
 		@IAccessibilityService private readonly accessibilityService: IAccessibilityService,
-		@INotificationService private readonly notificationService: INotificationService,
->>>>>>> 1.139.1
 	) {
 		super();
 		const channel = mainProcessService.getChannel(ipcBrowserViewChannelName);
@@ -162,13 +118,6 @@ export class BrowserViewWorkbenchService extends Disposable implements IBrowserV
 		this._register(this.workspaceTrustManagementService.onDidChangeTrust(() => this._updateWindowConfiguration()));
 		this._register(this.workspaceContextService.onDidChangeWorkspaceFolders(() => this._updateWindowConfiguration()));
 		this._register(this.configurationService.onDidChangeConfiguration(e => {
-			if (
-				e.affectsConfiguration(AgentNetworkDomainSettingId.NetworkFilter)
-				&& this.configurationService.getValue<boolean>(AgentNetworkDomainSettingId.NetworkFilter)
-				&& [...this._known.values()].some(input => input.model?.sharingState === BrowserViewSharingState.Shared && !input.model.isDirectlyShareable)
-			) {
-				this.notificationService.info(localize('browser.networkFilteringEnabled', "Agent access to browser tabs was revoked because network filtering was enabled."));
-			}
 			if (e.affectsConfiguration(BrowserMaxHistoryEntriesSettingId) || e.affectsConfiguration(BrowserRemoteProxyEnabledSettingId)) {
 				this._updateWindowConfiguration();
 			}
@@ -505,20 +454,6 @@ export class BrowserViewWorkbenchService extends Disposable implements IBrowserV
 		};
 
 		const [group] = await this.instantiationService.invokeFunction(findGroup, { editor: view, options: editorOptions }, targetGroup);
-<<<<<<< remnants/main
-=======
-		if (owner.type === 'agent') {
-			const sessionResource = URI.parse(owner.sessionId);
-			const widget = this.chatWidgetService.getWidgetBySessionResource(sessionResource);
-			const isWidgetVisible = !!widget && widget.domNode.offsetParent !== null;
-			const activeIsSameSession = group.activeEditor instanceof ChatEditorInput
-				&& isEqual(group.activeEditor.sessionResource, sessionResource);
-			if (!isWidgetVisible || activeIsSameSession) {
-				editorOptions.inactive = true;
-			}
-		}
-
->>>>>>> 1.139.1
 		void this.editorService.openEditor(view, editorOptions, group);
 	}
 
@@ -581,8 +516,7 @@ export class BrowserViewWorkbenchService extends Disposable implements IBrowserV
 	}
 
 	private _getTrustedFileRoots(): string[] {
-		// Trust Copilot roots so agents can create HTML files and open them in the browser.
-		const roots = new Set(getCopilotRootPaths(this.environmentService.userHome.fsPath, process.env));
+		const roots = new Set<string>();
 		if (this.workspaceTrustManagementService.isWorkspaceTrusted()) {
 			for (const folder of this.workspaceContextService.getWorkspace().folders) {
 				if (folder.uri.scheme === Schemas.file) {

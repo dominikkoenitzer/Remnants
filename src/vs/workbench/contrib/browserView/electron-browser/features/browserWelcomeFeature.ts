@@ -5,12 +5,7 @@
 
 import { localize } from '../../../../../nls.js';
 import { DisposableStore } from '../../../../../base/common/lifecycle.js';
-<<<<<<< remnants/main
-=======
-import { IContextKeyService } from '../../../../../platform/contextkey/common/contextkey.js';
-import { ChatContextKeys } from '../../../chat/common/actions/chatContextKeys.js';
 import { createBrowserWelcome } from '../../browser/browserWelcome.js';
->>>>>>> 1.139.1
 import { IBrowserViewModel } from '../../common/browserView.js';
 import { BrowserEditorInput } from '../../common/browserEditorInput.js';
 import {
@@ -34,32 +29,10 @@ export class BrowserWelcomeFeature extends BrowserEditorContribution {
 	) {
 		super(editor);
 
-<<<<<<< remnants/main
-		this._container = $('.browser-welcome-container');
-		const content = $('.browser-welcome-content');
-
-		const iconContainer = $('.browser-welcome-icon');
-		iconContainer.appendChild(renderIcon(Codicon.globe));
-		content.appendChild(iconContainer);
-
-		const title = $('.browser-welcome-title');
-		title.textContent = localize('browser.welcomeTitle', "Browser");
-		content.appendChild(title);
-
-		const subtitle = $('.browser-welcome-subtitle');
-		subtitle.textContent = localize('browser.welcomeSubtitle', "Enter a URL above to get started.");
-		content.appendChild(subtitle);
-
-		this._container.appendChild(content);
-=======
-		const chatEnabled = contextKeyService.getContextKeyValue<boolean>(ChatContextKeys.enabled.key);
 		this._container = createBrowserWelcome(
 			localize('browser.welcomeTitle', "Browser"),
-			chatEnabled
-				? localize('browser.welcomeSubtitleChat', "Use Add Element to Chat to reference UI elements in chat prompts.")
-				: localize('browser.welcomeSubtitle', "Enter a URL above to get started."),
+			localize('browser.welcomeSubtitle', "Enter a URL above to get started."),
 		);
->>>>>>> 1.139.1
 
 		this._widget = { location: BrowserWidgetLocation.ContentArea, element: this._container, order: 50 };
 	}
