@@ -48,14 +48,6 @@ export const enum AccessibilityVerbositySettingId {
 	Terminal = 'accessibility.verbosity.terminal',
 	DiffEditor = 'accessibility.verbosity.diffEditor',
 	MergeEditor = 'accessibility.verbosity.mergeEditor',
-<<<<<<< remnants/main
-=======
-	Chat = 'accessibility.verbosity.panelChat',
-	CustomizationMigrations = 'accessibility.verbosity.customizationMigrations',
-	InlineChat = 'accessibility.verbosity.inlineChat',
-	TerminalInlineChat = 'accessibility.verbosity.terminalChat',
-	TerminalChatOutput = 'accessibility.verbosity.terminalChatOutput',
->>>>>>> 1.139.1
 	InlineCompletions = 'accessibility.verbosity.inlineCompletions',
 	KeybindingsEditor = 'accessibility.verbosity.keybindingsEditor',
 	Notebook = 'accessibility.verbosity.notebook',
@@ -146,25 +138,6 @@ const configuration: IConfigurationNode = {
 			description: localize('verbosity.diffEditor.description', 'Provide information about how to navigate changes in the diff editor when it is focused.'),
 			...baseVerbosityProperty
 		},
-<<<<<<< remnants/main
-=======
-		[AccessibilityVerbositySettingId.Chat]: {
-			description: localize('verbosity.chat.description', 'Provide information about how to access the chat help menu when the chat input is focused.'),
-			...baseVerbosityProperty
-		},
-		[AccessibilityVerbositySettingId.CustomizationMigrations]: {
-			description: localize('verbosity.customizationMigrations.description', "Provide information about how to access accessibility help for the customization migration checklist."),
-			...baseVerbosityProperty
-		},
-		[AccessibilityVerbositySettingId.InlineChat]: {
-			description: localize('verbosity.interactiveEditor.description', 'Provide information about how to access the inline editor chat accessibility help menu and alert with hints that describe how to use the feature when the input is focused.'),
-			...baseVerbosityProperty
-		},
-		[AccessibilityVerbositySettingId.TerminalChatOutput]: {
-			description: localize('verbosity.terminalChatOutput.description', 'Provide information about how to open the chat terminal output in the Accessible View.'),
-			...baseVerbosityProperty
-		},
->>>>>>> 1.139.1
 		[AccessibilityVerbositySettingId.InlineCompletions]: {
 			description: localize('verbosity.inlineCompletions.description', 'Provide information about how to access the inline completions hover and Accessible View.'),
 			...baseVerbosityProperty
