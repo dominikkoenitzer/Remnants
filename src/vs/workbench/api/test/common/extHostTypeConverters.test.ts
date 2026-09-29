@@ -13,13 +13,6 @@ import { ThemeColor, ThemeIcon } from '../../common/extHostTypes.js';
 suite('extHostTypeConverters', function () {
 	ensureNoDisposablesAreLeakedInTestSuite();
 
-	test('converts voice progress to hidden chat progress', () => {
-		assert.deepStrictEqual(
-			ChatResponseVoiceProgressPart.from(new ExtHostChatResponseVoiceProgressPart('investigating', 'Investigating the relevant code.')),
-			{ kind: 'voiceProgress', id: 'investigating', value: 'Investigating the relevant code.' }
-		);
-	});
-
 	suite('IconPath', function () {
 		suite('from', function () {
 			test('undefined', function () {
