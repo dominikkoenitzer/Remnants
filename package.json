@@ -16,30 +16,17 @@
     "test-node": "mocha test/unit/node/index.js --delay --ui=tdd --timeout=5000 --exit",
     "test-extension": "vscode-test",
     "test-build-scripts": "cd build && npm run test",
-    "test-agent-host-e2e": "node scripts/test-agent-host-e2e.ts",
     "markdown-editor-package-json-check": "npm --prefix extensions/markdown-language-features run check-markdown-editor-package-json",
-    "test-agent-host-e2e-coverage": "node scripts/agent-host-e2e-coverage.ts",
     "check-cyclic-dependencies": "node build/lib/checkCyclicDependencies.ts out",
     "preinstall": "node build/npm/preinstall.ts",
     "postinstall": "node build/npm/postinstall.ts",
     "compile": "npm run compile-client",
     "compile-client": "npm run gulp compile",
-<<<<<<< remnants/main
-    "transpile": "npm-run-all2 -lp transpile-client transpile-extensions",
-    "transpile-extensions": "npm run gulp transpile-extensions compile-extension-media",
-    "compile-check-ts-native": "tsgo --project ./src/tsconfig.json --noEmit --skipLibCheck",
-    "watch": "npm-run-all2 -lp watch-client-transpile watch-client watch-extensions",
-    "watch-transpile": "npm-run-all2 -lp watch-client-transpile watch-extensions",
-=======
-    "compile-copilot": "npm --prefix extensions/copilot run compile",
     "build-fast": "node build/next/index.ts build-fast",
     "build-fast-extensions": "npm run gulp copy-codicons compile-extensions compile-extension-media",
     "typecheck-client": "tsc --project ./src/tsconfig.json --noEmit --skipLibCheck",
-    "codex:gen-protocol": "node build/codex/generate-protocol.mjs",
-    "codex:check-protocol": "node build/codex/check-protocol-sync.ts",
-    "watch": "npm-run-all2 -lp watch-client-transpile watch-client watch-extensions watch-copilot",
-    "watch-transpile": "npm-run-all2 -lp watch-client-transpile watch-extensions watch-copilot",
->>>>>>> 1.139.1
+    "watch": "npm-run-all2 -lp watch-client-transpile watch-client watch-extensions",
+    "watch-transpile": "npm-run-all2 -lp watch-client-transpile watch-extensions",
     "watchd": "deemon npm run watch",
     "watch-webd": "deemon npm run watch-web",
     "kill-watchd": "deemon --kill npm run watch",
@@ -50,7 +37,6 @@
     "watch-clientd": "deemon npm run watch-client",
     "kill-watch-clientd": "deemon --kill npm run watch-client",
     "transpile-client": "node build/next/index.ts transpile",
-    "bundle-dev-tunnels-web": "node build/next/devTunnelsWeb.ts",
     "watch-client-transpile": "node build/next/index.ts transpile --watch",
     "watch-client-transpiled": "deemon npm run watch-client-transpile",
     "kill-watch-client-transpiled": "deemon --kill npm run watch-client-transpile",
@@ -88,16 +74,7 @@
     "hygiene": "npm run gulp hygiene",
     "core-ci": "npm run gulp core-ci",
     "perf": "node scripts/code-perf.js",
-<<<<<<< remnants/main
-    "update-build-ts-version": "npm install -D typescript@next && npm install -D @typescript/native-preview && (cd build && npm run typecheck)",
-=======
-    "perf:css": "node .github/skills/auto-perf-optimize/scripts/workbench-css-performance.mts",
-    "perf:chat": "node scripts/chat-simulation/test-chat-perf-regression.js",
-    "perf:chat-leak": "node scripts/chat-simulation/test-chat-mem-leaks.js",
-    "copilot:setup": "npm --prefix extensions/copilot run setup",
-    "copilot:get_token": "npm --prefix extensions/copilot run get_token",
     "update-build-ts-version": "npm install -D typescript@npm:@typescript/typescript6@^6.0.2 && npm install -D @typescript/native@npm:typescript@next && (cd build && npm run typecheck)",
->>>>>>> 1.139.1
     "install-local-component-explorer": "npm install ../vscode-packages/js-component-explorer/dist/vscode-component-explorer-0.1.0.tgz ../vscode-packages/js-component-explorer/dist/vscode-component-explorer-cli-0.1.0.tgz --no-save && cd build/rspack && npm install ../../../vscode-packages/js-component-explorer/dist/vscode-component-explorer-webpack-plugin-0.1.0.tgz --no-save && cd ../vite && npm install ../../../vscode-packages/js-component-explorer/dist/vscode-component-explorer-vite-plugin-0.1.0.tgz --no-save",
     "symlink-local-component-explorer": "npm install ../vscode-packages/js-component-explorer/packages/explorer ../vscode-packages/js-component-explorer/packages/cli --no-save && cd build/rspack && npm install ../../../vscode-packages/js-component-explorer/packages/webpack-plugin ../../../vscode-packages/js-component-explorer/packages/explorer --no-save && cd ../vite && npm install ../../../vscode-packages/js-component-explorer/packages/vite-plugin ../../../vscode-packages/js-component-explorer/packages/explorer --no-save",
     "install-latest-component-explorer": "npm install @vscode/component-explorer@next @vscode/component-explorer-cli@next && cd build/rspack && npm install @vscode/component-explorer-webpack-plugin@next @vscode/component-explorer@next && cd ../vite && npm install @vscode/component-explorer-vite-plugin@next @vscode/component-explorer@next",
@@ -105,33 +82,17 @@
     "reauth-feed": "artifacts-npm-credprovider --force"
   },
   "dependencies": {
-<<<<<<< remnants/main
-=======
-    "@anthropic-ai/sdk": "^0.82.0",
-    "@devcontainers/cli": "0.88.0",
-    "@github/copilot-sdk": "1.0.15-unstable.35393089353.gfc44743",
->>>>>>> 1.139.1
     "@microsoft/1ds-core-js": "^3.2.13",
     "@microsoft/1ds-post-js": "^3.2.13",
     "@microsoft/dev-tunnels-connections": "^1.3.50",
     "@microsoft/dev-tunnels-contracts": "^1.3.41",
     "@microsoft/dev-tunnels-management": "^1.3.41",
-<<<<<<< remnants/main
     "@microsoft/dev-tunnels-ssh": "^3.12.40",
     "@microsoft/dev-tunnels-ssh-tcp": "^3.12.40",
-    "@microsoft/mxc-sdk": "0.7.0",
+    "@microsoft/mxc-sdk": "0.8.0",
     "@parcel/watcher": "^2.6.0",
     "@types/semver": "^7.8.0",
-    "@vscode/codicons": "^0.0.46-16",
-=======
-    "@microsoft/dev-tunnels-ssh": "^3.12.22",
-    "@microsoft/dev-tunnels-ssh-tcp": "^3.12.22",
-    "@microsoft/mxc-sdk": "0.8.0",
-    "@parcel/watcher": "^2.5.6",
-    "@types/semver": "^7.5.8",
     "@vscode/codicons": "^0.0.46-40",
-    "@vscode/copilot-api": "^0.5.2",
->>>>>>> 1.139.1
     "@vscode/deviceid": "^0.1.1",
     "@vscode/diff": "0.0.2-7",
     "@vscode/fs-copyfile": "2.0.0",
@@ -139,11 +100,7 @@
     "@vscode/native-watchdog": "^1.4.6",
     "@vscode/os-proxy-resolver": "^0.4.0",
     "@vscode/policy-watcher": "^1.4.0",
-<<<<<<< remnants/main
-    "@vscode/proxy-agent": "^0.44.0",
-=======
     "@vscode/proxy-agent": "^0.45.0",
->>>>>>> 1.139.1
     "@vscode/ripgrep-universal": "^1.18.0",
     "@vscode/sandbox-runtime": "0.0.1",
     "@vscode/spdlog": "^0.15.8",
@@ -154,19 +111,6 @@
     "@vscode/windows-mutex": "^0.5.0",
     "@vscode/windows-process-tree": "^0.8.0",
     "@vscode/windows-registry": "^1.2.0",
-<<<<<<< remnants/main
-    "@xterm/addon-clipboard": "^0.3.0-beta.285",
-    "@xterm/addon-image": "^0.10.0-beta.285",
-    "@xterm/addon-ligatures": "^0.11.0-beta.285",
-    "@xterm/addon-progress": "^0.3.0-beta.285",
-    "@xterm/addon-search": "^0.17.0-beta.285",
-    "@xterm/addon-serialize": "^0.15.0-beta.285",
-    "@xterm/addon-unicode11": "^0.10.0-beta.285",
-    "@xterm/addon-webgl": "^0.20.0-beta.284",
-    "@xterm/headless": "^6.1.0-beta.285",
-    "@xterm/xterm": "^6.1.0-beta.285",
-    "chrome-remote-interface": "^0.34.0",
-=======
     "@xterm/addon-clipboard": "^0.3.0-beta.303",
     "@xterm/addon-image": "^0.10.0-beta.301",
     "@xterm/addon-ligatures": "^0.11.0-beta.301",
@@ -177,10 +121,8 @@
     "@xterm/addon-webgl": "^0.20.0-beta.300",
     "@xterm/headless": "^6.1.0-beta.303",
     "@xterm/xterm": "^6.1.0-beta.304",
-    "chrome-remote-interface": "^0.33.0",
+    "chrome-remote-interface": "^0.34.0",
     "detect-libc": "^2.1.2",
-    "foundry-local-sdk": "1.2.3",
->>>>>>> 1.139.1
     "http-proxy-agent": "^7.0.0",
     "https-proxy-agent": "^7.0.2",
     "jschardet": "3.1.4",
@@ -194,14 +136,9 @@
     "open": "^10.1.2",
     "playwright-core": "1.62.1",
     "ssh2": "^1.16.0",
-<<<<<<< remnants/main
-    "tas-client": "0.4.3",
-    "undici": "^7.29.0",
-=======
-    "tar": "^7.5.20",
+    "tar": "^7.5.22",
     "tas-client": "0.4.6",
-    "undici": "^7.28.0",
->>>>>>> 1.139.1
+    "undici": "^7.29.0",
     "vscode-oniguruma": "1.7.0",
     "vscode-regexpp": "^3.1.0",
     "vscode-textmate": "^9.3.2",
@@ -211,27 +148,14 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-<<<<<<< remnants/main
+    "@eslint/compat": "^2.1.0",
     "@playwright/cli": "^0.1.18",
     "@playwright/test": "^1.62.1",
-    "@stylistic/eslint-plugin-ts": "^2.8.0",
-    "@types/chrome-remote-interface": "^0.34.0",
-=======
-    "@anthropic-ai/claude-agent-sdk": "0.3.258",
-    "@eslint/compat": "^2.1.0",
-    "@openai/codex": "0.153.0",
-    "@playwright/cli": "^0.1.9",
-    "@playwright/test": "^1.61.1",
     "@stylistic/eslint-plugin": "^5.10.0",
-    "@types/chrome-remote-interface": "^0.33.0",
->>>>>>> 1.139.1
+    "@types/chrome-remote-interface": "^0.34.0",
     "@types/cookie": "^0.3.3",
     "@types/debug": "^4.1.13",
     "@types/eslint": "^9.6.1",
-<<<<<<< remnants/main
-    "@types/gulp-svgmin": "^1.2.5",
-=======
->>>>>>> 1.139.1
     "@types/http-proxy-agent": "^2.0.1",
     "@types/js-yaml": "^4.0.9",
     "@types/kerberos": "^1.1.2",
@@ -250,48 +174,27 @@
     "@types/ws": "^8.18.1",
     "@types/yauzl": "^2.10.0",
     "@types/yazl": "^2.4.2",
-<<<<<<< remnants/main
-    "@typescript-eslint/utils": "^8.67.0",
-    "@typescript/native-preview": "^7.0.0-dev.20260609",
-    "@vscode/component-explorer": "^0.2.1-149",
-    "@vscode/component-explorer-cli": "^0.2.1-152",
-    "@vscode/gulp-electron": "1.43.0",
-    "@vscode/l10n-dev": "0.0.35",
-    "@vscode/telemetry-extractor": "^1.20.4",
-    "@vscode/test-cli": "^0.0.15",
-=======
     "@typescript-eslint/utils": "8.66.0",
     "@typescript/native": "npm:typescript@^7.0.2",
-    "@vscode/component-explorer": "^0.2.1-140",
-    "@vscode/component-explorer-cli": "^0.2.1-143",
+    "@vscode/component-explorer": "^0.2.1-149",
+    "@vscode/component-explorer-cli": "^0.2.1-152",
     "@vscode/gulp-electron": "^1.43.0",
     "@vscode/l10n-dev": "0.0.35",
     "@vscode/telemetry-extractor": "^1.20.5",
-    "@vscode/test-cli": "^0.0.6",
->>>>>>> 1.139.1
+    "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^2.4.0",
     "@vscode/test-web": "^0.0.81",
     "@vscode/v8-heap-parser": "^0.1.0",
     "@vscode/vscode-perf": "^0.0.27",
     "@webgpu/types": "^0.1.72",
     "ansi-colors": "^3.2.3",
-<<<<<<< remnants/main
     "asar": "^3.2.0",
-    "chromium-pickle-js": "^0.2.0",
-    "cookie": "^0.7.2",
-    "debounce": "^1.0.0",
-    "deemon": "^1.13.7",
-    "electron": "42.2.0",
-    "eslint": "^9.36.0",
-=======
-    "asar": "^3.0.3",
     "c8": "^9.1.0",
     "chromium-pickle-js": "^0.2.0",
     "cookie": "^0.7.2",
     "debounce": "^1.0.0",
-    "deemon": "^1.13.6",
+    "deemon": "^1.13.7",
     "eslint": "10.8.0",
->>>>>>> 1.139.1
     "eslint-formatter-compact": "^8.40.0",
     "eslint-plugin-header": "3.1.1",
     "eslint-plugin-import": "^2.32.0",
@@ -318,14 +221,9 @@
     "istanbul-lib-instrument": "^6.0.1",
     "istanbul-lib-report": "^3.0.0",
     "istanbul-lib-source-maps": "^4.0.1",
-<<<<<<< remnants/main
     "istanbul-reports": "^3.2.0",
-    "lazy.js": "^0.5.1",
-=======
-    "istanbul-reports": "^3.1.5",
     "js-yaml": "^4.2.0",
-    "lazy.js": "^0.4.2",
->>>>>>> 1.139.1
+    "lazy.js": "^0.5.1",
     "merge-options": "^1.0.1",
     "mime": "^1.4.1",
     "minimatch": "^3.1.5",
@@ -342,18 +240,10 @@
     "sinon-test": "^3.1.6",
     "source-map": "0.6.1",
     "source-map-support": "^0.5.21",
-<<<<<<< remnants/main
-    "tar": "^7.5.22",
     "tsec": "0.2.9",
-    "tslib": "^2.6.3",
-    "typescript": "^6.0.0-dev.20260416",
-    "typescript-eslint": "^8.67.0",
-=======
-    "tsec": "0.2.7",
     "tslib": "^2.6.3",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
     "typescript-eslint": "8.66.0",
->>>>>>> 1.139.1
     "util": "^0.12.4",
     "xml2js": "^0.6.2",
     "yaserver": "^0.4.0"
@@ -364,7 +254,6 @@
     "kerberos@2.1.1": {
       "node-addon-api": "7.1.0"
     },
-    "koffi": "3.2.1",
     "serialize-javascript": "^7.0.3",
     "yauzl": "^3.3.1"
   },
@@ -381,9 +270,7 @@
   "allowScripts": {
     "bufferutil@4.1.0": true,
     "cpu-features": false,
-    "foundry-local-sdk@1.2.3": true,
     "kerberos@2.1.1": true,
-    "koffi@3.2.1": false,
     "native-keymap@3.3.9": true,
     "protobufjs@7.6.5": false,
     "native-is-elevated@0.9.0": true,
@@ -408,6 +295,5 @@
     "husky": false,
     "@vscode/windows-ca-certs@0.3.4": true,
     "@vscode/windows-process-tree@0.8.0": true
-  },
-  "copilotRuntimeVersion": "1.0.85-unstable.r35379093703.g3514c9a"
+  }
 }
