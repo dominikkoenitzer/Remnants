@@ -164,3 +164,4 @@ src/vs/workbench/contrib/surveys/browser/surveyQuestions.ts
 src/vs/workbench/contrib/surveys/browser/media/surveyEditorPane.css
 src/vs/workbench/contrib/relauncher/test/browser/relauncher.test.ts
 .eslint-plugin-local/code-no-untyped-meta-access.ts
+build/azure-pipelines/common/checkNativeOptionalDeps.ts
