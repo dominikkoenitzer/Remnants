@@ -277,7 +277,7 @@
     "node-pty@1.2.0-beta.15": true,
     "utf-8-validate@5.0.10": true,
     "windows-foreground-love@0.6.1": true,
-    "@parcel/watcher@2.5.6": true,
+    "@parcel/watcher@2.6.0": true,
     "@playwright/browser-chromium@1.61.1": true,
     "@vscode/fs-copyfile@2.0.0": true,
     "@vscode/native-watchdog@1.4.6": true,
