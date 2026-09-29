@@ -50,14 +50,8 @@
     "tunnels",
     "workspaceTrust",
     "inlineCompletionsAdditions",
-<<<<<<< remnants/main
-    "devDeviceId"
-=======
     "devDeviceId",
-    "languageModelProxy",
-    "agentSessionsWorkspace",
     "linkPresentation"
->>>>>>> 1.139.1
   ],
   "private": true,
   "activationEvents": [],
