@@ -184,21 +184,12 @@ export const COLOR_THEME_DARK_INITIAL_COLORS = {
 	'tab.inactiveBackground': '#191A1B',
 	'tab.inactiveForeground': '#9D9D9D',
 	'tab.lastPinnedBorder': '#ccc3',
-<<<<<<< remnants/main
 	'tab.selectedBackground': '#202122',
 	'tab.selectedBorderTop': '#60A5FA',
 	'tab.selectedForeground': '#ffffffa0',
 	'tab.unfocusedActiveBorder': '#121314',
 	'tab.unfocusedActiveBorderTop': '#191A1B',
 	'tab.unfocusedHoverBackground': '#121314',
-=======
-	'tab.selectedBackground': '#37373D',
-	'tab.selectedBorderTop': '#6caddf',
-	'tab.selectedForeground': '#FFFFFF',
-	'tab.unfocusedActiveBorder': '#1F1F1F',
-	'tab.unfocusedActiveBorderTop': '#2B2B2B',
-	'tab.unfocusedHoverBackground': '#1F1F1F',
->>>>>>> 1.139.1
 	'terminal.foreground': '#CCCCCC',
 	'terminal.inactiveSelectionBackground': '#3A3D41',
 	'terminal.tab.activeBorder': '#3B82F6',
