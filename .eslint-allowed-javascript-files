@@ -8,7 +8,6 @@
 #
 # Lines starting with `#` are comments. Blank lines are ignored.
 
-.github/skills/heap-snapshot-analysis/helpers/streamSnapshot.mjs
 .vscode-test.js
 build/azure-pipelines/common/installPlaywright.js
 build/azure-pipelines/github-check-run.js
@@ -54,7 +53,6 @@ extensions/vscode-colorize-tests/test/colorize-fixtures/test.js
 extensions/vscode-colorize-tests/test/colorize-fixtures/test6916.js
 extensions/yaml/build/update-grammar.js
 gulpfile.mjs
-scripts/code-agent-host.js
 scripts/code-perf.js
 scripts/code-server.js
 scripts/code-web.js
