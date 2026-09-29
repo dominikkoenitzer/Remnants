@@ -5,7 +5,7 @@
 
 import { Suite, Context } from 'mocha';
 import { dirname, join } from 'path';
-import { Application, ApplicationOptions, IModelConfigSection, Logger } from '../../automation';
+import { Application, ApplicationOptions, Logger } from '../../automation';
 
 export function describeRepeat(n: number, description: string, callback: (this: Suite) => void): void {
 	for (let i = 0; i < n; i++) {
