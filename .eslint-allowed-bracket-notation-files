@@ -61,7 +61,6 @@ build/rspack/rspack.serve-out.config.mts
 build/win32/explorer-dll-fetcher.ts
 scripts/code-server.js
 scripts/code-web.js
-scripts/test-agent-host-e2e.ts
 
 # Application bootstrap, server, and environment (41 files)
 src/bootstrap-cli.ts
