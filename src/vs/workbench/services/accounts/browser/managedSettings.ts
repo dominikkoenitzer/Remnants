@@ -83,17 +83,15 @@ export interface IManagedSettingsResponse {
 }
 
 /**
- * Append the client identity to a `managed_settings` request URL, naming the implementations that
- * parse and enforce the response so the service can fail closed when they are too old to honor a
- * setting it would otherwise deliver. `copilot_runtime_version` is present only when a runtime is
- * bundled.
+ * Append the client identity to a `managed_settings` request URL, naming the implementation that
+ * parses and enforces the response so the service can fail closed when it is too old to honor a
+ * setting it would otherwise deliver.
  *
  * Existing query parameters are preserved, and the URL is returned unchanged when it cannot be
- * parsed so a malformed `managedSettingsUrl` cannot turn into a thrown request. The identity
- * travels in the query string because neither header channel reaches the service; see the PR and
- * ADR for that rationale.
+ * parsed so a malformed `managedSettingsUrl` cannot turn into a thrown request. A runtime version
+ * configured on the endpoint URL is dropped, since no runtime is bundled.
  */
-export function appendManagedSettingsClientIdentity(url: string, product: Pick<IProductConfiguration, 'version' | 'copilotVersions'>): string {
+export function appendManagedSettingsClientIdentity(url: string, product: Pick<IProductConfiguration, 'version'>): string {
 	let parsed: URL;
 	try {
 		parsed = new URL(url);
@@ -103,13 +101,7 @@ export function appendManagedSettingsClientIdentity(url: string, product: Pick<I
 
 	parsed.searchParams.set('client_id', MANAGED_SETTINGS_CLIENT_ID);
 	parsed.searchParams.set('client_version', product.version);
-	const runtimeVersion = product.copilotVersions?.runtime;
-	if (runtimeVersion) {
-		parsed.searchParams.set('copilot_runtime_version', runtimeVersion);
-	} else {
-		// Never let a value configured on the endpoint URL stand in for a runtime we did not bundle.
-		parsed.searchParams.delete('copilot_runtime_version');
-	}
+	parsed.searchParams.delete('copilot_runtime_version');
 	return parsed.toString();
 }
 

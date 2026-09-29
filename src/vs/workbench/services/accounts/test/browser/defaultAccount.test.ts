@@ -62,7 +62,7 @@ suite('DefaultAccountProvider', () => {
 			second: second.data,
 		}, {
 			requestCount: 1,
-			requestQuery: '?client_id=vscode&client_version=1.132.0&copilot_runtime_version=0.0.344',
+			requestQuery: '?client_id=vscode&client_version=1.132.0',
 			disableCache: true,
 			first: cachedPolicy.policyData,
 			second: cachedPolicy.policyData,
@@ -1355,7 +1355,6 @@ suite('DefaultAccountProvider', () => {
 		instantiationService.stub(IProductService, {
 			...TestProductService,
 			version: '1.132.0',
-			copilotVersions: { runtime: '0.0.344', sdk: '0.1.0' },
 		});
 		instantiationService.stub(IContextKeyService, new MockContextKeyService());
 		instantiationService.stub(IStorageService, disposables.add(new InMemoryStorageService()));
