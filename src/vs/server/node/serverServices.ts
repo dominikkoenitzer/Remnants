@@ -89,7 +89,7 @@ import { SandboxHelperService } from '../../platform/sandbox/node/sandboxHelper.
 
 const eventPrefix = 'monacoworkbench';
 
-export async function setupServerServices(connectionToken: ServerConnectionToken, args: ServerParsedArgs, REMOTE_DATA_FOLDER: string, agentHostBridgeConnectionToken: string | undefined, disposables: DisposableStore) {
+export async function setupServerServices(connectionToken: ServerConnectionToken, args: ServerParsedArgs, REMOTE_DATA_FOLDER: string, disposables: DisposableStore) {
 	const services = new ServiceCollection();
 	const socketServer = new SocketServer<RemoteAgentConnectionContext>();
 
