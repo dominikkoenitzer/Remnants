@@ -1032,10 +1032,6 @@
 	padding-right: 8px;
 }
 
-.modern-ui-tabs.monaco-workbench .pane-body.integrated-terminal .terminal-tabs-chat-entry {
-	padding: 4px;
-}
-
 .modern-ui-tabs.monaco-workbench .pane-body.integrated-terminal .tabs-list .codicon {
 	vertical-align: sub;
 }
