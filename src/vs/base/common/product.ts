@@ -242,10 +242,10 @@ export interface IProductConfiguration {
 
 	/**
 	 * Maps an extension-contributed setting key to either a full enterprise {@link IPolicy}
-	 * (the setting owns/"parents" the policy — the original syntax) or an
+	 * (the setting owns/"parents" the policy, the original syntax) or an
 	 * {@link IExtensionConfigurationPolicyReference} (`{ policyReference: { name } }`), attaching the
 	 * setting to a policy owned by an in-code setting. References let a `product.json`-provided
-	 * setting be governed by a policy whose `value` callback — which JSON cannot carry — lives in code.
+	 * setting be governed by a policy whose `value` callback (which JSON cannot carry) lives in code.
 	 */
 	readonly extensionConfigurationPolicy?: IStringDictionary<IPolicy | IExtensionConfigurationPolicyReference>;
 
