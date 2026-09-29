@@ -652,6 +652,8 @@ export class TestLayoutService implements IWorkbenchLayoutService {
 	whenReady: Promise<void> = Promise.resolve(undefined);
 	whenRestored: Promise<void> = Promise.resolve(undefined);
 	hasFocus(_part: Parts): boolean { return false; }
+	isFloatingPanelsEnabled(): boolean { return false; }
+	isModernUICompact(): boolean { return false; }
 	focusPart(_part: Parts): void { }
 	hasMainWindowBorder(): boolean { return false; }
 	getMainWindowBorderRadius(): string | undefined { return undefined; }
@@ -668,6 +670,8 @@ export class TestLayoutService implements IWorkbenchLayoutService {
 	async setSideBarHidden(_hidden: boolean): Promise<void> { }
 	async setAuxiliaryBarHidden(_hidden: boolean): Promise<void> { }
 	async setPartHidden(_hidden: boolean, part: Parts): Promise<void> { }
+	isSecondarySideBarVisible(): boolean { return false; }
+	toggleSecondarySideBar(): void { }
 	isPanelHidden(): boolean { return false; }
 	async setPanelHidden(_hidden: boolean): Promise<void> { }
 	toggleMaximizedPanel(): void { }
@@ -1349,6 +1353,10 @@ export class TestHostService implements IHostService {
 	setFocus(focus: boolean) {
 		this._hasFocus = focus;
 		this._onDidChangeFocus.fire(this._hasFocus);
+	}
+
+	setActiveWindow(windowId: number) {
+		this._onDidChangeWindow.fire(windowId);
 	}
 
 	async restart(): Promise<void> { }
@@ -2132,3 +2140,31 @@ export class TestContextMenuService implements IContextMenuService {
 		throw new Error('Method not implemented.');
 	}
 }
+<<<<<<< remnants/main
+=======
+
+export class TestChatWidgetService implements IChatWidgetService {
+
+	_serviceBrand: undefined;
+
+	lastFocusedWidget: IChatWidget | undefined;
+
+	onDidAddWidget = Event.None;
+	onDidRemoveWidget = Event.None;
+	onDidChangeWidgetVisibility = Event.None;
+	onDidBackgroundSession = Event.None;
+	onDidChangeFocusedWidget = Event.None;
+	onDidChangeFocusedSession = Event.None;
+
+	async reveal(widget: IChatWidget, preserveFocus?: boolean): Promise<boolean> { return false; }
+	async revealWidget(preserveFocus?: boolean): Promise<IChatWidget | undefined> { return undefined; }
+	getAllWidgets(): ReadonlyArray<IChatWidget> { return []; }
+	getWidgetByInputUri(uri: URI): IChatWidget | undefined { return undefined; }
+	openSession(sessionResource: URI): Promise<IChatWidget | undefined>;
+	openSession(sessionResource: URI, target?: PreferredGroup, options?: IChatEditorOptions): Promise<IChatWidget | undefined>;
+	async openSession(sessionResource: unknown, target?: unknown, options?: unknown): Promise<IChatWidget | undefined> { return undefined; }
+	getWidgetBySessionResource(sessionResource: URI): IChatWidget | undefined { return undefined; }
+	getWidgetsByLocations(location: ChatAgentLocation): ReadonlyArray<IChatWidget> { return []; }
+	register(newWidget: IChatWidget): IDisposable { return Disposable.None; }
+}
+>>>>>>> 1.139.1

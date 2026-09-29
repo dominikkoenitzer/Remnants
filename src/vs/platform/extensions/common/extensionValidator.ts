@@ -8,8 +8,7 @@ import Severity from '../../../base/common/severity.js';
 import { URI } from '../../../base/common/uri.js';
 import * as nls from '../../../nls.js';
 import * as semver from '../../../base/common/semver/semver.js';
-import { IExtensionManifest, parseApiProposals } from './extensions.js';
-import { allApiProposals } from './extensionsApiProposals.js';
+import { IExtensionManifest } from './extensions.js';
 
 export interface IParsedVersion {
 	hasCaret: boolean;
@@ -240,7 +239,7 @@ export function isValidVersion(_inputVersion: string | INormalizedVersion, _inpu
 
 type ProductDate = string | Date | undefined;
 
-export function validateExtensionManifest(productVersion: string, productDate: ProductDate, extensionLocation: URI, extensionManifest: IExtensionManifest, extensionIsBuiltin: boolean, validateApiVersion: boolean): readonly [Severity, string][] {
+export function validateExtensionManifest(productVersion: string, productDate: ProductDate, extensionLocation: URI, extensionManifest: IExtensionManifest, extensionIsBuiltin: boolean): readonly [Severity, string][] {
 	const validations: [Severity, string][] = [];
 	if (typeof extensionManifest.publisher !== 'undefined' && typeof extensionManifest.publisher !== 'string') {
 		validations.push([Severity.Error, nls.localize('extensionDescription.publisher', "property publisher must be of type `string`.")]);
@@ -328,15 +327,6 @@ export function validateExtensionManifest(productVersion: string, productDate: P
 		}
 	}
 
-	if (validateApiVersion && extensionManifest.enabledApiProposals?.length) {
-		const incompatibleNotices: string[] = [];
-		if (!areApiProposalsCompatible([...extensionManifest.enabledApiProposals], incompatibleNotices)) {
-			for (const notice of incompatibleNotices) {
-				validations.push([Severity.Error, notice]);
-			}
-		}
-	}
-
 	return validations;
 }
 
@@ -355,6 +345,7 @@ export function isEngineValid(engine: string, version: string, date: ProductDate
 	return engine === '*' || isVersionValid(version, date, engine);
 }
 
+<<<<<<< remnants/main
 export function areApiProposalsCompatible(apiProposals: string[]): boolean;
 export function areApiProposalsCompatible(apiProposals: string[], notices: string[]): boolean;
 export function areApiProposalsCompatible(apiProposals: string[], productApiProposals: Readonly<{ [proposalName: string]: Readonly<{ proposal: string; version?: number }> }>): boolean;
@@ -390,6 +381,8 @@ export function areApiProposalsCompatible(apiProposals: string[], arg1?: string[
 	return true;
 }
 
+=======
+>>>>>>> 1.139.1
 function isVersionValid(currentVersion: string, date: ProductDate, requestedVersion: string, notices: string[] = []): boolean {
 
 	const desiredVersion = normalizeVersion(parseVersion(requestedVersion));

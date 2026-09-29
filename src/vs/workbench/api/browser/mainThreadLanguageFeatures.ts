@@ -1212,7 +1212,10 @@ class MainThreadDocumentOnDropEditProvider implements languages.DocumentDropEdit
 					};
 				}),
 				dispose: () => {
-					this._proxy.$releaseDocumentOnDropEdits(this._handle, request.id);
+					const cacheId = edits[0]?._cacheId?.[0];
+					if (typeof cacheId === 'number') {
+						this._proxy.$releaseDocumentOnDropEdits(this._handle, cacheId);
+					}
 				},
 			};
 		} finally {
@@ -1415,7 +1418,7 @@ class ExtensionBackedInlineCompletionsProvider extends Disposable implements lan
 		}
 
 		if (this._supportsHandleEvents) {
-			await this._proxy.$handleInlineCompletionEndOfLifetime(this.handle, completions.pid, item.idx, mapReason(reason, i => ({ pid: completions.pid, idx: i.idx })));
+			await this._proxy.$handleInlineCompletionEndOfLifetime(this.handle, completions.pid, item.idx, mapReason(reason, i => ({ pid: i.pid, idx: i.idx })));
 		}
 
 		if (reason.kind === languages.InlineCompletionEndOfLifeReasonKind.Accepted) {
@@ -1513,6 +1516,7 @@ class ExtensionBackedInlineCompletionsProvider extends Disposable implements lan
 			editKind: lifetimeSummary.editKind,
 			longDistanceHintVisible: lifetimeSummary.longDistanceHintVisible,
 			longDistanceHintDistance: lifetimeSummary.longDistanceHintDistance,
+			isForAnotherDocument: lifetimeSummary.isForAnotherDocument,
 			...forwardToChannelIf(isCopilotLikeExtension(this.providerId.extensionId!)),
 		};
 

@@ -56,6 +56,7 @@ import './services/themes/electron-browser/nativeHostColorSchemeService.js';
 import './services/extensionManagement/electron-browser/extensionManagementService.js';
 import './services/encryption/electron-browser/encryptionService.js';
 import './services/imageResize/electron-browser/imageResizeService.js';
+import './services/localTranscription/electron-browser/localTranscriptionService.js';
 import './services/secrets/electron-browser/secretStorageService.js';
 import './services/localization/electron-browser/languagePackService.js';
 import './services/telemetry/electron-browser/telemetryService.js';
@@ -65,6 +66,7 @@ import './services/localization/electron-browser/localeService.js';
 import './services/extensions/electron-browser/extensionsScannerService.js';
 import './services/extensionManagement/electron-browser/extensionManagementServerService.js';
 import './services/extensionManagement/electron-browser/extensionGalleryManifestService.js';
+import './services/extensionManagement/electron-browser/extensionGalleryAccountService.js';
 import './services/extensionManagement/electron-browser/extensionTipsService.js';
 import './services/userDataSync/electron-browser/userDataSyncService.js';
 import './services/userDataSync/electron-browser/userDataAutoSyncService.js';
@@ -74,7 +76,6 @@ import './services/integrity/electron-browser/integrityService.js';
 import './services/workingCopy/electron-browser/workingCopyBackupService.js';
 import './services/checksum/electron-browser/checksumService.js';
 import '../platform/remote/electron-browser/sharedProcessTunnelService.js';
-import '../platform/tunnel/electron-browser/sharedProcessTunnelProxyService.js';
 import './services/tunnel/electron-browser/tunnelService.js';
 import '../platform/diagnostics/electron-browser/diagnosticsService.js';
 import '../platform/profiling/electron-browser/profilingService.js';
@@ -90,6 +91,12 @@ import './services/auxiliaryWindow/electron-browser/auxiliaryWindowService.js';
 import '../platform/extensionManagement/electron-browser/extensionsProfileScannerService.js';
 import '../platform/sandbox/electron-browser/sandboxHelperService.js';
 import '../platform/webContentExtractor/electron-browser/webContentExtractorService.js';
+<<<<<<< remnants/main
+=======
+import './services/agentHost/electron-browser/agentHostService.js';
+import '../platform/agentHost/electron-browser/remoteAgentHostService.js';
+import '../platform/agentHost/browser/agentHostEnablementService.js';
+>>>>>>> 1.139.1
 import './services/browserView/electron-browser/playwrightWorkbenchService.js';
 import './services/process/electron-browser/processService.js';
 import './services/power/electron-browser/powerService.js';
@@ -127,6 +134,9 @@ import './contrib/extensions/electron-browser/devtoolsExtensionHost.contribution
 
 // Issues
 import './contrib/issue/electron-browser/issue.contribution.js';
+
+// Surveys
+import './contrib/surveys/browser/survey.contribution.js';
 
 // Process Explorer
 import './contrib/processExplorer/electron-browser/processExplorer.contribution.js';
@@ -177,6 +187,11 @@ import './contrib/multiDiffEditor/browser/multiDiffEditor.contribution.js';
 import './contrib/remoteTunnel/electron-browser/remoteTunnel.contribution.js';
 
 // Chat
+<<<<<<< remnants/main
+=======
+import './contrib/chat/electron-browser/chat.contribution.js';
+import './contrib/chat/electron-browser/tunnelHost.contribution.js';
+>>>>>>> 1.139.1
 
 // Copilot Voice
 
@@ -193,6 +208,9 @@ import './contrib/policyExport/electron-browser/policyExport.contribution.js';
 
 // Keybindings Export
 import './contrib/keybindingsExport/electron-browser/keybindingsExport.contribution.js';
+
+// System-wide (OS global) Keybindings
+import './contrib/keybindings/electron-browser/systemWideKeybindings.contribution.js';
 
 //#endregion
 

@@ -136,7 +136,11 @@ const terminalConfiguration: IStringDictionary<IConfigurationPropertySchema> = {
 		description: localize('terminal.integrated.tabs.focusMode', "Controls whether focusing the terminal of a tab happens on double or single click.")
 	},
 	[TerminalSettingId.TabsAllowAgentCliTitle]: {
+<<<<<<< remnants/main
 		description: localize('terminal.integrated.tabs.allowAgentCliTitle', "Controls whether CLI programs are allowed to set the terminal tab title via escape sequences. When disabled, the configured tab title template is used instead."),
+=======
+		description: localize('terminal.integrated.tabs.allowAgentCliTitle', "Controls whether agentic CLIs (such as Claude Code, Codex, Command Code, GitHub Copilot CLI, and Gemini CLI) are allowed to set the terminal tab title via escape sequences. When disabled, the configured tab title template is used instead."),
+>>>>>>> 1.139.1
 		type: 'boolean',
 		default: true,
 	},

@@ -13,9 +13,8 @@ import * as util from './lib/util.ts';
 import { getVersion } from './lib/getVersion.ts';
 import { readISODate, writeISODate } from './lib/date.ts';
 import * as task from './lib/gulp/task.ts';
-import buildfile from './buildfile.ts';
-import * as optimize from './lib/optimize.ts';
 import { inlineMeta } from './lib/inlineMeta.ts';
+import { computeNLSMetadataHash } from './lib/nlsMetadata.ts';
 import packageJson from '../package.json' with { type: 'json' };
 import product from '../product.json' with { type: 'json' };
 import * as crypto from 'crypto';
@@ -25,36 +24,45 @@ import { getProductionDependencies } from './lib/dependencies.ts';
 import { config } from './lib/electron.ts';
 import { createAsar } from './lib/asar.ts';
 import minimist from 'minimist';
+<<<<<<< remnants/main
 import { compileBuildWithoutManglingTask, compileBuildWithManglingTask } from './gulpfile.compile.ts';
 import { compileNonNativeExtensionsBuildTask, compileNativeExtensionsBuildTask, compileAllExtensionsBuildTask, compileExtensionMediaBuildTask, cleanExtensionsBuildTask } from './gulpfile.extensions.ts';
 import { copyCodiconsTask } from './lib/compilation.ts';
 import { useEsbuildTranspile } from './buildConfig.ts';
+=======
+import { compileNonNativeExtensionsBuildTask, compileNativeExtensionsBuildTask, compileAllExtensionsBuildTask, compileExtensionMediaBuildTask, cleanExtensionsBuildTask, compileCopilotExtensionBuildTask } from './gulpfile.extensions.ts';
+import { checkApiProposalNamesTask, copyCodiconsTask } from './lib/compilation.ts';
+import { ensureCopilotPlatformPackage, getCopilotExcludeFilter, getCopilotRuntimePrebuildFiles, getCopilotRuntimeVersion, getCopilotTgrepExcludeFilter, getMxcExcludeFilter, getRipgrepExcludeFilter, prepareBuiltInCopilotRipgrepShim } from './lib/copilot.ts';
+import { ensureOSProxyResolverPlatformPackage, getOSProxyResolverExcludeFilter, getOSProxyResolverPlatformFiles } from './lib/osProxyResolver.ts';
+import { readAgentSdkResults } from './agent-sdk/common.ts';
+import { readDictationRuntimeResults } from './dictation-runtime/common.ts';
+>>>>>>> 1.139.1
 import { promisify } from 'util';
 import globCallback from 'glob';
 import rceditCallback from 'rcedit';
 import { spawnTsgo } from './lib/tsgo.ts';
-import { runEsbuildTranspile, runEsbuildBundle } from './lib/esbuild.ts';
+import { runEsbuildTranspile, runEsbuildBundle, getBootstrapEntryPointsForTarget } from './lib/esbuild.ts';
 
 
 const glob = promisify(globCallback);
 const rcedit = promisify(rceditCallback);
 const root = path.dirname(import.meta.dirname);
 const commit = getVersion(root);
+const packageLock = JSON.parse(fs.readFileSync(path.join(root, 'package-lock.json'), 'utf8')) as {
+	readonly packages?: Readonly<Record<string, { readonly version?: string }>>;
+};
+const copilotRuntimeVersion = getCopilotRuntimeVersion(path.join(root, 'node_modules'));
+if (packageJson.copilotRuntimeVersion !== copilotRuntimeVersion) {
+	throw new Error(`package.json declares Copilot runtime ${packageJson.copilotRuntimeVersion}, but @github/copilot-sdk bundles ${copilotRuntimeVersion}.`);
+}
 
-// Build
-const vscodeEntryPoints = [
-	buildfile.workerEditor,
-	buildfile.workerExtensionHost,
-	buildfile.workerNotebook,
-	buildfile.workerLanguageDetection,
-	buildfile.workerLocalFileSearch,
-	buildfile.workerProfileAnalysis,
-	buildfile.workerOutputLinks,
-	buildfile.workerBackgroundTokenization,
-	buildfile.workbenchDesktop,
-	buildfile.code
-].flat();
+function getLockedPackageVersion(packageName: string): string {
+	const version = packageLock.packages?.[`node_modules/${packageName}`]?.version;
+	if (!version) {
+		throw new Error(`Package ${packageName} is missing a version in package-lock.json.`);
+	}
 
+<<<<<<< remnants/main
 const vscodeResourceIncludes = [
 
 	// NLS
@@ -152,28 +160,18 @@ const bundleVSCodeTask = task.define('bundle-vscode', task.series(
 	)
 ));
 task.task(bundleVSCodeTask);
+=======
+	return version;
+}
+>>>>>>> 1.139.1
 
 const sourceMappingURLBase = `https://main.vscode-cdn.net/sourcemaps/${commit}`;
 const isCI = !!process.env['CI'] || !!process.env['BUILD_ARTIFACTSTAGINGDIRECTORY'] || !!process.env['GITHUB_WORKSPACE'];
 const useCdnSourceMapsForPackagingTasks = isCI;
 const stripSourceMapsInPackagingTasks = isCI;
-const minifyVSCodeTask = task.define('minify-vscode', task.series(
-	bundleVSCodeTask,
-	util.rimraf('out-vscode-min'),
-	optimize.minifyTask('out-vscode', `${sourceMappingURLBase}/core`)
-));
-task.task(minifyVSCodeTask);
-
-task.task(task.define('core-ci-old', task.series(
-	task.task('compile-build-with-mangling') as task.Task,
-	task.parallel(
-		task.task('minify-vscode') as task.Task,
-		task.task('minify-vscode-reh') as task.Task,
-		task.task('minify-vscode-reh-web') as task.Task,
-	)
-)));
 
 task.task(task.define('core-ci', task.series(
+	checkApiProposalNamesTask,
 	copyCodiconsTask,
 	compileNonNativeExtensionsBuildTask,
 	compileExtensionMediaBuildTask,
@@ -222,6 +220,22 @@ function computeChecksum(filename: string): string {
 		.replace(/=+$/, '');
 
 	return hash;
+}
+
+// foundry-local-sdk (on-device chat dictation) ships a prebuilt N-API addon
+// (`foundry_local_napi.node`) inside its tarball, and its native core libraries
+// are fetched per-RID into `foundry-local-core/<platform>-<arch>/` at install
+// time. The addon requires a newer glibc than VS Code's minimum supported Linux
+// distros, so we deliberately do NOT ship any of this native payload: it is
+// downloaded on demand at runtime, only on supported platforms, into a per-user
+// cache (see `src/vs/platform/localTranscription/node/foundryLocalRuntime.ts`).
+// Exclude every prebuilt addon and core library from the package here.
+function getFoundryLocalExcludeFilter(): string[] {
+	return [
+		'**',
+		'!**/foundry-local-sdk/prebuilds/**',
+		'!**/foundry-local-sdk/foundry-local-core/**',
+	];
 }
 
 function packageTask(platform: string, arch: string, sourceFolderName: string, destinationFolderName: string, _opts?: { stats?: boolean }) {
@@ -288,9 +302,31 @@ function packageTask(platform: string, arch: string, sourceFolderName: string, d
 		const productJsonStream = gulp.src(['product.json'], { base: '.' })
 			.pipe(jsonEditor((json: Record<string, unknown>) => {
 				json.commit = commit;
+				json.nlsMetadataHash = computeNLSMetadataHash(path.join(import.meta.dirname, '..', out), commit);
 				json.date = readISODate(out);
 				json.checksums = checksums;
 				json.version = version;
+<<<<<<< remnants/main
+=======
+				json.copilotVersions = {
+					runtime: copilotRuntimeVersion,
+					sdk: getLockedPackageVersion('@github/copilot-sdk'),
+				};
+				// Stamp agentSdks from the per-platform results file produced
+				// by `build/agent-sdk/produce.ts` (an earlier pipeline step).
+				// Local dev: file absent → empty → not stamped.
+				const agentSdks = readAgentSdkResults();
+				if (Object.keys(agentSdks).length > 0) {
+					json.agentSdks = agentSdks;
+				}
+				// Stamp dictationRuntime from the per-platform results file
+				// produced by `build/dictation-runtime/produce.ts`. Local dev /
+				// unsupported target: file absent → undefined → not stamped.
+				const dictationRuntime = readDictationRuntimeResults();
+				if (dictationRuntime) {
+					json.dictationRuntime = dictationRuntime;
+				}
+>>>>>>> 1.139.1
 				return json;
 			}))
 			.pipe(es.through(function (file) {
@@ -319,24 +355,61 @@ function packageTask(platform: string, arch: string, sourceFolderName: string, d
 			.pipe(filter(depFilterPattern))
 			.pipe(util.cleanNodeModules(path.join(import.meta.dirname, '.moduleignore')))
 			.pipe(util.cleanNodeModules(path.join(import.meta.dirname, `.moduleignore.${process.platform}`)));
+<<<<<<< remnants/main
 		const deps = cleanedDeps
+=======
+		ensureCopilotPlatformPackage(platform, arch);
+		const copilotRuntimePrebuilds = gulp.src(getCopilotRuntimePrebuildFiles(platform, arch), { base: '.', dot: true, allowEmpty: true });
+		ensureOSProxyResolverPlatformPackage(platform, arch);
+		const osProxyResolverPlatformPackage = gulp.src(getOSProxyResolverPlatformFiles(platform, arch), { base: '.', dot: true, allowEmpty: true });
+		const deps = es.merge(cleanedDeps, copilotRuntimePrebuilds, osProxyResolverPlatformPackage)
+			.pipe(filter(getCopilotExcludeFilter(platform, arch)))
+			.pipe(filter(getCopilotTgrepExcludeFilter(platform, arch)))
+			.pipe(filter(getRipgrepExcludeFilter(platform, arch)))
+			.pipe(filter(getMxcExcludeFilter(arch)))
+			.pipe(filter(getFoundryLocalExcludeFilter()))
+			.pipe(filter(getOSProxyResolverExcludeFilter(platform, arch)))
+>>>>>>> 1.139.1
 			.pipe(jsFilter)
 			.pipe(util.rewriteSourceMappingURL(sourceMappingURLBase))
 			.pipe(jsFilter.restore)
 			.pipe(createAsar(path.join(process.cwd(), 'node_modules'), [
 				'**/*.node',
 				'**/@vscode/ripgrep-universal/bin/**',
+<<<<<<< remnants/main
+=======
+				// The SDK runtime wrapper and native module must remain adjacent on disk.
+				'**/@github/copilot-sdk-{darwin,linux,linuxmusl,win32}-*/**',
+				// The Dev Container CLI is spawned as an external Node process,
+				// so its bundled entrypoint must be available outside the ASAR.
+				'**/@devcontainers/cli/**',
+				'**/@microsoft/mxc-sdk/bin/**',
+>>>>>>> 1.139.1
 				'**/node-pty/build/Release/*',
 				'**/node-pty/build/Release/conpty/*',
 				'**/node-pty/lib/worker/conoutSocketWorker.js',
 				'**/node-pty/lib/shared/conout.js',
+				// node-pty spawns `conoutSocketWorker.js` as a Worker from the unpacked
+				// tree (Windows only). Unpack node-pty's `package.json` alongside it so
+				// Node finds a `package.json` without `"type": "module"` when walking up
+				// from the worker file. Otherwise the lookup reaches the app's own
+				// `package.json` (`"type": "module"`), the CommonJS worker is loaded as
+				// ESM and throws `exports is not defined`, the worker never signals ready,
+				// and node-pty blocks the pty host on `ConnectNamedPipe`.
+				'**/node-pty/package.json',
 				'**/*.wasm',
 				'**/@vscode/vsce-sign/bin/*',
 			], [
 				'**/*.mk',
-				'!node_modules/vsda/**' // stay compatible with extensions that depend on us shipping `vsda` into ASAR
 			], [
-				'node_modules/vsda/**' // retain copy of `vsda` in node_modules for internal use
+				'node_modules/vsda/**', // retain copy of `vsda` in node_modules for internal use
+				// The sandbox runtime is spawned as a standalone Node subprocess (no ASAR
+				// resolution hook), so it and its transitive JS dependencies must remain as
+				// real files under `node_modules`. Keep them duplicated out of the archive.
+				'node_modules/@vscode/sandbox-runtime/**', // includes its nested `commander`
+				'node_modules/@pondwader/socks5-server/**',
+				'node_modules/shell-quote/**',
+				'node_modules/zod/**'
 			], 'node_modules.asar'));
 
 		const mergeStreams = [
@@ -374,6 +447,7 @@ function packageTask(platform: string, arch: string, sourceFolderName: string, d
 				'resources/win32/react.ico',
 				'resources/win32/ruby.ico',
 				'resources/win32/sass.ico',
+				'resources/win32/sessions.ico',
 				'resources/win32/shell.ico',
 				'resources/win32/sql.ico',
 				'resources/win32/typescript.ico',
@@ -493,7 +567,7 @@ function packageTask(platform: string, arch: string, sourceFolderName: string, d
 		}
 
 		result = inlineMeta(result, {
-			targetPaths: bootstrapEntryPoints,
+			targetPaths: getBootstrapEntryPointsForTarget('desktop').map(entry => `${entry}.js`),
 			packageJsonFn: () => packageJsonContents,
 			productJsonFn: () => productJsonContents
 		});
@@ -546,6 +620,8 @@ function patchWin32DependenciesTask(destinationFolderName: string) {
 			glob('**/rg.exe', { cwd }),
 			glob('**/tgrep.exe', { cwd }),
 			glob('**/*explorer_command*.dll', { cwd }),
+			// TODO@anthonykim1 Remove once @github/copilot ships OneAuthInterop.dll with complete version information.
+			glob('**/OneAuthInterop.dll', { cwd }),
 		])).flatMap(o => o);
 		const packageJson = JSON.parse(await fs.promises.readFile(path.join(cwd, versionedResourcesFolder, 'resources', 'app', 'package.json'), 'utf8'));
 		const product = JSON.parse(await fs.promises.readFile(path.join(cwd, versionedResourcesFolder, 'resources', 'app', 'product.json'), 'utf8'));
@@ -575,6 +651,26 @@ function patchWin32DependenciesTask(destinationFolderName: string) {
 	};
 }
 
+<<<<<<< remnants/main
+=======
+function prepareCopilotRipgrepShimTask(platform: string, arch: string, destinationFolderName: string) {
+	const outputDir = path.join(path.dirname(root), destinationFolderName);
+
+	return async () => {
+		// On Windows with win32VersionedUpdate, app resources live under a
+		// commit-hash prefix: {output}/{commitHash}/resources/app/
+		const versionedResourcesFolder = util.getVersionedResourcesFolder(platform, commit!);
+		const appBase = platform === 'darwin'
+			? path.join(outputDir, `${product.nameLong}.app`, 'Contents', 'Resources', 'app')
+			: path.join(outputDir, versionedResourcesFolder, 'resources', 'app');
+		const appNodeModulesDir = path.join(appBase, 'node_modules.asar.unpacked');
+
+		const builtInCopilotExtensionDir = path.join(appBase, 'extensions', 'copilot');
+		prepareBuiltInCopilotRipgrepShim(platform, arch, builtInCopilotExtensionDir, appNodeModulesDir);
+	};
+}
+
+>>>>>>> 1.139.1
 const buildRoot = path.dirname(root);
 
 const BUILD_TARGETS = [
@@ -609,6 +705,7 @@ BUILD_TARGETS.forEach(buildTarget => {
 		const vscodeTaskCI = task.define(`vscode${dashed(platform)}${dashed(arch)}${dashed(minified)}-ci`, task.series(...packageTasks));
 		task.task(vscodeTaskCI);
 
+<<<<<<< remnants/main
 		let vscodeTask: task.Task;
 		if (useEsbuildTranspile) {
 			const esbuildBundleTask = task.define(
@@ -640,6 +737,28 @@ BUILD_TARGETS.forEach(buildTarget => {
 				vscodeTaskCI
 			));
 		}
+=======
+		const esbuildBundleTask = task.define(
+			`esbuild-bundle${dashed(platform)}${dashed(arch)}${dashed(minified)}`,
+			() => runEsbuildBundle(
+				sourceFolderName,
+				!!minified,
+				true,
+				'desktop',
+				minified && useCdnSourceMapsForPackagingTasks ? `${sourceMappingURLBase}/core` : undefined
+			)
+		);
+		const vscodeTask = task.define(`vscode${dashed(platform)}${dashed(arch)}${dashed(minified)}`, task.series(
+			copyCodiconsTask,
+			cleanExtensionsBuildTask,
+			compileNonNativeExtensionsBuildTask,
+			compileCopilotExtensionBuildTask,
+			compileExtensionMediaBuildTask,
+			writeISODate('out-build'),
+			esbuildBundleTask,
+			vscodeTaskCI
+		));
+>>>>>>> 1.139.1
 		task.task(vscodeTask);
 
 		return vscodeTask;

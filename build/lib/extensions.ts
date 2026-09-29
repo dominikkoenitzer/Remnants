@@ -60,7 +60,7 @@ function updateExtensionPackageJSON(input: Stream, update: (data: any) => any): 
 		.pipe(packageJsonFilter.restore);
 }
 
-function fromLocal(extensionPath: string, forWeb: boolean, _disableMangle: boolean): Stream {
+function fromLocal(extensionPath: string, forWeb: boolean): Stream {
 
 	let esbuildConfigFileName = forWeb
 		? 'esbuild.browser.mts'
@@ -278,15 +278,23 @@ export function fromVsix(vsixPath: string, { name: extensionName, version, sha25
 }
 
 
-export function fromGithub({ name, version, repo, sha256, metadata }: IExtensionDefinition): Stream {
-	fancyLog('Downloading extension from GH:', ansiColors.yellow(`${name}@${version}`), '...');
+export function fromGithub({ name, version, repo, sha256, metadata }: IExtensionDefinition, options?: { asset?: { assetName: string; sha256: string }; latest?: boolean }): Stream {
+	const asset = options?.asset;
+	const latest = options?.latest ?? false;
+	fancyLog('Downloading extension from GH:', ansiColors.yellow(`${name}@${latest ? 'latest' : version}`), asset ? ansiColors.gray(`(${asset.assetName})`) : '', '...');
+	if (latest) {
+		fancyLog(ansiColors.yellow(`Warning: skipping checksum validation for ${name} (downloading latest release, no pinned checksum available)`));
+	}
 
 	const packageJsonFilter = filter('package.json', { restore: true });
 
 	return fetchGithub(new URL(repo).pathname, {
 		version,
-		name: name => name.endsWith('.vsix'),
-		checksumSha256: sha256
+		name: asset ? asset.assetName : name => name.endsWith('.vsix'),
+		// The checksum is tied to a specific version; when resolving the latest release the
+		// downloaded asset differs, so it cannot be validated against the pinned checksum.
+		checksumSha256: latest ? undefined : (asset ? asset.sha256 : sha256),
+		latest
 	})
 		.pipe(buffer())
 		.pipe(vinylZip.src())
@@ -367,11 +375,10 @@ export function isWebExtension(manifest: IExtensionManifest): boolean {
 /**
  * Package local extensions that are known to not have native dependencies. Mutually exclusive to {@link packageNativeLocalExtensionsStream}.
  * @param forWeb build the extensions that have web targets
- * @param disableMangle disable the mangler
  * @returns a stream
  */
-export function packageNonNativeLocalExtensionsStream(forWeb: boolean, disableMangle: boolean): Stream {
-	return doPackageLocalExtensionsStream(forWeb, disableMangle, false);
+export function packageNonNativeLocalExtensionsStream(forWeb: boolean): Stream {
+	return doPackageLocalExtensionsStream(forWeb, false);
 }
 
 /**
@@ -380,32 +387,29 @@ export function packageNonNativeLocalExtensionsStream(forWeb: boolean, disableMa
  * but we simplify the logic here by having a flat list of extensions (See {@link nativeExtensions}) that are known to have native
  * dependencies on some platform and thus should be packaged on the platform that they are building for.
  * @param forWeb build the extensions that have web targets
- * @param disableMangle disable the mangler
  * @returns a stream
  */
-export function packageNativeLocalExtensionsStream(forWeb: boolean, disableMangle: boolean): Stream {
-	return doPackageLocalExtensionsStream(forWeb, disableMangle, true);
+export function packageNativeLocalExtensionsStream(forWeb: boolean): Stream {
+	return doPackageLocalExtensionsStream(forWeb, true);
 }
 
 /**
  * Package all the local extensions... both those that are known to have native dependencies and those that are not.
  * @param forWeb build the extensions that have web targets
- * @param disableMangle disable the mangler
  * @returns a stream
  */
-export function packageAllLocalExtensionsStream(forWeb: boolean, disableMangle: boolean): Stream {
+export function packageAllLocalExtensionsStream(forWeb: boolean): Stream {
 	return es.merge([
-		packageNonNativeLocalExtensionsStream(forWeb, disableMangle),
-		packageNativeLocalExtensionsStream(forWeb, disableMangle)
+		packageNonNativeLocalExtensionsStream(forWeb),
+		packageNativeLocalExtensionsStream(forWeb)
 	]);
 }
 
 /**
  * @param forWeb build the extensions that have web targets
- * @param disableMangle disable the mangler
  * @param native build the extensions that are marked as having native dependencies
  */
-function doPackageLocalExtensionsStream(forWeb: boolean, disableMangle: boolean, native: boolean): Stream {
+function doPackageLocalExtensionsStream(forWeb: boolean, native: boolean): Stream {
 	const nativeExtensionsSet = new Set(nativeExtensions);
 	const localExtensionsDescriptions = (
 		(glob.sync('extensions/*/package.json') as string[])
@@ -424,8 +428,13 @@ function doPackageLocalExtensionsStream(forWeb: boolean, disableMangle: boolean,
 	const localExtensionsStream = minifyExtensionResources(
 		es.merge(
 			...localExtensionsDescriptions.map(extension => {
+<<<<<<< remnants/main
 				return fromLocal(extension.path, forWeb, disableMangle)
 					.pipe(rename(p => { p.dirname = `extensions/${extension.name}/${p.dirname}`; }));
+=======
+				return fromLocal(extension.path, forWeb)
+					.pipe(rename(p => p.dirname = `extensions/${extension.name}/${p.dirname}`));
+>>>>>>> 1.139.1
 			})
 		)
 	);
@@ -455,6 +464,36 @@ function doPackageLocalExtensionsStream(forWeb: boolean, disableMangle: boolean,
 	);
 }
 
+<<<<<<< remnants/main
+=======
+/**
+ * Package the built-in copilot extension specifically.
+ * This is used by non-CI local builds where copilot is not downloaded as a VSIX
+ * but must be compiled from source and included in the build.
+ */
+export function packageCopilotExtensionStream(): Stream {
+	const extensionPath = path.join(root, 'extensions', 'copilot');
+	if (!fs.existsSync(extensionPath)) {
+		return es.readArray([]);
+	}
+
+	const localExtensionsStream = minifyExtensionResources(
+		fromLocal(extensionPath, false)
+			.pipe(rename(p => p.dirname = `extensions/copilot/${p.dirname}`))
+	);
+
+	const productionDependencies = getProductionDependencies('extensions/copilot');
+	const dependenciesSrc = productionDependencies.map(d => path.relative(root, d)).map(d => [`${d}/**`, `!${d}/**/{test,tests}/**`]).flat();
+
+	return es.merge(
+		localExtensionsStream,
+		gulp.src(dependenciesSrc, { base: '.' })
+			.pipe(util2.cleanNodeModules(path.join(root, 'build', '.moduleignore')))
+			.pipe(util2.cleanNodeModules(path.join(root, 'build', `.moduleignore.${process.platform}`)))
+	).pipe(util2.setExecutableBit(['**/*.sh']));
+}
+
+>>>>>>> 1.139.1
 export function packageMarketplaceExtensionsStream(forWeb: boolean): Stream {
 	const marketplaceExtensionsDescriptions = [
 		...builtInExtensions.filter(({ name }) => (forWeb ? !marketplaceWebExtensionsExclude.has(name) : true)),

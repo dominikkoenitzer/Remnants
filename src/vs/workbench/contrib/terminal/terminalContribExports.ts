@@ -12,6 +12,7 @@ import { TerminalDeveloperCommandId } from '../terminalContrib/developer/common/
 import { defaultTerminalFindCommandToSkipShell } from '../terminalContrib/find/common/terminal.find.js';
 import { defaultTerminalHistoryCommandsToSkipShell, terminalHistoryConfiguration } from '../terminalContrib/history/common/terminal.history.js';
 import { terminalOscNotificationsConfiguration } from '../terminalContrib/notification/common/terminalNotificationConfiguration.js';
+import { terminalResizeDimensionsOverlayConfiguration } from '../terminalContrib/resizeDimensionsOverlay/common/terminalResizeDimensionsOverlayConfiguration.js';
 import { TerminalStickyScrollSettingId, terminalStickyScrollConfiguration } from '../terminalContrib/stickyScroll/common/terminalStickyScrollConfiguration.js';
 import { defaultTerminalSuggestCommandsToSkipShell } from '../terminalContrib/suggest/common/terminal.suggest.js';
 import { TerminalSuggestSettingId, terminalSuggestConfiguration } from '../terminalContrib/suggest/common/terminalSuggestConfiguration.js';
@@ -32,6 +33,34 @@ export const enum TerminalContribCommandId {
 export const enum TerminalContribSettingId {
 	StickyScrollEnabled = TerminalStickyScrollSettingId.Enabled,
 	SuggestEnabled = TerminalSuggestSettingId.Enabled,
+<<<<<<< remnants/main
+=======
+	AutoApprove = TerminalChatAgentToolsSettingId.AutoApprove,
+	EnableAutoApprove = TerminalChatAgentToolsSettingId.EnableAutoApprove,
+	AutoApproveWorkspaceNpmScripts = TerminalChatAgentToolsSettingId.AutoApproveWorkspaceNpmScripts,
+	IgnoreDefaultAutoApproveRules = TerminalChatAgentToolsSettingId.IgnoreDefaultAutoApproveRules,
+	BlockDetectedFileWrites = TerminalChatAgentToolsSettingId.BlockDetectedFileWrites,
+	ShellIntegrationTimeout = TerminalChatAgentToolsSettingId.ShellIntegrationTimeout,
+	OutputLocation = TerminalChatAgentToolsSettingId.OutputLocation,
+	AgentSandboxEnabled = AgentSandboxSettingId.AgentSandboxEnabled,
+	AgentSandboxWindowsEnabled = AgentSandboxSettingId.AgentSandboxWindowsEnabled,
+	AgentSandboxAllowNetwork = AgentSandboxSettingId.AgentSandboxAllowNetwork,
+	AgentSandboxAllowUnsandboxedCommands = AgentSandboxSettingId.AgentSandboxAllowUnsandboxedCommands,
+	AgentSandboxRetryWithAllowNetworkRequests = AgentSandboxSettingId.AgentSandboxRetryWithAllowNetworkRequests,
+	AgentSandboxAllowAutoApprove = AgentSandboxSettingId.AgentSandboxAllowAutoApprove,
+	AgentSandboxLinuxFileSystem = TerminalChatAgentToolsSettingId.AgentSandboxLinuxFileSystem,
+	AgentSandboxMacFileSystem = TerminalChatAgentToolsSettingId.AgentSandboxMacFileSystem,
+	AgentSandboxWindowsFileSystem = TerminalChatAgentToolsSettingId.AgentSandboxWindowsFileSystem,
+}
+
+// HACK: Export some context key strings from `terminalContrib/` that are depended upon elsewhere.
+// These are soft layer breakers between `terminal/` and `terminalContrib/` but there are
+// difficulties in removing the dependency. These are explicitly defined here to avoid an eslint
+// line override.
+export const enum TerminalContribContextKeyStrings {
+	ChatHasTerminals = TerminalChatContextKeyStrings.ChatHasTerminals,
+	ChatHasHiddenTerminals = TerminalChatContextKeyStrings.ChatHasHiddenTerminals,
+>>>>>>> 1.139.1
 }
 
 // Export configuration schemes from terminalContrib - this is an exception to the eslint rule since
@@ -42,6 +71,7 @@ export const terminalContribConfiguration: IConfigurationNode['properties'] = {
 	...terminalCommandGuideConfiguration,
 	...terminalHistoryConfiguration,
 	...terminalOscNotificationsConfiguration,
+	...terminalResizeDimensionsOverlayConfiguration,
 	...terminalStickyScrollConfiguration,
 	...terminalSuggestConfiguration,
 	...terminalTypeAheadConfiguration,

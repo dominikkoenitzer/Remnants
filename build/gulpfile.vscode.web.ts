@@ -5,21 +5,18 @@
 
 import { gulp, rename, filter, jsonEditor } from './lib/gulp/facade.ts';
 import * as path from 'path';
-import * as cp from 'child_process';
 import es from 'event-stream';
 import * as util from './lib/util.ts';
 import { getVersion } from './lib/getVersion.ts';
 import * as task from './lib/gulp/task.ts';
-import * as optimize from './lib/optimize.ts';
-import { readISODate } from './lib/date.ts';
+import { writeISODate } from './lib/date.ts';
 import product from '../product.json' with { type: 'json' };
 import { getProductionDependencies } from './lib/dependencies.ts';
 import vfs from 'vinyl-fs';
 import packageJson from '../package.json' with { type: 'json' };
-import { compileBuildWithManglingTask } from './gulpfile.compile.ts';
-import { copyCodiconsTask } from './lib/compilation.ts';
+import { compileApiProposalNamesTask, copyCodiconsTask } from './lib/compilation.ts';
 import * as extensions from './lib/extensions.ts';
-import buildfile from './buildfile.ts';
+import { runEsbuildBundle } from './lib/esbuild.ts';
 
 const REPO_ROOT = path.dirname(import.meta.dirname);
 const BUILD_ROOT = path.dirname(REPO_ROOT);
@@ -29,6 +26,7 @@ const commit = getVersion(REPO_ROOT);
 const quality = (product as { quality?: string }).quality;
 const version = (quality && quality !== 'stable') ? `${packageJson.version}-${quality}` : packageJson.version;
 
+<<<<<<< remnants/main
 // esbuild-based bundle for standalone web
 function runEsbuildBundle(outDir: string, minify: boolean, nls: boolean, sourceMapBaseUrl?: string): Promise<void> {
 	return new Promise((resolve, reject) => {
@@ -165,9 +163,11 @@ const minifyVSCodeWebTask = task.define('minify-vscode-web-OLD', task.series(
 task.task(minifyVSCodeWebTask);
 
 // esbuild-based tasks (new)
+=======
+>>>>>>> 1.139.1
 const sourceMappingURLBase = `https://main.vscode-cdn.net/sourcemaps/${commit}`;
-const esbuildBundleVSCodeWebTask = task.define('esbuild-vscode-web', () => runEsbuildBundle('out-vscode-web', false, true));
-const esbuildBundleVSCodeWebMinTask = task.define('esbuild-vscode-web-min', () => runEsbuildBundle('out-vscode-web-min', true, true, `${sourceMappingURLBase}/core`));
+const esbuildBundleVSCodeWebTask = task.define('esbuild-vscode-web', () => runEsbuildBundle('out-vscode-web', false, true, 'web'));
+const esbuildBundleVSCodeWebMinTask = task.define('esbuild-vscode-web-min', () => runEsbuildBundle('out-vscode-web-min', true, true, 'web', `${sourceMappingURLBase}/core`));
 
 function packageTask(sourceFolderName: string, destinationFolderName: string) {
 	const destination = path.join(BUILD_ROOT, destinationFolderName);
@@ -221,7 +221,7 @@ function packageTask(sourceFolderName: string, destinationFolderName: string) {
 
 const compileWebExtensionsBuildTask = task.define('compile-web-extensions-build', task.series(
 	task.define('clean-web-extensions-build', util.rimraf('.build/web/extensions')),
-	task.define('bundle-web-extensions-build', () => extensions.packageAllLocalExtensionsStream(true, false).pipe(gulp.dest('.build/web'))),
+	task.define('bundle-web-extensions-build', () => extensions.packageAllLocalExtensionsStream(true).pipe(gulp.dest('.build/web'))),
 	task.define('bundle-marketplace-web-extensions-build', () => extensions.packageMarketplaceExtensionsStream(true).pipe(gulp.dest('.build/web'))),
 	task.define('bundle-web-extension-media-build', () => extensions.buildExtensionMedia(false, '.build/web/extensions')),
 ));
@@ -243,7 +243,8 @@ const dashed = (str: string) => (str ? `-${str}` : ``);
 	task.task(vscodeWebTaskCI);
 
 	const vscodeWebTask = task.define(`vscode-web${dashed(minified)}`, task.series(
-		compileBuildWithManglingTask,
+		compileApiProposalNamesTask,
+		writeISODate('out-build'),
 		vscodeWebTaskCI
 	));
 	task.task(vscodeWebTask);
