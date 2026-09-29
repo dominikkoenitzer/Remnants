@@ -94,10 +94,6 @@ steps:
     condition: and(succeeded(), ne(variables['NPM_REGISTRY'], 'none'))
     displayName: Setup NPM Authentication
 
-  - template: ../common/foundry-local.yml@self
-    parameters:
-      phase: prepare
-
   - powershell: |
       . build/azure-pipelines/win32/exec.ps1
       $ErrorActionPreference = "Stop"
@@ -111,10 +107,6 @@ steps:
     retryCountOnTaskFailure: 5
     displayName: Install dependencies
     condition: and(succeeded(), ne(variables.APISCAN_NODE_MODULES_RESTORED, 'true'))
-
-  - template: ../common/foundry-local.yml@self
-    parameters:
-      phase: install
 
   - powershell: node build/azure-pipelines/common/checkNativeOptionalDeps.ts
     displayName: Verify native optional dependency binaries
