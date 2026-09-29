@@ -62,7 +62,7 @@ suite('DocumentEditSourceTracker', () => {
 		});
 	});
 
-	test('restores external attribution when Agent Host suppression is invalidated', () => {
+	test('restores external attribution when suppression is invalidated', () => {
 		const document = disposables.add(new TestAnnotatedDocument('initial'));
 		const correlation = new TestExternalEditCorrelation();
 		const tracker = disposables.add(new DocumentEditSourceTracker(document, undefined, correlation));
@@ -180,11 +180,11 @@ suite('DocumentEditSourceTracker', () => {
 		const document = disposables.add(new TestAnnotatedDocument('initial'));
 		const correlation = new TestExternalEditCorrelation();
 		const tracker = disposables.add(new DocumentEditSourceTracker(document, undefined, correlation, 'reattribute'));
-		const agentHost = agentHostEditSource('gpt-5', 'turn-1', 'copilotcli');
+		const chat = chatEditSource('gpt-5', 'turn-1');
 
 		document.apply(StringEdit.replace(OffsetRange.ofLength(7), 'external'), EditSources.reloadFromDisk());
 		tracker.applyPendingExternalEdits();
-		correlation.resolve(correlation.lastObservationId!, agentHost);
+		correlation.resolve(correlation.lastObservationId!, chat);
 		document.apply(StringEdit.replace(new OffsetRange(0, 3), 'X'), EditSources.cursor({ kind: 'type' }));
 
 		const externalKey = tracker.getAllKeys().find(key => key.startsWith('external-observation:'))!;
@@ -194,10 +194,10 @@ suite('DocumentEditSourceTracker', () => {
 			retained: tracker.getTrackedRanges().filter(range => range.sourceKey === externalKey).reduce((sum, range) => sum + range.range.length, 0),
 			category: tracker.getTrackedRanges().find(range => range.sourceKey === externalKey)?.source.category,
 		}, {
-			sourceKey: 'source:Chat.applyEdits-$modelId:gpt-5-$harness:copilotcli-$origin:agentHost',
+			sourceKey: 'source:Chat.applyEdits-$modelId:gpt-5',
 			delta: 8,
 			retained: 5,
-			category: 'agentHost',
+			category: 'ai',
 		});
 	});
 
@@ -208,7 +208,7 @@ suite('DocumentEditSourceTracker', () => {
 
 		document.apply(StringEdit.replace(OffsetRange.ofLength(7), 'external'), EditSources.reloadFromDisk());
 		tracker.applyPendingExternalEdits();
-		correlation.resolve(correlation.lastObservationId!, agentHostEditSource('gpt-5', 'turn-1', 'copilotcli'));
+		correlation.resolve(correlation.lastObservationId!, chatEditSource('gpt-5', 'turn-1'));
 		correlation.invalidate(correlation.lastObservationId!);
 
 		assert.deepStrictEqual(snapshot(tracker), [{
@@ -248,15 +248,6 @@ function chatEditSource(modelId: string, requestId: string): TextModelEditSource
 		mode: 'agent',
 		extensionId: undefined,
 		codeBlockSuggestionId: undefined,
-	});
-}
-
-function agentHostEditSource(modelId: string, requestId: string, harness: string): TextModelEditSource {
-	return EditSources.agentHostChatApplyEdits({
-		modelId,
-		sessionId: 'session-1',
-		requestId,
-		harness,
 	});
 }
 
