@@ -49,12 +49,6 @@ export const enum AccessibleViewProviderId {
 	ChatFindHelp = 'chatFindHelp',
 	ProblemsFilterHelp = 'problemsFilterHelp',
 	SessionsChat = 'sessionsChat',
-	SessionsChanges = 'sessionsChanges',
-	Survey = 'survey',
-	Automations = 'automations',
-	ConnectionDiagnostics = 'connectionDiagnostics',
-	BrowserElementCommenting = 'browserElementCommenting',
-	ChatPetAchievements = 'chatPetAchievements',
 }
 
 export const enum AccessibleViewType {
