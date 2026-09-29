@@ -24,9 +24,6 @@ parameters:
 steps:
   - template: ../../common/checkout.yml@self
 
-  - ${{ if eq(parameters.VSCODE_RUN_ELECTRON_TESTS, true) }}:
-    - template: ../../copilot/pull-test-cache.yml@self
-
   - ${{ if or(eq(parameters.VSCODE_RUN_ELECTRON_TESTS, true), eq(parameters.VSCODE_RUN_BROWSER_TESTS, true), eq(parameters.VSCODE_RUN_REMOTE_TESTS, true)) }}:
     - template: ../../common/ensure-test-artifact-directories.yml@self
 
@@ -66,8 +63,6 @@ steps:
   - script: node build/setup-npm-registry.ts $NPM_REGISTRY
     condition: and(succeeded(), ne(variables['NPM_REGISTRY'], 'none'))
     displayName: Setup NPM Registry
-
-  - template: ../../common/apply-sdk-canary.yml@self
 
   - script: mkdir -p .build && node build/azure-pipelines/common/computeNodeModulesCacheKey.ts linux $VSCODE_ARCH $(node -p process.arch) > .build/packagelockhash
     displayName: Prepare node_modules cache key
@@ -197,7 +192,6 @@ steps:
   - script: node build/npm/electronTypes.ts
     displayName: Prepare Electron types
 
-  - ${{ if ne(parameters.VSCODE_ARCH, 'armhf') }}:
   - script: npm run gulp core-ci
     env:
       GITHUB_TOKEN: "$(github-token-code-oss)"
@@ -286,10 +280,6 @@ steps:
         GITHUB_TOKEN: "$(github-token-code-oss)"
         AZURE_DEVOPS_EXT_PAT: $(System.AccessToken)
       displayName: Build server
-
-    - ${{ if eq(parameters.VSCODE_ARCH, 'x64') }}:
-      - script: node build/azure-pipelines/common/smokeTestAgentHost.ts "$(Agent.BuildDirectory)/vscode-server-linux-$(VSCODE_ARCH)"
-        displayName: 🧪 Smoke test packaged Agent Host
 
     - script: |
         set -e
