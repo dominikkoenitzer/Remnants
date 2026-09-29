@@ -100,7 +100,9 @@ merge base, landed as ordinary commits on top of the existing history.
   on-device dictation runtime and local transcription services, the chat pills,
   the terminal command auto-approval rules, the agent host process and its
   session links, the agent host server options and end-to-end scripts, the
-  agent-host edit attribution in edit telemetry, the Codex account menu, the
+  agent-host edit attribution and edit category in edit telemetry, the voice
+  mode signals and AI-only accessibility settings, the agent session launch
+  argument, the Codex account menu, the
   Copilot survey editor, the Copilot entitlement filters for experiments, the
   Agents Window entries in the issue reporter, recents and the Windows jump list,
   the Copilot runtime version in the About dialog and in managed settings
