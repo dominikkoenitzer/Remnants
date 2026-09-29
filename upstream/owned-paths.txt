@@ -1,0 +1,8 @@
+.github
+.vscode/settings.json
+CHANGES.md
+CONTRIBUTING.md
+README.md
+RELEASING.md
+SECURITY.md
+upstream
