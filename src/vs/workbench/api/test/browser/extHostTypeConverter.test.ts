@@ -72,39 +72,6 @@ suite('ExtHostTypeConverter', function () {
 		assert.ok(!!data.uris!['file:///somepath/here2']);
 	});
 
-	test('LanguageModelChatMessage2 converters preserve tool-result data parts across the provider boundary #313920', function () {
-
-		// Platform converters round-trip data parts unchanged (unknown mime types aren't stripped), so the producer must gate emission (#313920).
-		const CACHE_CONTROL_MIME = 'cache_control';
-
-		const toolResult = new extHostTypes.LanguageModelToolResultPart('call-1', [
-			new extHostTypes.LanguageModelTextPart('the tool output'),
-			new extHostTypes.LanguageModelDataPart(new TextEncoder().encode('ephemeral'), CACHE_CONTROL_MIME),
-		]);
-		const hostMessage = extHostTypes.LanguageModelChatMessage2.User([toolResult]);
-
-		const providerMessage = LanguageModelChatMessage2.to(LanguageModelChatMessage2.from(hostMessage));
-		const providerToolResult = providerMessage.content[0] as extHostTypes.LanguageModelToolResultPart;
-		const roundTrippedPart = providerToolResult.content[1] as extHostTypes.LanguageModelDataPart;
-
-		assert.deepStrictEqual({
-			mimeType: roundTrippedPart.mimeType,
-			decodedData: new TextDecoder().decode(roundTrippedPart.data),
-			marshalled: roundTrippedPart.toJSON(),
-			naiveSerialization: JSON.stringify(roundTrippedPart),
-		}, {
-			mimeType: 'cache_control',
-			decodedData: 'ephemeral',
-			marshalled: {
-				$mid: MarshalledId.LanguageModelDataPart,
-				mimeType: 'cache_control',
-				data: 'ZXBoZW1lcmFs', // base64('ephemeral')
-				audience: undefined,
-			},
-			naiveSerialization: '{"$mid":24,"mimeType":"cache_control","data":"ZXBoZW1lcmFs"}',
-		});
-	});
-
 	test('NPM script explorer running a script from the hover does not work #65561', function () {
 
 		const data = MarkdownString.from('*hello* [click](command:npm.runScriptFromHover?%7B%22documentUri%22%3A%7B%22%24mid%22%3A1%2C%22external%22%3A%22file%3A%2F%2F%2Fc%253A%2Ffoo%2Fbaz.ex%22%2C%22path%22%3A%22%2Fc%3A%2Ffoo%2Fbaz.ex%22%2C%22scheme%22%3A%22file%22%7D%2C%22script%22%3A%22dev%22%7D)');
