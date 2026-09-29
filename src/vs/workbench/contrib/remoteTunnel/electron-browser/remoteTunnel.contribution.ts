@@ -623,31 +623,6 @@ export class RemoteTunnelWorkbenchContribution extends Disposable implements IWo
 				const connectionInfo = await that.startTunnel(/* installAsService= */ asService, options?.authenticationProviderId);
 
 				if (connectionInfo) {
-<<<<<<< remnants/main
-					const linkToOpen = that.getLinkToOpen(connectionInfo);
-					const remoteExtension = that.serverConfiguration.extension;
-					const linkToOpenForMarkdown = linkToOpen.toString(false).replace(/\)/g, '%29');
-					notificationService.notify({
-						severity: Severity.Info,
-						message:
-							localize(
-								{
-									key: 'progress.turnOn.final',
-									comment: ['{0} will be the tunnel name, {1} will the link address to the web UI, {6} an extension name, {7} a link to the extension documentation. [label](command:commandId) is a markdown link. Only translate the label, do not modify the format']
-								},
-								"You can now access this machine anywhere via the secure tunnel [{0}](command:{4}). To connect via a different machine, use the generated [{1}]({2}) link or use the [{6}]({7}) extension in the desktop or web. You can [configure](command:{3}) or [turn off](command:{5}) this access via the Remnants Accounts menu.",
-								connectionInfo.tunnelName, connectionInfo.domain, linkToOpenForMarkdown, RemoteTunnelCommandIds.manage, RemoteTunnelCommandIds.configure, RemoteTunnelCommandIds.turnOff, remoteExtension.friendlyName, 'https://code.visualstudio.com/docs/remote/tunnels'
-							),
-						actions: {
-							primary: [
-								toAction({ id: 'copyToClipboard', label: localize('action.copyToClipboard', "Copy Browser Link to Clipboard"), run: () => clipboardService.writeText(linkToOpen.toString(true)) }),
-								toAction({
-									id: 'showExtension', label: localize('action.showExtension', "Show Extension"), run: () => {
-										return commandService.executeCommand('workbench.extensions.action.showExtensionsWithIds', [remoteExtension.extensionId]);
-									}
-								})
-							]
-=======
 					if (options?.showSuccessNotification !== false) {
 						const remoteExtension = that.serverConfiguration.extension;
 						if (connectionInfo.link && connectionInfo.domain) {
@@ -661,7 +636,7 @@ export class RemoteTunnelWorkbenchContribution extends Disposable implements IWo
 											key: 'progress.turnOn.final',
 											comment: ['{0} will be the tunnel name, {1} will the link address to the web UI, {6} an extension name, {7} a link to the extension documentation. [label](command:commandId) is a markdown link. Only translate the label, do not modify the format']
 										},
-										"You can now access this machine anywhere via the secure tunnel [{0}](command:{4}). To connect via a different machine, use the generated [{1}]({2}) link or use the [{6}]({7}) extension in the desktop or web. You can [configure](command:{3}) or [turn off](command:{5}) this access via the VS Code Accounts menu.",
+										"You can now access this machine anywhere via the secure tunnel [{0}](command:{4}). To connect via a different machine, use the generated [{1}]({2}) link or use the [{6}]({7}) extension in the desktop or web. You can [configure](command:{3}) or [turn off](command:{5}) this access via the Remnants Accounts menu.",
 										connectionInfo.tunnelName, connectionInfo.domain, linkToOpenForMarkdown, RemoteTunnelCommandIds.manage, RemoteTunnelCommandIds.configure, RemoteTunnelCommandIds.turnOff, remoteExtension.friendlyName, 'https://code.visualstudio.com/docs/remote/tunnels'
 									),
 								actions: {
@@ -678,9 +653,8 @@ export class RemoteTunnelWorkbenchContribution extends Disposable implements IWo
 						} else {
 							notificationService.notify({
 								severity: Severity.Info,
-								message: localize('progress.turnOn.final.noLink', "Remote Tunnel Access is enabled for {0}. You can [configure](command:{1}) or [turn off](command:{2}) this access via the VS Code Accounts menu.", connectionInfo.tunnelName, RemoteTunnelCommandIds.configure, RemoteTunnelCommandIds.turnOff),
+								message: localize('progress.turnOn.final.noLink', "Remote Tunnel Access is enabled for {0}. You can [configure](command:{1}) or [turn off](command:{2}) this access via the Remnants Accounts menu.", connectionInfo.tunnelName, RemoteTunnelCommandIds.configure, RemoteTunnelCommandIds.turnOff),
 							});
->>>>>>> 1.139.1
 						}
 					}
 					const usedOnHostMessage: UsedOnHostMessage = { hostName: connectionInfo.tunnelName, timeStamp: new Date().getTime() };

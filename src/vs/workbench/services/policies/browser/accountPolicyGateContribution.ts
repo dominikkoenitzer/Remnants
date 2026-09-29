@@ -110,14 +110,8 @@ export class AccountPolicyGateContribution extends Disposable implements IWorkbe
 
 		// Suppress the context key during the transient `policyNotResolved` state
 		// (user IS in approved org, just waiting for data) so the UI doesn't flash.
-<<<<<<< remnants/main
-		const isRestricted = info.state === AccountPolicyGateState.Restricted
-			&& info.reason !== AccountPolicyGateUnsatisfiedReason.PolicyNotResolved;
-		this.contextKey.set(isRestricted);
-=======
 		const isRestricted = this.isGateRestricted(info);
 		this.updatePolicyGateState();
->>>>>>> 1.139.1
 		this.logService.info(`[AccountPolicyGate] apply: state=${info.state}, reason=${info.reason}, isRestricted=${isRestricted}`);
 
 		if (stateChanged) {

@@ -7,13 +7,8 @@ import * as dom from '../../../../base/browser/dom.js';
 import { BaseActionViewItem, IBaseActionViewItemOptions } from '../../../../base/browser/ui/actionbar/actionViewItems.js';
 import { IManagedHoverContent, IManagedHoverOptions, IHoverWidget } from '../../../../base/browser/ui/hover/hover.js';
 import { IAction, WorkbenchActionExecutedClassification, WorkbenchActionExecutedEvent } from '../../../../base/common/actions.js';
-<<<<<<< remnants/main
-import { Disposable } from '../../../../base/common/lifecycle.js';
-=======
 import { AnchorAlignment } from '../../../../base/common/layout.js';
 import { Disposable, MutableDisposable } from '../../../../base/common/lifecycle.js';
-import { autorun } from '../../../../base/common/observable.js';
->>>>>>> 1.139.1
 import { isWeb } from '../../../../base/common/platform.js';
 import { localize } from '../../../../nls.js';
 import { IActionViewItemService } from '../../../../platform/actions/browser/actionViewItemService.js';
@@ -28,11 +23,7 @@ import { ITelemetryService } from '../../../../platform/telemetry/common/telemet
 import { DisablementReason, IUpdateService, State, StateType } from '../../../../platform/update/common/update.js';
 import { IWorkbenchContribution } from '../../../common/contributions.js';
 import { IHostService } from '../../../services/host/browser/host.js';
-<<<<<<< remnants/main
-=======
-import { IChatService } from '../../chat/common/chatService/chatService.js';
-import { UpdateTitleBarChatInProgressContext, UpdateTitleBarContext, UpdateTitleBarEditorVisibleContext } from '../common/update.js';
->>>>>>> 1.139.1
+import { UpdateTitleBarContext, UpdateTitleBarEditorVisibleContext } from '../common/update.js';
 import { computeProgressPercent } from '../common/updateUtils.js';
 import './media/updateTitleBarEntry.css';
 import { UpdateTooltip } from './updateTooltip.js';
@@ -90,17 +81,10 @@ export class UpdateTitleBarContribution extends Disposable implements IWorkbench
 	private state!: State;
 	private entry: UpdateTitleBarEntry | undefined;
 	private tooltipVisible = false;
-<<<<<<< remnants/main
-
-	constructor(
-		@IActionViewItemService actionViewItemService: IActionViewItemService,
-=======
 	private tooltipFocused = false;
 
 	constructor(
 		@IActionViewItemService actionViewItemService: IActionViewItemService,
-		@IChatService chatService: IChatService,
->>>>>>> 1.139.1
 		@IConfigurationService private readonly configurationService: IConfigurationService,
 		@IContextKeyService contextKeyService: IContextKeyService,
 		@IHostService private readonly hostService: IHostService,
@@ -116,11 +100,6 @@ export class UpdateTitleBarContribution extends Disposable implements IWorkbench
 
 		this.context = UpdateTitleBarContext.bindTo(contextKeyService);
 		this.tooltip = this._register(instantiationService.createInstance(UpdateTooltip));
-
-		const chatInProgressContext = UpdateTitleBarChatInProgressContext.bindTo(contextKeyService);
-		this._register(autorun(reader => {
-			chatInProgressContext.set(chatService.requestInProgressObs.read(reader));
-		}));
 
 		this.state = updateService.state;
 		this._register(updateService.onStateChange((state) => {
@@ -185,16 +164,7 @@ export class UpdateTitleBarContribution extends Disposable implements IWorkbench
 			return;
 		}
 
-<<<<<<< remnants/main
-		if (ACTIONABLE_STATES.includes(this.state.type)) {
-			this.context.set(true);
-		} else {
-			this.context.set(false);
-		}
-
-=======
 		// Tooltip already shown or window not last focused: only sync content and indicator visibility.
->>>>>>> 1.139.1
 		if (this.tooltipVisible || !await this.hostService.hadLastFocus()) {
 			this.context.set(this.tooltipVisible || ACTIONABLE_STATES.includes(this.state.type));
 			this.tooltip.renderState(this.state);

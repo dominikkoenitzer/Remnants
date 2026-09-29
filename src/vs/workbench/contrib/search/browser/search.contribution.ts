@@ -19,11 +19,7 @@ import { SearchView } from './searchView.js';
 import { registerContributions as searchWidgetContributions } from './searchWidget.js';
 import { SearchViewModelWorkbenchService } from './searchTreeModel/searchModel.js';
 import { ISearchViewModelWorkbenchService } from './searchTreeModel/searchViewModelWorkbenchService.js';
-<<<<<<< remnants/main
-import { SearchSortOrder, SEARCH_EXCLUDE_CONFIG, VIEWLET_ID, ViewMode, VIEW_ID, DEFAULT_MAX_SEARCH_RESULTS } from '../../../services/search/common/search.js';
-=======
-import { VIEWLET_ID, ViewMode, VIEW_ID, SemanticSearchBehavior } from '../../../services/search/common/search.js';
->>>>>>> 1.139.1
+import { VIEWLET_ID, ViewMode, VIEW_ID } from '../../../services/search/common/search.js';
 import { CommandsRegistry } from '../../../../platform/commands/common/commands.js';
 import { assertType } from '../../../../base/common/types.js';
 import { getWorkspaceSymbols, IWorkspaceSymbol, searchConfigurationNode } from '../common/search.js';
