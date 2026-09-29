@@ -2140,31 +2140,3 @@ export class TestContextMenuService implements IContextMenuService {
 		throw new Error('Method not implemented.');
 	}
 }
-<<<<<<< remnants/main
-=======
-
-export class TestChatWidgetService implements IChatWidgetService {
-
-	_serviceBrand: undefined;
-
-	lastFocusedWidget: IChatWidget | undefined;
-
-	onDidAddWidget = Event.None;
-	onDidRemoveWidget = Event.None;
-	onDidChangeWidgetVisibility = Event.None;
-	onDidBackgroundSession = Event.None;
-	onDidChangeFocusedWidget = Event.None;
-	onDidChangeFocusedSession = Event.None;
-
-	async reveal(widget: IChatWidget, preserveFocus?: boolean): Promise<boolean> { return false; }
-	async revealWidget(preserveFocus?: boolean): Promise<IChatWidget | undefined> { return undefined; }
-	getAllWidgets(): ReadonlyArray<IChatWidget> { return []; }
-	getWidgetByInputUri(uri: URI): IChatWidget | undefined { return undefined; }
-	openSession(sessionResource: URI): Promise<IChatWidget | undefined>;
-	openSession(sessionResource: URI, target?: PreferredGroup, options?: IChatEditorOptions): Promise<IChatWidget | undefined>;
-	async openSession(sessionResource: unknown, target?: unknown, options?: unknown): Promise<IChatWidget | undefined> { return undefined; }
-	getWidgetBySessionResource(sessionResource: URI): IChatWidget | undefined { return undefined; }
-	getWidgetsByLocations(location: ChatAgentLocation): ReadonlyArray<IChatWidget> { return []; }
-	register(newWidget: IChatWidget): IDisposable { return Disposable.None; }
-}
->>>>>>> 1.139.1

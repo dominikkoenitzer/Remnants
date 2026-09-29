@@ -34,11 +34,6 @@ import { isString } from '../../../../base/common/types.js';
 import { Delayer } from '../../../../base/common/async.js';
 import { IProductService } from '../../../../platform/product/common/productService.js';
 import { isWeb } from '../../../../base/common/platform.js';
-<<<<<<< remnants/main
-=======
-import { ChatEntitlementService, IChatEntitlementService } from '../../chat/common/chatEntitlementService.js';
-import { IDefaultAccountService } from '../../../../platform/defaultAccount/common/defaultAccount.js';
->>>>>>> 1.139.1
 
 const SOURCE = 'IWorkbenchExtensionEnablementService';
 
@@ -169,32 +164,6 @@ export class ExtensionEnablementService extends Disposable implements IWorkbench
 
 		this.logService.debug('Running builtin chat extension enablement migration');
 		this.storageService.store(builtinChatExtensionEnablementMigrationKey, true, StorageScope.PROFILE, StorageTarget.MACHINE);
-<<<<<<< remnants/main
-=======
-		const context = (this.chatEntitlementService as ChatEntitlementService).context;
-		if (context) {
-			if (context.value.state.completed) {
-				// User has used chat features before
-				if (this._isDisabledGlobally({ id: this._chatExtensionId })) {
-					// User had specifically disabled the chat extension to disable AI features
-					if (this.configurationService.getValue(ChatAIDisabledSettingId) !== true) {
-						// Honor that choice by disabling AI features
-						this.logService.debug('Disabling AI features because builtin chat extension is disabled');
-						this.configurationService.updateValue(ChatAIDisabledSettingId, true)
-							.catch(err => this.logService.error('Failed to update chat.disableAIFeatures setting during builtin chat extension enablement migration', err));
-					}
-				}
-			} else {
-				try {
-					// User has not used chat features before so avoid activating the chat extension by disabling it
-					this.logService.debug('Disabling builtin chat extension as chat set up is not completed');
-					this._disableExtension({ id: this._chatExtensionId });
-				} catch (error) {
-					this.logService.error('Failed to disable builtin chat extension during enablement migration', error);
-				}
-			}
-		}
->>>>>>> 1.139.1
 	}
 
 	private get hasWorkspace(): boolean {
