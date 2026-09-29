@@ -199,23 +199,9 @@ jobs:
 
       - template: ../common/install-builtin-extensions.yml@self
 
-<<<<<<< remnants/main
-=======
       - script: node build/npm/electronTypes.ts
         displayName: Prepare Electron types
 
-      - template: ../common/agent-sdk-produce.yml@self
-        parameters:
-          vscodePlatform: alpine
-
-      - script: npx deemon --detach --wait -- node build/azure-pipelines/common/downloadCopilotVsix.ts
-        env:
-          SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-        displayName: Download Copilot VSIX (background)
-
-      - template: ../common/mixin-vscode-capi.yml@self
-
->>>>>>> 1.139.1
       - script: npm run gulp core-ci
         env:
           GITHUB_TOKEN: "$(github-token-code-oss)"

@@ -58,11 +58,6 @@ export const dirs = [
 	'test/integration/browser',
 	'test/monaco',
 	'test/smoke',
-<<<<<<< remnants/main
-=======
-	'test/scenario',
-	'test/mcp',
->>>>>>> 1.139.1
 	'.vscode/extensions/vscode-selfhost-import-aid',
 	'.vscode/extensions/vscode-selfhost-test-provider',
 	'.vscode/extensions/vscode-extras',
