@@ -6,7 +6,7 @@
 import { Emitter, Event } from '../../../base/common/event.js';
 import { Disposable, DisposableMap } from '../../../base/common/lifecycle.js';
 import { VSBuffer } from '../../../base/common/buffer.js';
-import { BrowserViewSessionSelector, BrowserViewStorageScope, isBrowserViewStorageScopeShareableWithAgent, IBrowserElementCommentsUpdate, IBrowserElementSelectionOptions, IBrowserViewAudience, IBrowserViewBounds, IBrowserViewState, IBrowserViewService, IBrowserViewCaptureScreenshotOptions, IBrowserViewFindInPageOptions, BrowserViewCommandId, IBrowserViewOwner, IBrowserViewInfo, IBrowserViewCreatedEvent, IBrowserViewEditorOpenOptions, IBrowserViewCreateOptions, IBrowserViewCreationContext, IBrowserViewWindowConfiguration, IBrowserDeviceProfile } from '../common/browserView.js';
+import { BrowserViewSessionSelector, BrowserViewStorageScope, isBrowserViewStorageScopeShareableWithAgent, IBrowserElementSelectionOptions, IBrowserViewAudience, IBrowserViewBounds, IBrowserViewState, IBrowserViewService, IBrowserViewCaptureScreenshotOptions, IBrowserViewFindInPageOptions, BrowserViewCommandId, IBrowserViewOwner, IBrowserViewInfo, IBrowserViewCreatedEvent, IBrowserViewEditorOpenOptions, IBrowserViewCreateOptions, IBrowserViewCreationContext, IBrowserViewWindowConfiguration, IBrowserDeviceProfile } from '../common/browserView.js';
 import { clipboard, Menu, MenuItem } from 'electron';
 import { IEnvironmentMainService } from '../../environment/electron-main/environmentMainService.js';
 import { createDecorator, IInstantiationService } from '../../instantiation/common/instantiation.js';
@@ -206,10 +206,6 @@ export class BrowserViewMainService extends Disposable implements IBrowserViewMa
 		return this._getBrowserView(id).inspector.onDidSelectElement;
 	}
 
-	onDynamicDidRemoveElementComment(id: string) {
-		return this._getBrowserView(id).inspector.onDidRemoveElementComment;
-	}
-
 	onDynamicDidChangeElementSelectionState(id: string) {
 		return this._getBrowserView(id).inspector.onDidChangeElementSelectionState;
 	}
@@ -386,10 +382,6 @@ export class BrowserViewMainService extends Disposable implements IBrowserViewMa
 
 	async toggleElementSelection(id: string, enabled?: boolean, options?: IBrowserElementSelectionOptions): Promise<void> {
 		return this._getBrowserView(id).inspector.toggleElementSelection(enabled, options);
-	}
-
-	async setElementComments(id: string, update: IBrowserElementCommentsUpdate): Promise<void> {
-		this._getBrowserView(id).inspector.setElementComments(update);
 	}
 
 	async toggleAreaSelection(id: string, enabled?: boolean): Promise<void> {
@@ -685,10 +677,6 @@ export class BrowserViewMainService extends Disposable implements IBrowserViewMa
 			menu.append(new MenuItem({
 				label: localize('browser.contextMenu.addElementToChat', 'Add Element to Chat'),
 				click: () => inspectTarget.addToChat()
-			}));
-			menu.append(new MenuItem({
-				label: localize('browser.contextMenu.addComment', 'Add Comment...'),
-				click: () => inspectTarget.addComment()
 			}));
 			void inspectTarget.highlight().catch(() => { });
 			menu.on('menu-will-close', () => inspectTarget.dispose());

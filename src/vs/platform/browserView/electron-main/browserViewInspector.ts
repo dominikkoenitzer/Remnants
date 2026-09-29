@@ -5,22 +5,10 @@
 
 import { Emitter, Event } from '../../../base/common/event.js';
 import { Disposable, IDisposable, MutableDisposable } from '../../../base/common/lifecycle.js';
-import { BrowserElementSelectionMode, IBrowserElementCommentsUpdate, IBrowserElementSelectionOptions, IBrowserElementSelectionState, IElementData, IBrowserViewTheme, IBrowserViewRect, IBrowserViewPreloadLocalizedStrings } from '../common/browserView.js';
+import { BrowserElementSelectionMode, IBrowserElementSelectionOptions, IBrowserElementSelectionState, IElementData, IBrowserViewTheme, IBrowserViewRect } from '../common/browserView.js';
 import { ICDPConnection } from '../common/cdp/types.js';
 import type { BrowserView } from './browserView.js';
 import { BrowserViewFrameInspector } from './browserViewFrameInspector.js';
-import { localize } from '../../../nls.js';
-
-const localizedStrings: IBrowserViewPreloadLocalizedStrings = {
-	addComment: localize('browserView.addComment', "Add Comment"),
-	addCommentPlaceholder: localize('browserView.addCommentPlaceholder', "Add a comment"),
-	commentOnSelectedElement: localize('browserView.commentOnSelectedElement', "Comment on selected element"),
-	elementComment: localize('browserView.elementComment', "Element comment {0}"),
-	elementCommentWithBody: localize('browserView.elementCommentWithBody', "Element comment {0}: {1}"),
-	emptyElementComment: localize('browserView.emptyElementComment', "Empty element comment {0}"),
-	removeComment: localize('browserView.removeComment', "Remove Comment"),
-	removeElementComment: localize('browserView.removeElementComment', "Remove element comment"),
-};
 
 interface IActiveSelection extends IDisposable {
 	options: IBrowserElementSelectionOptions;
@@ -30,7 +18,6 @@ interface IActiveAreaSelection extends IDisposable { }
 
 export interface IElementHandle extends IDisposable {
 	addToChat(): Promise<void>;
-	addComment(): void;
 	highlight(): Promise<void>;
 	hideHighlight(): Promise<void>;
 }
@@ -63,8 +50,6 @@ export class BrowserViewInspector extends Disposable {
 
 	private readonly _onDidSelectElement = this._register(new Emitter<IElementData>());
 	readonly onDidSelectElement: Event<IElementData> = this._onDidSelectElement.event;
-	private readonly _onDidRemoveElementComment = this._register(new Emitter<string>());
-	readonly onDidRemoveElementComment = this._onDidRemoveElementComment.event;
 
 	private readonly _onDidChangeElementSelectionState = this._register(new Emitter<IBrowserElementSelectionState>());
 	readonly onDidChangeElementSelectionState: Event<IBrowserElementSelectionState> = this._onDidChangeElementSelectionState.event;
@@ -132,7 +117,6 @@ export class BrowserViewInspector extends Disposable {
 
 				// Apply theme immediately regardless of inspector state
 				senderFrame.postMessage('vscode:browserView:setTheme', this._theme);
-				senderFrame.postMessage('vscode:browserView:setLocalizedStrings', localizedStrings);
 
 				this._registry.notifyFrameReady(senderFrame, frameToken);
 
@@ -261,7 +245,6 @@ export class BrowserViewInspector extends Disposable {
 			}
 			this._onDidSelectElement.fire(nodeData);
 		});
-		inspector.onDidRemoveElementComment(elementId => this._onDidRemoveElementComment.fire(elementId));
 
 		// When a frame's preload stops picking, stop all other frames too
 		inspector.onDidStopPicking(() => {
@@ -362,12 +345,6 @@ export class BrowserViewInspector extends Disposable {
 		return result;
 	}
 
-	setElementComments(update: IBrowserElementCommentsUpdate): void {
-		for (const inspector of this._registry.inspectors) {
-			inspector.setElementComments(update);
-		}
-	}
-
 	/**
 	 * Toggle drag-to-select area picking on the top frame only.
 	 * The picker reports the literal user-drawn rectangle (or `undefined` on cancellation)
@@ -441,32 +418,11 @@ export class BrowserViewInspector extends Disposable {
 		if (!handle) {
 			return undefined;
 		}
-		let commentRequested = false;
 		return {
 			addToChat: () => handle.addToChat(),
-			addComment: () => {
-				if (commentRequested) {
-					return;
-				}
-				commentRequested = true;
-				setTimeout(() => {
-					this._activeAreaSelection.clear();
-					this._activeSelection.clear();
-					void this._queueInspectionOperation(async () => {
-						if (!this.browser.webContents.isDestroyed()) {
-							this.browser.webContents.focus();
-							handle.addComment();
-						}
-					});
-				}, 0);
-			},
 			highlight: () => handle.highlight(),
 			hideHighlight: () => handle.hideHighlight(),
-			dispose: () => {
-				if (!commentRequested) {
-					handle.dispose();
-				}
-			}
+			dispose: () => handle.dispose()
 		};
 	}
 
