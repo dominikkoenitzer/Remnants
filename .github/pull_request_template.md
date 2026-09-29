@@ -8,7 +8,7 @@
 
 ## Checklist
 
-- [ ] `npm run compile-check-ts-native` passes with no errors
+- [ ] `npm run typecheck-client` passes with no errors
 - [ ] Follows the existing code style (tabs; PascalCase types, camelCase functions/variables)
 - [ ] Does not re-introduce built-in AI, telemetry, or account integrations
 - [ ] No build output (`out/`, `.build/`, `node_modules/`) is committed
