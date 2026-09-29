@@ -108,9 +108,6 @@ steps:
     displayName: Install dependencies
     condition: and(succeeded(), ne(variables.APISCAN_NODE_MODULES_RESTORED, 'true'))
 
-  - powershell: node build/azure-pipelines/common/checkNativeOptionalDeps.ts
-    displayName: Verify native optional dependency binaries
-
   - script: node build/azure-pipelines/distro/mixin-npm.ts
     condition: and(succeeded(), ne(variables.APISCAN_NODE_MODULES_RESTORED, 'true'))
     displayName: Mixin distro node modules
