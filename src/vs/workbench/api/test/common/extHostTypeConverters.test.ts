@@ -6,7 +6,6 @@
 import assert from 'assert';
 import { URI, UriComponents } from '../../../../base/common/uri.js';
 import { ensureNoDisposablesAreLeakedInTestSuite } from '../../../../base/test/common/utils.js';
-import { NullLogService } from '../../../../platform/log/common/log.js';
 import { IconPathDto } from '../../common/extHost.protocol.js';
 import { IconPath } from '../../common/extHostTypeConverters.js';
 import { ThemeColor, ThemeIcon } from '../../common/extHostTypes.js';
