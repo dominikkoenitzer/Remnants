@@ -4,14 +4,9 @@
  *--------------------------------------------------------------------------------------------*/
 
 /*
- * Modern UI module: "Agents Window Command Center".
+ * Modern UI module: "Command Center".
  *
- * Mirrors the Agents window title-bar styling (see
- * src/vs/sessions/contrib/sessions/browser/media/sessionsTitleBarWidget.css and
- * src/vs/workbench/contrib/chat/browser/agentSessions/experiments/media/agenttitlebarstatuswidget.css):
- * the command center and agent-status input sit on a transparent background at
- * rest and only reveal the command-center active background/border on hover,
- * instead of carrying a solid fill the whole time.
+ * Styles the title-bar command center for the Modern UI update.
  *
  * All rules are gated behind the `.modern-ui` class, which
  * the ModernUIContribution toggles onto the workbench container(s) when
