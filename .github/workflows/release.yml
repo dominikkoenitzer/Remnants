@@ -103,11 +103,13 @@ jobs:
 
       # npm_config_arch is what makes node-gyp compile the native modules for the
       # target architecture. The arm64 installer is cross-built on an x64 runner,
-      # the same way upstream builds it.
+      # the same way upstream builds it. The token lifts the GitHub API rate
+      # limit for the postinstall downloads, ripgrep's among them.
       - name: Install dependencies
         run: npm ci
         env:
           npm_config_arch: ${{ matrix.arch }}
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Download built-in extensions
         shell: bash
@@ -285,10 +287,14 @@ jobs:
       # arrive too late for the native modules. Running it first downloads the
       # Electron headers and overlays them, the same order upstream's Linux
       # build uses; GCC 11 cannot parse the unpatched deprecation attributes.
+      # The token lifts the GitHub API rate limit for the postinstall
+      # downloads, ripgrep's among them.
       - name: Install dependencies
         run: |
           node build/npm/preinstall.ts
           npm ci
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Download built-in extensions
         shell: bash
@@ -528,8 +534,12 @@ jobs:
         with:
           python-version: "3.13"
 
+      # The token lifts the GitHub API rate limit for the postinstall
+      # downloads, ripgrep's among them.
       - name: Install dependencies
         run: npm ci
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Download built-in extensions
         shell: bash
