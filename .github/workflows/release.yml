@@ -280,8 +280,15 @@ jobs:
             sudo chmod +x /usr/lib/rpm/find-requires
           fi
 
+      # npm runs the root preinstall script only after the dependencies are
+      # built, so the patched V8 headers in build/npm/gyp/custom-headers would
+      # arrive too late for the native modules. Running it first downloads the
+      # Electron headers and overlays them, the same order upstream's Linux
+      # build uses; GCC 11 cannot parse the unpatched deprecation attributes.
       - name: Install dependencies
-        run: npm ci
+        run: |
+          node build/npm/preinstall.ts
+          npm ci
 
       - name: Download built-in extensions
         shell: bash
