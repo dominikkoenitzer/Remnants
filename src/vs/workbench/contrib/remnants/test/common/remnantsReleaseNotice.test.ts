@@ -71,7 +71,6 @@ suite('remnantsReleaseNotice', () => {
 
 		test('notifies for a newer release', () => {
 			assert.strictEqual(shouldNotify('v1.140.0', '1.139.1', undefined), true);
-			assert.strictEqual(shouldNotify('v1.139.1-remnants.1', '1.139.1', undefined), true);
 		});
 
 		test('stays quiet for the same or an older release', () => {
@@ -81,6 +80,11 @@ suite('remnantsReleaseNotice', () => {
 
 		test('stays quiet for a tag that is not a version', () => {
 			assert.strictEqual(shouldNotify('nightly', '1.139.1', undefined), false);
+		});
+
+		test('stays quiet for a rebuild of the running base, which may be the build already installed', () => {
+			assert.strictEqual(shouldNotify('v1.139.1-remnants.1', '1.139.1', undefined), false);
+			assert.strictEqual(shouldNotify('v1.140.0-remnants.1', '1.139.1', undefined), true);
 		});
 
 		test('a dismissed tag stays dismissed', () => {
