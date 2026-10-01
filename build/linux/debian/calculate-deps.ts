@@ -15,7 +15,75 @@ export function generatePackageDeps(files: string[], arch: DebianArchString, chr
 	const dependencies: Set<string>[] = files.map(file => calculatePackageDeps(file, arch, chromiumSysroot, vscodeSysroot));
 	const additionalDepsSet = new Set(additionalDeps);
 	dependencies.push(additionalDepsSet);
+	dependencies.push(calculateSymbolVersionFloors(files));
 	return dependencies;
+}
+
+// First GCC release whose libstdc++ provides GLIBCXX_3.4.<key>, see
+// https://gcc.gnu.org/onlinedocs/libstdc++/manual/abi.html. Older versions are
+// already covered by the sysroot symbols files dpkg-shlibdeps reads.
+const libstdcxxVersionByGlibcxxMinor: Record<number, string> = {
+	21: '5', 22: '6', 23: '7', 24: '7.2', 25: '8', 26: '9', 27: '9.2', 28: '9.3',
+	29: '11', 30: '12', 31: '13', 32: '13.2', 33: '14', 34: '15',
+};
+
+// dpkg-shlibdeps resolves symbols against the sysroots' symbols files, which stop
+// at glibc 2.28 and GCC 10. This fork compiles the native modules on the build
+// host instead of against the sysroot, so they can need newer GLIBC_ and GLIBCXX_
+// symbol versions than those files know, and dpkg-shlibdeps then silently states
+// too low a libc6 and libstdc++6. Read the versions the binaries actually require
+// and state the highest of each directly, so apt refuses a distro that cannot
+// load them instead of installing an app that fails to start.
+function calculateSymbolVersionFloors(files: string[]): Set<string> {
+	let glibc: number[] = [];
+	let glibcxxMinor = -1;
+	for (const file of files) {
+		const result = spawnSync('objdump', ['-p', path.resolve(file)]);
+		if (result.status !== 0) {
+			throw new Error(`objdump failed on ${file} with exit code ${result.status}. stderr:\n${result.stderr}`);
+		}
+		const output = result.stdout.toString('utf-8');
+		const referencesStart = output.indexOf('Version References:');
+		if (referencesStart < 0) {
+			continue;
+		}
+		const references = output.substring(referencesStart);
+		const glibcVersions = Array.from(references.matchAll(/\bGLIBC_(\d+(?:\.\d+)*)\b/g), match => match[1].split('.').map(Number));
+		// Packed relative relocations are only understood from glibc 2.36 on.
+		if (references.includes('GLIBC_ABI_DT_RELR')) {
+			glibcVersions.push([2, 36]);
+		}
+		for (const version of glibcVersions) {
+			if (compareVersions(version, glibc) > 0) {
+				glibc = version;
+			}
+		}
+		for (const match of references.matchAll(/\bGLIBCXX_3\.4\.(\d+)\b/g)) {
+			glibcxxMinor = Math.max(glibcxxMinor, Number(match[1]));
+		}
+	}
+
+	const floors = new Set<string>();
+	if (glibc.length) {
+		floors.add(`libc6 (>= ${glibc.join('.')})`);
+	}
+	const libstdcxxVersion = libstdcxxVersionByGlibcxxMinor[glibcxxMinor];
+	if (libstdcxxVersion) {
+		floors.add(`libstdc++6 (>= ${libstdcxxVersion})`);
+	} else if (glibcxxMinor > Math.max(...Object.keys(libstdcxxVersionByGlibcxxMinor).map(Number))) {
+		throw new Error(`The binaries need GLIBCXX_3.4.${glibcxxMinor}, which is not in libstdcxxVersionByGlibcxxMinor yet.`);
+	}
+	return floors;
+}
+
+function compareVersions(a: number[], b: number[]): number {
+	for (let i = 0; i < Math.max(a.length, b.length); i++) {
+		const difference = (a[i] ?? 0) - (b[i] ?? 0);
+		if (difference !== 0) {
+			return difference;
+		}
+	}
+	return 0;
 }
 
 // Based on https://source.chromium.org/chromium/chromium/src/+/main:chrome/installer/linux/debian/calculate_package_deps.py.
