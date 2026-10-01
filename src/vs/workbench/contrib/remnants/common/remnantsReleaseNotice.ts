@@ -45,15 +45,28 @@ export function isCheckDue(lastCheck: number | undefined, now: number): boolean 
 }
 
 /**
- * Notify only for a release newer than the running build, and never again for
- * a tag the user dismissed. A later tag shows again.
+ * Notify only for a release of a newer upstream base than the running build,
+ * and never again for a tag the user dismissed. A later tag shows again.
+ *
+ * The running version never carries the suffix of a rebuild
+ * (`v1.125.0-remnants.1` runs as `1.125.0`), so a suffixed tag of the running
+ * base cannot be told apart from the build already installed and is not shown.
  */
 export function shouldNotify(tag: string, runningVersion: string, dismissedTag: string | undefined): boolean {
 	if (tag === dismissedTag) {
 		return false;
 	}
-	const result = compareVersions(tag, runningVersion);
-	return result !== undefined && result > 0;
+	const latest = parseVersion(tag);
+	const running = parseVersion(runningVersion);
+	if (!latest || !running) {
+		return false;
+	}
+	for (let i = 0; i < latest.core.length; i++) {
+		if (latest.core[i] !== running.core[i]) {
+			return latest.core[i] > running.core[i];
+		}
+	}
+	return false;
 }
 
 interface IParsedVersion {
