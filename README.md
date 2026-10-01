@@ -90,7 +90,9 @@ It runs on:
 Remnants is not code-signed on any platform, so each one asks you to confirm the
 first launch once. The steps below say how.
 
-It also does not update itself and phones nowhere to check, so new versions are
+It never updates itself and phones nowhere by default. Turn on
+`remnants.checkForUpdates` and it asks GitHub once a day per window whether
+there is a newer release, and only shows a link. Otherwise new versions are
 announced only on the releases page. **Watch -> Custom -> Releases** on the
 repository turns that into an email.
 
