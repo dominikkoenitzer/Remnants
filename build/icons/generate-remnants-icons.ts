@@ -11,7 +11,7 @@
 //   node build/icons/generate-remnants-icons.ts
 //
 // If Chromium is missing, run:  npx playwright install chromium
-import { chromium } from 'playwright';
+import { chromium, type Browser } from 'playwright';
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -59,7 +59,7 @@ const SHARD_ASPECT = 300 / 448;
 
 const innoRgba: Record<string, { w: number; h: number; buf: Buffer }> = {};
 
-let browser;
+let browser: Browser;
 try {
 	browser = await chromium.launch();
 } catch {
