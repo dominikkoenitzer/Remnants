@@ -416,7 +416,7 @@ jobs:
           sudo apt-get install -y "./packages/remnants-$VERSION-${{ matrix.deb_arch }}.deb"
           reported=$(remnants --version | head -n1)
           test "$reported" = "$VERSION" || { echo "deb reports version '$reported', expected '$VERSION'." >&2; exit 1; }
-          desktop-file-validate /usr/share/applications/remnants.desktop
+          desktop-file-validate /usr/share/applications/com.remnants.remnants.desktop
           sudo apt-get remove -y remnants
           test ! -e /usr/bin/remnants
           echo "deb install/remove round trip OK"
