@@ -3,6 +3,9 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+// The page.evaluate callbacks below run in the browser and use the DOM.
+/// <reference lib="dom" />
+
 // Generate every Remnants app-icon asset from the single vector source
 // (resources/remnants-icon.svg). Rasterizes with headless Chromium via the
 // Playwright that already ships in devDependencies, then hand-packs ICO/ICNS
