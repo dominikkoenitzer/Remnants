@@ -396,7 +396,7 @@ function packageTask(platform: string, arch: string, sourceFolderName: string, d
 }
 
 function hasAuthenticodeSignature(filePath: string): Promise<boolean> {
-	return new Promise((resolve, reject) => {
+	return new Promise(resolve => {
 		const proc = cp.spawn('signtool.exe', ['verify', '/pa', filePath]);
 		proc.on('error', () => resolve(false)); // signtool.exe (Windows SDK) may not be on PATH; treat as unsigned
 		proc.on('exit', code => resolve(code === 0));
