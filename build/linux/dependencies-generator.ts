@@ -22,11 +22,12 @@ import product from '../../product.json' with { type: 'json' };
 // The reference dependencies, which one has to update when the new dependencies
 // are valid, are in dep-lists.ts
 //
-// Off in this fork: the reference lists in dep-lists.ts were generated from a
-// build that also ships the tunnel CLI, which this tree does not, so the
-// computed list legitimately differs and an exact-match gate would fail every
-// release. The diff is printed as a warning in the build log instead.
-const FAIL_BUILD_FOR_NEW_DEPENDENCIES: boolean = false;
+// On in this fork: the amd64/arm64 and x86_64/aarch64 reference lists in
+// dep-lists.ts are this fork's own computed output (no tunnel CLI, native
+// modules built on the release runner), so any change to what the binaries need
+// stops the release until the lists are reviewed and updated, instead of
+// shipping a deb or rpm whose dependencies quietly drifted.
+const FAIL_BUILD_FOR_NEW_DEPENDENCIES: boolean = true;
 
 // Based on https://source.chromium.org/chromium/chromium/src/+/refs/tags/150.0.7871.250:chrome/installer/linux/BUILD.gn;l=64-80
 // and the Linux Archive build
