@@ -5,4 +5,5 @@ CONTRIBUTING.md
 README.md
 RELEASING.md
 SECURITY.md
+src/vs/workbench/contrib/remnants
 upstream
