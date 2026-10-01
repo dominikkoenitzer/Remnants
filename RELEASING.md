@@ -141,10 +141,15 @@ gh release create "v$version" dist/* \
 - **The deb and rpm gulp tasks** package the same build for apt and dnf. The deb
   task downloads a Chromium sysroot and runs `dpkg-shlibdeps` to compute the distro
   dependencies; `build/linux/dependencies-generator.ts` skips binaries this fork
-  does not build (the tunnel CLI) and warns about dependency drift instead of
-  failing the build. The Debian and RPM templates in `resources/linux` carry no
-  Microsoft repository, key or branding: installing a Remnants package changes no
-  apt or yum source.
+  does not build (the tunnel CLI) and fails the build when the computed list
+  drifts from the reference lists in `build/linux/{debian,rpm}/dep-lists.ts`;
+  review the printed diff and update those lists when the change is intended.
+  The sysroot cannot see the newer glibc and libstdc++ symbol versions of the
+  native modules built on the runner, so `build/linux/debian/calculate-deps.ts`
+  reads them from the binaries and states the real libc6 and libstdc++6 floors.
+  The Debian and RPM templates in `resources/linux` carry no Microsoft
+  repository, key or branding: installing a Remnants package changes no apt or
+  yum source.
 - **`build/darwin/package-zip.sh`** ad-hoc signs `Remnants.app`, verifies the
   signature, checks the binary runs headlessly, and zips it with `ditto` so
   symlinks and the signature survive.
