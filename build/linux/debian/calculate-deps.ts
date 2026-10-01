@@ -27,11 +27,12 @@ const libstdcxxVersionByGlibcxxMinor: Record<number, string> = {
 	29: '11', 30: '12', 31: '13', 32: '13.2', 33: '14', 34: '15',
 };
 
-// dpkg-shlibdeps resolves symbols against the sysroots' symbols files, which stop
-// at glibc 2.28 and GCC 10. This fork compiles the native modules on the build
-// host instead of against the sysroot, so they can need newer GLIBC_ and GLIBCXX_
-// symbol versions than those files know, and dpkg-shlibdeps then silently states
-// too low a libc6 and libstdc++6. Read the versions the binaries actually require
+// dpkg-shlibdeps resolves symbols against the symbols files of the sysroots
+// (Debian bullseye, GCC 10), which know no glibc newer than 2.31 and no
+// libstdc++ newer than GCC 10. This fork compiles the native modules on the
+// build host instead of against the sysroot, so they can need newer GLIBC_ and
+// GLIBCXX_ symbol versions than those files know, and dpkg-shlibdeps then
+// silently states too low a libc6 and libstdc++6. Read the versions the binaries actually require
 // and state the highest of each directly, so apt refuses a distro that cannot
 // load them instead of installing an app that fails to start.
 function calculateSymbolVersionFloors(files: string[]): Set<string> {
