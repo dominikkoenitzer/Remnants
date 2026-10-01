@@ -364,6 +364,7 @@ import './contrib/surveys/browser/languageSurveys.contribution.js';
 
 // Remnants productized defaults (minimal, opinionated)
 import './contrib/remnants/browser/remnantsDefaults.contribution.js';
+import './contrib/remnants/browser/remnantsReleaseNotice.contribution.js';
 
 // Welcome
 import './contrib/welcomeGettingStarted/browser/gettingStarted.contribution.js';
