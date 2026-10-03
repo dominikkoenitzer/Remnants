@@ -22,12 +22,12 @@ Remnants is a fork of [Code - OSS](https://github.com/microsoft/vscode). Vulnera
 ## Dependency advisories
 
 GitHub's Dependabot reports a large number of open advisories against this
-repository: **42 as of 2026-09-16** (19 high, 21 medium, 2 low).
+repository: **33 as of 2026-10-03** (13 high, 16 medium, 4 low).
 That number is worth explaining rather than leaving to interpretation.
 
-They come from upstream. Remnants is a snapshot of the VS Code tree at
-[`93cfdd48`](https://github.com/microsoft/vscode/commit/93cfdd489c3b228840d0f86ec77c3636277c93ea)
-(release 1.125.0), and it carries that tree's 20-odd lockfiles with it: the
+They come from upstream. Remnants tracks the VS Code tree at
+[`04c0d99f`](https://github.com/microsoft/vscode/commit/04c0d99f4fb0d8afe6ce4f0c58e31e183ac3e4b1)
+(release 1.139.1), and it carries that tree's 57 lockfiles with it: the
 editor's own dependencies plus those of the build scripts, the bundled
 extensions, the CLI, and the test harnesses. Dependabot scans all of them and
 attributes every transitive advisory to whoever owns the fork. Upstream carries
@@ -37,24 +37,25 @@ Where they sit:
 
 | Location | Alerts |
 | --- | --- |
-| CLI (`Cargo.lock`) | 16 |
-| Root lockfile (editor + built-ins) | 10 |
-| Bundled extensions | 8 |
-| Build tooling | 7 |
+| CLI (`Cargo.lock`) | 21 |
+| Root lockfile (editor + built-ins) | 8 |
+| Build tooling | 2 |
+| Bundled extensions | 1 |
 | Test harnesses | 1 |
 | Remote server | 0 |
 
-Of the 42, 16 are on development-only dependencies that never reach a build.
+Of the 33, 9 are on development-only dependencies that never reach a build.
 
 **None of them were introduced here.** Remnants is a subtractive fork: nothing
 was added to the root `package.json` to support anything it does. Against the
-upstream tree it was taken from, this one takes **6** direct dependencies out,
-all of them AI SDKs, and puts none back. The lockfile has moved since, but only
-behind in-range refreshes, which carry their own transitive entries with them.
+upstream release it tracks, this one takes **7** direct dependencies out, the
+AI SDKs and the Dev Container CLI, and puts none back. The lockfile has moved
+since, but only behind in-range refreshes, which carry their own transitive
+entries with them.
 Compare the two manifests yourself:
 
 ```bash
-base=93cfdd489c3b228840d0f86ec77c3636277c93ea
+base=04c0d99f4fb0d8afe6ce4f0c58e31e183ac3e4b1
 curl -s "https://raw.githubusercontent.com/microsoft/vscode/$base/package.json" -o upstream.json
 node -e '
 const up = require("./upstream.json"), me = require("./package.json");
@@ -66,16 +67,28 @@ console.log("added:", [...M].filter(n => !U.has(n)).join(", ") || "none");
 rm upstream.json
 ```
 
-What is actually done about them: Dependabot's alerts are on, its pull requests
-are not. Advisories with a fix reachable inside the existing version ranges are
-closed by hand, by refreshing every lockfile in one pass. The sweep on
-2026-09-16 closed 49 of them, the only critical one among them.
-A few cannot produce a pull request at all: the patched `postcss` is reachable
-only by downgrading `gulp-sourcemaps`, so the security updater reports that
-conflict instead of opening one. The rest are resolved by rebasing onto a newer
-upstream release, which is the only honest way to fix a dependency you do not
-own. If you need an editor with a fully patched dependency tree today, build
-from [upstream VS Code](https://github.com/microsoft/vscode) directly.
+What is actually done about them: Dependabot's alerts are on, its security pull
+requests are not. Advisories with a fix reachable inside the existing version
+ranges are closed by hand, lockfile by lockfile, without touching any
+`package.json`. The sweep on 2026-09-16 closed 49 of them, the only critical
+one among them, and a second pass on 2026-10-03 closed 83 more.
+
+What is left has no fix inside those ranges. All 21 in the CLI trace back to
+`russh`, which the CLI takes as a git dependency on Microsoft's own fork,
+[`microsoft/vscode-russh`](https://github.com/microsoft/vscode-russh), locked at
+0.37.1. The patched versions are crates.io releases, and a git dependency does
+not move to them with `cargo update`. In the root lockfile, the patched
+`postcss` is reachable only by downgrading `gulp-sourcemaps`, already at its
+latest release; `braces` and `decode-uri-component` come in through gulp 4 and
+that same `gulp-sourcemaps`; and `uuid` 3 is what
+`@microsoft/dev-tunnels-connections` requires, even in its latest release.
+`extract-zip` in the build tooling has no patched release at all. The Emmet
+extension pins `image-size` 1.0 and the sanity tests get `diff` 7 through
+mocha 11; both fixes are a major version away. These are resolved by rebasing
+onto a newer upstream release, which is the only honest way to fix a dependency
+you do not own. If you need an editor with a fully patched dependency tree
+today, build from [upstream VS Code](https://github.com/microsoft/vscode)
+directly.
 
 ## Supported versions
 
