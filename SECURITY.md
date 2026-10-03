@@ -22,7 +22,7 @@ Remnants is a fork of [Code - OSS](https://github.com/microsoft/vscode). Vulnera
 ## Dependency advisories
 
 GitHub's Dependabot reports a large number of open advisories against this
-repository: **33 as of 2026-10-03** (13 high, 16 medium, 4 low).
+repository: **39 as of 2026-10-03** (19 high, 16 medium, 4 low).
 That number is worth explaining rather than leaving to interpretation.
 
 They come from upstream. Remnants tracks the VS Code tree at
@@ -38,13 +38,13 @@ Where they sit:
 | Location | Alerts |
 | --- | --- |
 | CLI (`Cargo.lock`) | 21 |
-| Root lockfile (editor + built-ins) | 8 |
-| Build tooling | 2 |
-| Bundled extensions | 1 |
-| Test harnesses | 1 |
+| Root lockfile (editor + built-ins) | 9 |
+| Build tooling | 4 |
+| Bundled extensions | 3 |
+| Test harnesses | 2 |
 | Remote server | 0 |
 
-Of the 33, 9 are on development-only dependencies that never reach a build.
+Of the 39, 13 are on development-only dependencies that never reach a build.
 
 **None of them were introduced here.** Remnants is a subtractive fork: nothing
 was added to the root `package.json` to support anything it does. Against the
@@ -82,7 +82,9 @@ not move to them with `cargo update`. In the root lockfile, the patched
 latest release; `braces` and `decode-uri-component` come in through gulp 4 and
 that same `gulp-sourcemaps`; and `uuid` 3 is what
 `@microsoft/dev-tunnels-connections` requires, even in its latest release.
-`extract-zip` in the build tooling has no patched release at all. The Emmet
+No patched release exists at all for `extract-zip` in the build tooling,
+`http-cache-semantics` in the root and build lockfiles, `braces` 3.0.3 in the
+npm and Mermaid extensions, or `node-forge` in the API tests. The Emmet
 extension pins `image-size` 1.0 and the sanity tests get `diff` 7 through
 mocha 11; both fixes are a major version away. These are resolved by rebasing
 onto a newer upstream release, which is the only honest way to fix a dependency
