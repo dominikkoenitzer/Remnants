@@ -323,6 +323,10 @@ jobs:
       - name: Build app
         run: npm run gulp vscode-linux-${{ matrix.arch }}
 
+      # Same archive check as on Windows: `--version` never loads node_modules.
+      - name: Verify the packaged node_modules archive
+        run: node build/verify-asar.ts "$(dirname "$GITHUB_WORKSPACE")/VSCode-linux-${{ matrix.arch }}/resources/app/node_modules.asar"
+
       # What the README promises about this fork, asserted against the tree that
       # is about to be packaged rather than against the source it was built from.
       - name: Verify the build identity
@@ -567,6 +571,12 @@ jobs:
 
       - name: Build app
         run: npm run gulp vscode-darwin-${{ matrix.arch }}
+
+      # Same archive check as on Windows: `--version` never loads node_modules.
+      - name: Verify the packaged node_modules archive
+        run: |
+          app="$(dirname "$GITHUB_WORKSPACE")/VSCode-darwin-${{ matrix.arch }}/$(node -p "require('./product.json').nameLong").app"
+          node build/verify-asar.ts "$app/Contents/Resources/app/node_modules.asar"
 
       - name: Package app bundle
         env:
