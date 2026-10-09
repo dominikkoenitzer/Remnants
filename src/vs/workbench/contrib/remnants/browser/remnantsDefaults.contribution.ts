@@ -15,21 +15,21 @@ Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration).regis
 		// status bar dock (remnantsDock.contribution.ts). The title shows the folder
 		// and the git branch, the menu bar appears when Alt is pressed ('compact'
 		// would fold it into the hidden activity bar and lose it), and there is no
-		// command center pill, minimap, or separate breadcrumb row.
+		// command center pill or minimap. The breadcrumb row stays as a quiet path bar.
 		'workbench.activityBar.location': 'hidden',
 		'window.menuBarVisibility': 'toggle',
 		'window.commandCenter': false,
 		'window.title': '${dirty}${rootName}${separator}${activeRepositoryBranchName}',
+		'window.titleSeparator': '  /  ',
 		'editor.minimap.enabled': false,
-		'breadcrumbs.enabled': false,
 		'workbench.editor.tabSizing': 'shrink',
 		'workbench.layoutControl.enabled': false,
 		'editor.overviewRulerBorder': false,
 		'editor.hideCursorInOverviewRuler': true,
 
-		// Start straight into the work: no welcome page, tips, or recommendation prompts.
+		// Start straight into the work: no welcome page or recommendation prompts.
+		// The empty editor keeps its shortcut hints.
 		'workbench.startupEditor': 'none',
-		'workbench.tips.enabled': false,
 		'extensions.ignoreRecommendations': true,
 
 		// Dense and flat: no floating cards or gaps between the parts, compact tabs.
@@ -42,6 +42,12 @@ Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration).regis
 		'terminal.integrated.smoothScrolling': false,
 		'editor.cursorSmoothCaretAnimation': 'off',
 		'editor.cursorBlinking': 'phase',
+
+		// Type: the same monospace family as the interface (remnants.css). The
+		// terminal prefers a Nerd Font when one is installed so prompt glyphs render.
+		'editor.fontFamily': '\'Cascadia Code\', \'JetBrains Mono\', \'SF Mono\', Menlo, \'DejaVu Sans Mono\', Consolas, monospace',
+		'editor.fontSize': 13.5,
+		'terminal.integrated.fontFamily': '\'JetBrainsMono Nerd Font\', \'JetBrainsMono NF\', \'JetBrainsMonoNL Nerd Font\', \'CaskaydiaCove Nerd Font\', \'Cascadia Mono\', Consolas, monospace',
 
 		// Roomy typography and spacing.
 		'editor.lineHeight': 1.6,
