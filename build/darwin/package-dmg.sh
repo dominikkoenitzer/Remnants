@@ -41,7 +41,20 @@ ln -s /Applications "$stagedir/Applications"
 mkdir -p "$outdir"
 dmg="$outdir/Remnants-darwin-$arch-$version.dmg"
 rm -f "$dmg"
-hdiutil create -volname "$name_long" -srcfolder "$stagedir" -ov -format UDZO -quiet "$dmg"
+# hdiutil create fails now and then on hosted runners ("Resource busy" while the
+# fresh volume is still being scanned), and -quiet hid why. Show its output and
+# give it a few attempts before failing the release.
+for attempt in 1 2 3 4; do
+	if hdiutil create -volname "$name_long" -srcfolder "$stagedir" -ov -format UDZO "$dmg"; then
+		break
+	fi
+	if [ "$attempt" -eq 4 ]; then
+		echo "hdiutil create failed $attempt times" >&2
+		exit 1
+	fi
+	rm -f "$dmg"
+	sleep $((attempt * 15))
+done
 
 # Mount the finished image and check what is actually inside it, rather than
 # trusting that what went in came out.
