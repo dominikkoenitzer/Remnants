@@ -1680,10 +1680,35 @@ export function createApiFactoryAndRegisterActors(accessor: ServicesAccessor): I
 		};
 
 		// namespace: lm
-		// Built-in chat / language-model tooling was removed; only the kept
-		// embeddings surface is provided. Pick keeps the literal contextually
-		// typed while satisfying the kept d.ts.
-		const lm: Pick<typeof vscode.lm, 'embeddingModels' | 'onDidChangeEmbeddingModels' | 'registerEmbeddingsProvider' | 'computeEmbeddings'> = {
+		// Built-in chat / language-model tooling was removed. Besides the kept
+		// embeddings surface, the stable members exist only as inert stubs so that
+		// extensions probing them at activation keep working: registrations are
+		// accepted and dropped, there are no models or tools, and invoking a tool
+		// rejects. Pick keeps the literal contextually typed while satisfying the
+		// kept d.ts.
+		const noTools: readonly vscode.LanguageModelToolInformation[] = Object.freeze([]);
+		const lm: Pick<typeof vscode.lm, 'embeddingModels' | 'onDidChangeEmbeddingModels' | 'registerEmbeddingsProvider' | 'computeEmbeddings'
+			| 'onDidChangeChatModels' | 'selectChatModels' | 'registerTool' | 'tools' | 'invokeTool' | 'registerMcpServerDefinitionProvider' | 'registerLanguageModelChatProvider'> = {
+			// --- inert stubs
+			onDidChangeChatModels: Event.None,
+			selectChatModels() {
+				return Promise.resolve([]);
+			},
+			registerTool() {
+				return new extHostTypes.Disposable(() => { });
+			},
+			get tools() {
+				return noTools;
+			},
+			invokeTool(name) {
+				return Promise.reject(extHostTypes.LanguageModelError.NotFound(`Language model tools are not available in Remnants: ${name}`));
+			},
+			registerMcpServerDefinitionProvider() {
+				return new extHostTypes.Disposable(() => { });
+			},
+			registerLanguageModelChatProvider() {
+				return new extHostTypes.Disposable(() => { });
+			},
 			// --- embeddings
 			get embeddingModels() {
 				checkProposedApiEnabled(extension, 'embeddings');
@@ -1715,14 +1740,33 @@ export function createApiFactoryAndRegisterActors(accessor: ServicesAccessor): I
 			}
 		};
 
-		// Built-in chat namespace was removed; the kept vscode.d.ts still declares it,
-		// so a double assertion is required to bridge the intentional gap.
+		// namespace: chat
+		// Inert as well: a participant can be created but never receives a request.
+		const chat: Pick<typeof vscode.chat, 'createChatParticipant'> = {
+			createChatParticipant(id, handler) {
+				return {
+					id,
+					requestHandler: handler,
+					iconPath: undefined,
+					followupProvider: undefined,
+					onDidReceiveFeedback: Event.None,
+					onDidPerformAction: Event.None,
+					onDidChangePauseState: Event.None,
+					dispose() { },
+				};
+			}
+		};
+
+		// Chat and language-model members exist only as the inert stubs above; the
+		// kept vscode.d.ts declares more than this fork implements, so a double
+		// assertion is required to bridge the intentional gap.
 		// eslint-disable-next-line local/code-no-dangerous-type-assertions
 		return <typeof vscode><unknown>{
 			version: initData.version,
 			// namespaces
 			ai,
 			authentication,
+			chat,
 			commands,
 			comments,
 			debug,
@@ -1965,6 +2009,29 @@ export function createApiFactoryAndRegisterActors(accessor: ServicesAccessor): I
 			AISearchKeyword: AISearchKeyword,
 			TextSearchCompleteMessageTypeNew: TextSearchCompleteMessageType,
 			SettingsSearchResultKind: extHostTypes.SettingsSearchResultKind,
+			// stable chat / language-model data types, so extensions that construct
+			// or instanceof-check them at load time do not throw
+			ChatRequestTurn: extHostTypes.ChatRequestTurn,
+			ChatResponseTurn: extHostTypes.ChatResponseTurn,
+			ChatResultFeedbackKind: extHostTypes.ChatResultFeedbackKind,
+			ChatResponseMarkdownPart: extHostTypes.ChatResponseMarkdownPart,
+			ChatResponseFileTreePart: extHostTypes.ChatResponseFileTreePart,
+			ChatResponseAnchorPart: extHostTypes.ChatResponseAnchorPart,
+			ChatResponseProgressPart: extHostTypes.ChatResponseProgressPart,
+			ChatResponseReferencePart: extHostTypes.ChatResponseReferencePart,
+			ChatResponseCommandButtonPart: extHostTypes.ChatResponseCommandButtonPart,
+			LanguageModelChatMessageRole: extHostTypes.LanguageModelChatMessageRole,
+			LanguageModelChatMessage: extHostTypes.LanguageModelChatMessage,
+			LanguageModelChatToolMode: extHostTypes.LanguageModelChatToolMode,
+			LanguageModelError: extHostTypes.LanguageModelError,
+			LanguageModelToolCallPart: extHostTypes.LanguageModelToolCallPart,
+			LanguageModelToolResultPart: extHostTypes.LanguageModelToolResultPart,
+			LanguageModelTextPart: extHostTypes.LanguageModelTextPart,
+			LanguageModelPromptTsxPart: extHostTypes.LanguageModelPromptTsxPart,
+			LanguageModelToolResult: extHostTypes.LanguageModelToolResult,
+			LanguageModelDataPart: extHostTypes.LanguageModelDataPart,
+			McpStdioServerDefinition: extHostTypes.McpStdioServerDefinition,
+			McpHttpServerDefinition: extHostTypes.McpHttpServerDefinition,
 		};
 	};
 }
