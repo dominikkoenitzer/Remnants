@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-/* Remnants: a cleaner, smoother surface — soft rounded corners on the
+/* Remnants: a cleaner, smoother surface: soft rounded corners on the
  * interactive controls and floating widgets, gentle hover transitions, and a
  * little more breathing room. Layout-neutral; visual polish only. */
 
@@ -53,9 +53,14 @@
 	border-radius: 6px;
 }
 
-/* Editor tabs: soft top corners for a calmer tab strip */
+/* Editor tabs: flat, so the tab strip reads as one calm row */
 .monaco-workbench .tabs-container > .tab {
-	border-radius: 7px 7px 0 0;
+	border-radius: 0;
+}
+
+/* Status bar dock (remnantsDock.contribution.ts): roomier, evenly spaced switches */
+.monaco-workbench .part.statusbar > .items-container > .statusbar-item[id^="remnants.dock."] > .statusbar-item-label {
+	padding: 0 7px;
 }
 
 /* Gentle, consistent hover transitions */
