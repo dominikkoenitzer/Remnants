@@ -48,6 +48,13 @@ Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration).regis
 		'editor.fontFamily': '\'Cascadia Code\', \'JetBrains Mono\', \'SF Mono\', Menlo, \'DejaVu Sans Mono\', Consolas, monospace',
 		'editor.fontSize': 13.5,
 		'terminal.integrated.fontFamily': '\'JetBrainsMono Nerd Font\', \'JetBrainsMono NF\', \'JetBrainsMonoNL Nerd Font\', \'CaskaydiaCove Nerd Font\', \'Cascadia Mono\', Consolas, monospace',
+		'terminal.integrated.fontSize': 13,
+		'terminal.integrated.lineHeight': 1.2,
+
+		// A calm panel: icons instead of a row of view names, and no command
+		// status dots in the terminal gutter.
+		'workbench.panel.showLabels': false,
+		'terminal.integrated.shellIntegration.decorationsEnabled': 'never',
 
 		// Roomy typography and spacing.
 		'editor.lineHeight': 1.6,
