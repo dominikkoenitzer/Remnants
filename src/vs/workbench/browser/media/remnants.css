@@ -58,9 +58,75 @@
 	border-radius: 0;
 }
 
-/* Status bar dock (remnantsDock.contribution.ts): roomier, evenly spaced switches */
+/* One voice: the whole interface speaks the same monospace as the code. The
+ * doubled class outranks the per-platform and per-language rules in style.css. */
+.monaco-workbench.monaco-workbench,
+.monaco-workbench.monaco-workbench:lang(zh-Hans),
+.monaco-workbench.monaco-workbench:lang(zh-Hant),
+.monaco-workbench.monaco-workbench:lang(ja),
+.monaco-workbench.monaco-workbench:lang(ko) {
+	font-family: "Cascadia Mono", "JetBrains Mono", "SF Mono", Menlo, "DejaVu Sans Mono", Consolas, monospace;
+	font-size: 12.5px;
+	letter-spacing: 0.01em;
+}
+
+/* Quiet headings: sentence case, muted, regular weight, instead of shouting capitals */
+.monaco-workbench .part.sidebar > .title > .title-label h2,
+.monaco-workbench .part.auxiliarybar > .title > .title-label h2,
+.monaco-pane-view .pane > .pane-header > .title,
+.monaco-workbench .pane-composite-part > .title > .composite-bar-container > .composite-bar > .monaco-action-bar .action-item,
+.monaco-workbench .pane-composite-part > .header-or-footer > .composite-bar-container > .composite-bar > .monaco-action-bar .action-item {
+	text-transform: none;
+	font-weight: 400;
+	letter-spacing: 0;
+}
+
+.monaco-workbench .part.sidebar > .title > .title-label h2,
+.monaco-pane-view .pane > .pane-header > .title {
+	opacity: 0.7;
+}
+
+/* Title bar: folder and branch sit at the left, next to the shard, not floating in the middle */
+.monaco-workbench .part.titlebar > .titlebar-container.has-center > .titlebar-center {
+	flex: 1 1 auto;
+	width: auto;
+	max-width: none;
+	justify-content: flex-start;
+	margin: 0 6px;
+}
+
+.monaco-workbench .part.titlebar > .titlebar-container > .titlebar-center > .window-title {
+	margin-left: 0;
+	margin-right: auto;
+	opacity: 0.75;
+}
+
+/* Empty editor: a small shard above the shortcut hints instead of one large mark */
+.monaco-workbench .part.editor > .content .editor-group-container > .editor-group-watermark-wrapper .editor-group-watermark .letterpress {
+	max-width: 96px;
+	opacity: 0.8;
+}
+
+/* Status bar dock (remnantsDock.contribution.ts): muted switches with a soft pill when active */
+.monaco-workbench .part.statusbar > .items-container > .statusbar-item[id^="remnants.dock."] {
+	margin: 0 1px;
+}
+
+.monaco-workbench .part.statusbar > .items-container > .statusbar-item[id^="remnants.dock."],
 .monaco-workbench .part.statusbar > .items-container > .statusbar-item[id^="remnants.dock."] > .statusbar-item-label {
-	padding: 0 7px;
+	border-radius: 4px;
+}
+
+.monaco-workbench .part.statusbar > .items-container > .statusbar-item[id^="remnants.dock."] > .statusbar-item-label {
+	padding: 0 8px;
+}
+
+.monaco-workbench .part.statusbar > .items-container > .statusbar-item[id^="remnants.dock."]:not(.has-background-color) > .statusbar-item-label {
+	opacity: 0.6;
+}
+
+.monaco-workbench .part.statusbar > .items-container > .statusbar-item[id^="remnants.dock."]:hover > .statusbar-item-label {
+	opacity: 1;
 }
 
 /* Gentle, consistent hover transitions */

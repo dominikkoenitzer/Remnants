@@ -8,6 +8,7 @@ import { themeColorFromId } from '../../../../base/common/themables.js';
 import { localize } from '../../../../nls.js';
 import { CommandsRegistry } from '../../../../platform/commands/common/commands.js';
 import { ServicesAccessor } from '../../../../platform/instantiation/common/instantiation.js';
+import { IStorageService, StorageScope, StorageTarget } from '../../../../platform/storage/common/storage.js';
 import { registerColor } from '../../../../platform/theme/common/colorUtils.js';
 import { IWorkbenchContribution, registerWorkbenchContribution2, WorkbenchPhase } from '../../../common/contributions.js';
 import { ViewContainerLocation } from '../../../common/views.js';
@@ -17,12 +18,21 @@ import { IStatusbarEntry, IStatusbarEntryAccessor, IStatusbarService, StatusbarA
 
 // Remnants dock: the activity bar is hidden by default, so the status bar carries
 // the view switches instead. Left: the side bar views. Right: terminal and settings.
-// A switch lights up in the Remnants accent while its view is showing; clicking a
-// lit switch hides it again.
+// A switch sits on a soft accent pill while its view is showing; clicking a lit
+// switch hides it again.
 
 const DOCK_ACTIVE_FOREGROUND = registerColor('remnants.dockActiveForeground',
-	{ dark: '#3B82F6', light: '#2563EB', hcDark: '#60A5FA', hcLight: '#1D4ED8' },
+	{ dark: '#93C5FD', light: '#1D4ED8', hcDark: '#BFDBFE', hcLight: '#1E3A8A' },
 	localize('remnants.dockActiveForeground', "Foreground of a status bar dock switch whose view is showing."));
+
+const DOCK_ACTIVE_BACKGROUND = registerColor('remnants.dockActiveBackground',
+	{ dark: '#3B82F633', light: '#2563EB1F', hcDark: '#60A5FA40', hcLight: '#1D4ED81F' },
+	localize('remnants.dockActiveBackground', "Background of a status bar dock switch whose view is showing."));
+
+// The remote indicator would sit left of the dock. It is hidden once, on the first
+// start; the status bar context menu brings it back and that choice is kept.
+const REMOTE_INDICATOR_ID = 'status.host';
+const REMOTE_INDICATOR_HIDDEN_KEY = 'remnants.dock.remoteIndicatorHidden';
 
 interface IDockView {
 	readonly containerId: string;
@@ -72,8 +82,14 @@ class RemnantsDockContribution extends Disposable implements IWorkbenchContribut
 		@IStatusbarService statusbarService: IStatusbarService,
 		@IWorkbenchLayoutService private readonly layoutService: IWorkbenchLayoutService,
 		@IPaneCompositePartService private readonly paneCompositeService: IPaneCompositePartService,
+		@IStorageService storageService: IStorageService,
 	) {
 		super();
+
+		if (!storageService.getBoolean(REMOTE_INDICATOR_HIDDEN_KEY, StorageScope.PROFILE, false)) {
+			statusbarService.updateEntryVisibility(REMOTE_INDICATOR_ID, false);
+			storageService.store(REMOTE_INDICATOR_HIDDEN_KEY, true, StorageScope.PROFILE, StorageTarget.USER);
+		}
 
 		// Far left, in order: a higher priority sits further left.
 		let priority = 100_000;
@@ -113,6 +129,7 @@ class RemnantsDockContribution extends Disposable implements IWorkbenchContribut
 			ariaLabel: view.label,
 			tooltip: view.label,
 			color: active ? themeColorFromId(DOCK_ACTIVE_FOREGROUND) : undefined,
+			backgroundColor: active ? themeColorFromId(DOCK_ACTIVE_BACKGROUND) : undefined,
 			command: { id: TOGGLE_SIDE_BAR_VIEW, title: view.label, arguments: [view.containerId] },
 		};
 	}
@@ -125,6 +142,7 @@ class RemnantsDockContribution extends Disposable implements IWorkbenchContribut
 			ariaLabel: label,
 			tooltip: label,
 			color: active ? themeColorFromId(DOCK_ACTIVE_FOREGROUND) : undefined,
+			backgroundColor: active ? themeColorFromId(DOCK_ACTIVE_BACKGROUND) : undefined,
 			command: TOGGLE_PANEL,
 		};
 	}
