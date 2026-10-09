@@ -121,7 +121,7 @@ interface IPendingStatusbarEntry {
 
 class StatusbarPart extends Part implements IStatusbarEntryContainer {
 
-	static readonly HEIGHT = 22;
+	static readonly HEIGHT = 28; // Remnants: taller than upstream's 22, sized for the dock
 
 	/**
 	 * Vertical padding reserved around the main status bar under the floating panels

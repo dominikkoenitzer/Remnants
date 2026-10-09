@@ -77,8 +77,19 @@
 	font-size: 14px;
 }
 
-.monaco-workbench .part.statusbar {
-	font-size: 13px;
+/* Status bar: 28px tall (StatusbarPart.HEIGHT), larger text and icons */
+.monaco-workbench.monaco-workbench .part.statusbar {
+	height: 28px;
+	font-size: 13.5px;
+}
+
+.monaco-workbench.monaco-workbench .part.statusbar > .items-container > .statusbar-item {
+	line-height: 28px;
+}
+
+.monaco-workbench.monaco-workbench .part.statusbar > .items-container > .statusbar-item span.codicon {
+	font-size: 17px;
+	vertical-align: middle;
 }
 
 .monaco-workbench .part > .title > .title-label h2,
