@@ -107,6 +107,13 @@
 	opacity: 0.75;
 }
 
+/* Panel title: keep only new terminal, more, maximize, and close. Split and kill
+ * stay in the terminal's context menu and keybindings. */
+.monaco-workbench .part.basepanel > .title > .title-actions .action-item:has(> .action-label.codicon-trash),
+.monaco-workbench .part.basepanel > .title > .title-actions .action-item:has(> .action-label.codicon-split-horizontal) {
+	display: none;
+}
+
 /* Empty editor: a small shard above the shortcut hints instead of one large mark */
 .monaco-workbench .part.editor > .content .editor-group-container > .editor-group-watermark-wrapper .editor-group-watermark .letterpress {
 	max-width: 96px;
