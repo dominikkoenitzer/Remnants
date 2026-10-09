@@ -188,7 +188,7 @@
     "@vscode/vscode-perf": "^0.0.27",
     "@webgpu/types": "^0.1.72",
     "ansi-colors": "^3.2.3",
-    "asar": "^3.2.0",
+    "asar": "3.0.3",
     "c8": "^9.1.0",
     "chromium-pickle-js": "^0.2.0",
     "cookie": "^0.7.2",

@@ -45,6 +45,12 @@ updates:
       # notebook-renderers tests call it with two arguments on 1.60.0 like
       # upstream does. It moves when upstream moves the tests.
       - dependency-name: "@types/vscode-notebook-renderer"
+      # build/lib/asar.ts calls asar's Filesystem.insertFile without awaiting it.
+      # 3.1 added an await between assigning a file's offset and advancing it, so
+      # concurrent inserts share offsets and the packaged node_modules.asar holds
+      # misplaced contents (1.139.1 shipped that way and could not start). It
+      # stays on upstream's 3.0.3.
+      - dependency-name: "asar"
     commit-message:
       prefix: deps
     labels:
