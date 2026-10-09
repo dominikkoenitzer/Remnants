@@ -87,7 +87,13 @@
 }
 
 /* Title bar: folder and branch sit at the left, next to the shard, not floating in the middle */
-.monaco-workbench .part.titlebar > .titlebar-container.has-center > .titlebar-center {
+.monaco-workbench.monaco-workbench .part.titlebar > .titlebar-container.has-center > .titlebar-left,
+.monaco-workbench.monaco-workbench .part.titlebar > .titlebar-container.has-center > .titlebar-right {
+	flex: 0 0 auto;
+	width: auto;
+}
+
+.monaco-workbench.monaco-workbench .part.titlebar > .titlebar-container.has-center > .titlebar-center {
 	flex: 1 1 auto;
 	width: auto;
 	max-width: none;
@@ -95,7 +101,7 @@
 	margin: 0 6px;
 }
 
-.monaco-workbench .part.titlebar > .titlebar-container > .titlebar-center > .window-title {
+.monaco-workbench.monaco-workbench .part.titlebar > .titlebar-container > .titlebar-center > .window-title {
 	margin-left: 0;
 	margin-right: auto;
 	opacity: 0.75;
