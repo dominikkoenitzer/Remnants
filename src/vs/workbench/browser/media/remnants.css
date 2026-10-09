@@ -66,8 +66,24 @@
 .monaco-workbench.monaco-workbench:lang(ja),
 .monaco-workbench.monaco-workbench:lang(ko) {
 	font-family: "Cascadia Mono", "JetBrains Mono", "SF Mono", Menlo, "DejaVu Sans Mono", Consolas, monospace;
-	font-size: 12.5px;
+	font-size: 14px;
 	letter-spacing: 0.01em;
+}
+
+/* Sizes tuned for the monospace face, which reads smaller than the default
+ * sans: tabs, status bar, part titles, and section headers each step up. */
+.monaco-workbench .part.editor > .content .editor-group-container > .title .title-label a,
+.monaco-workbench .part.editor > .content .editor-group-container > .title .tabs-container > .tab .tab-label a {
+	font-size: 14px;
+}
+
+.monaco-workbench .part.statusbar {
+	font-size: 13px;
+}
+
+.monaco-workbench .part > .title > .title-label h2,
+.monaco-pane-view .pane > .pane-header {
+	font-size: 12.5px;
 }
 
 /* Quiet headings: sentence case, muted, regular weight, instead of shouting capitals */
