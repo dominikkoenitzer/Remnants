@@ -152,6 +152,17 @@ jobs:
           }
           "Remnants.exe is ${{ matrix.arch }}, machine 0x{0:X4}" -f $machine
 
+      # The installer smoke test below only runs `--version`, which never loads
+      # node_modules, so a broken archive (misplaced file contents) would ship an
+      # editor that dies at startup. Read every package.json inside it instead.
+      - name: Verify the packaged node_modules archive
+        shell: pwsh
+        run: |
+          $archive = Join-Path (Split-Path $env:GITHUB_WORKSPACE) "VSCode-win32-${{ matrix.arch }}/resources/app/node_modules.asar"
+          if (-not (Test-Path $archive)) { throw "Archive not found at $archive." }
+          node build/verify-asar.ts $archive
+          if ($LASTEXITCODE -ne 0) { throw "The packaged node_modules.asar is broken." }
+
       - name: Stage installer
         shell: pwsh
         run: |
