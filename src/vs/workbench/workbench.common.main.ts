@@ -366,6 +366,7 @@ import './contrib/surveys/browser/languageSurveys.contribution.js';
 import './contrib/remnants/browser/remnantsDefaults.contribution.js';
 import './contrib/remnants/browser/remnantsReleaseNotice.contribution.js';
 import './contrib/remnants/browser/remnantsDock.contribution.js';
+import './contrib/remnants/browser/remnantsQuietStart.contribution.js';
 
 // Welcome
 import './contrib/welcomeGettingStarted/browser/gettingStarted.contribution.js';

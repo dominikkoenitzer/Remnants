@@ -32,9 +32,8 @@ Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration).regis
 		'workbench.startupEditor': 'none',
 		'extensions.ignoreRecommendations': true,
 
-		// Dense and flat: no floating cards or gaps between the parts, compact tabs.
+		// Flat: no floating cards or gaps between the parts.
 		'workbench.experimental.modernUI': false,
-		'window.density.editorTabHeight': 'compact',
 
 		// Instant response: scrolling and the caret move without easing.
 		'editor.smoothScrolling': false,
@@ -81,6 +80,7 @@ Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration).regis
 			'**/target/**': true,
 		},
 		'search.followSymlinks': false,
+		'git.blame.statusBarItem.enabled': false,
 		'npm.fetchOnlinePackageInfo': false,
 	}
 }]);
