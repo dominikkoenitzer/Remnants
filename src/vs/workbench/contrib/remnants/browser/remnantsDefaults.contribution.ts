@@ -13,10 +13,11 @@ Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration).regis
 	overrides: {
 		// Quiet chrome. The activity bar is hidden; its views are switched from the
 		// status bar dock (remnantsDock.contribution.ts). The title shows the folder
-		// and the git branch, the menu folds into one button, and there is no
+		// and the git branch, the menu bar appears when Alt is pressed ('compact'
+		// would fold it into the hidden activity bar and lose it), and there is no
 		// command center pill, minimap, or separate breadcrumb row.
 		'workbench.activityBar.location': 'hidden',
-		'window.menuBarVisibility': 'compact',
+		'window.menuBarVisibility': 'toggle',
 		'window.commandCenter': false,
 		'window.title': '${dirty}${rootName}${separator}${activeRepositoryBranchName}',
 		'editor.minimap.enabled': false,
