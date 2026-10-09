@@ -6,29 +6,40 @@
 import { Registry } from '../../../../platform/registry/common/platform.js';
 import { Extensions as ConfigurationExtensions, IConfigurationRegistry } from '../../../../platform/configuration/common/configurationRegistry.js';
 
-// Remnants productized defaults — a minimal, focused out-of-the-box feel:
-// quiet chrome, lots of breathing room, and smooth motion. These are *default*
+// Remnants defaults: a quiet, fast editor out of the box. These are *default*
 // overrides only; any value the user sets in their own settings still wins.
-// Keep this list small, tasteful, and reversible.
+// Keep this list small, deliberate, and reversible.
 Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration).registerDefaultConfigurations([{
 	overrides: {
-		// Minimal chrome — drop the minimap and the separate breadcrumb row
-		// (the file path already shows in the tab). The activity bar stays on
-		// the left so the sidebar keeps its full height.
+		// Quiet chrome. The activity bar is hidden; its views are switched from the
+		// status bar dock (remnantsDock.contribution.ts). The title shows the folder
+		// and the git branch, the menu folds into one button, and there is no
+		// command center pill, minimap, or separate breadcrumb row.
+		'workbench.activityBar.location': 'hidden',
+		'window.menuBarVisibility': 'compact',
+		'window.commandCenter': false,
+		'window.title': '${dirty}${rootName}${separator}${activeRepositoryBranchName}',
 		'editor.minimap.enabled': false,
 		'breadcrumbs.enabled': false,
 		'workbench.editor.tabSizing': 'shrink',
-
-		// Less clutter — no layout-toggle icons, quieter overview ruler.
 		'workbench.layoutControl.enabled': false,
 		'editor.overviewRulerBorder': false,
 		'editor.hideCursorInOverviewRuler': true,
 
-		// Buttery motion.
-		'editor.smoothScrolling': true,
-		'workbench.list.smoothScrolling': true,
-		'terminal.integrated.smoothScrolling': true,
-		'editor.cursorSmoothCaretAnimation': 'on',
+		// Start straight into the work: no welcome page, tips, or recommendation prompts.
+		'workbench.startupEditor': 'none',
+		'workbench.tips.enabled': false,
+		'extensions.ignoreRecommendations': true,
+
+		// Dense and flat: no floating cards or gaps between the parts, compact tabs.
+		'workbench.experimental.modernUI': false,
+		'window.density.editorTabHeight': 'compact',
+
+		// Instant response: scrolling and the caret move without easing.
+		'editor.smoothScrolling': false,
+		'workbench.list.smoothScrolling': false,
+		'terminal.integrated.smoothScrolling': false,
+		'editor.cursorSmoothCaretAnimation': 'off',
 		'editor.cursorBlinking': 'phase',
 
 		// Roomy typography and spacing.
@@ -41,5 +52,21 @@ Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration).regis
 		'editor.scrollbar.verticalScrollbarSize': 10,
 		'editor.scrollbar.horizontalScrollbarSize': 10,
 		'workbench.tree.indent': 14,
+
+		// Less background work: dependency and build output folders are not watched,
+		// search does not follow symlinks, and hovering a package does not fetch
+		// its details online.
+		'files.watcherExclude': {
+			'.git/objects/**': true,
+			'.git/subtree-cache/**': true,
+			'.hg/store/**': true,
+			'*/.git/objects/**': true,
+			'*/.git/subtree-cache/**': true,
+			'*/.hg/store/**': true,
+			'**/node_modules/**': true,
+			'**/target/**': true,
+		},
+		'search.followSymlinks': false,
+		'npm.fetchOnlinePackageInfo': false,
 	}
 }]);
