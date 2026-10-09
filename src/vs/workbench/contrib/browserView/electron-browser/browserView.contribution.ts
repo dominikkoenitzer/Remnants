@@ -21,6 +21,7 @@ import { BrowserViewWorkbenchService } from './browserViewWorkbenchService.js';
 import { BrowserViewCDPService } from './browserViewCDPService.js';
 import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
 import { logBrowserOpen } from '../../../../platform/browserView/common/browserViewTelemetry.js';
+import { AgentNetworkFilterService, IAgentNetworkFilterService } from '../../../../platform/networkFilter/common/networkFilterService.js';
 
 // Register actions and browser features
 import './features/webContentsViewRendererFeature.js';
@@ -150,3 +151,7 @@ registerWorkbenchContribution2(BrowserEditorResolverContribution.ID, BrowserEdit
 
 registerSingleton(IBrowserViewWorkbenchService, BrowserViewWorkbenchService, InstantiationType.Delayed);
 registerSingleton(IBrowserViewCDPService, BrowserViewCDPService, InstantiationType.Delayed);
+// The window used to receive this service from the removed chat contribution; the
+// browser editor still injects it, so it is registered here (it allows every URL
+// unless a domain filter is configured).
+registerSingleton(IAgentNetworkFilterService, AgentNetworkFilterService, InstantiationType.Delayed);
