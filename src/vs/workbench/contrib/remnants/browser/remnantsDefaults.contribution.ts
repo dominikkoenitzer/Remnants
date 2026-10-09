@@ -46,9 +46,9 @@ Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration).regis
 		// Type: the same monospace family as the interface (remnants.css). The
 		// terminal prefers a Nerd Font when one is installed so prompt glyphs render.
 		'editor.fontFamily': '\'Cascadia Code\', \'JetBrains Mono\', \'SF Mono\', Menlo, \'DejaVu Sans Mono\', Consolas, monospace',
-		'editor.fontSize': 13.5,
+		'editor.fontSize': 15,
 		'terminal.integrated.fontFamily': '\'JetBrainsMono Nerd Font\', \'JetBrainsMono NF\', \'JetBrainsMonoNL Nerd Font\', \'CaskaydiaCove Nerd Font\', \'Cascadia Mono\', Consolas, monospace',
-		'terminal.integrated.fontSize': 13,
+		'terminal.integrated.fontSize': 14,
 		'terminal.integrated.lineHeight': 1.2,
 
 		// A calm panel: icons instead of a row of view names, and no command
