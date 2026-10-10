@@ -73,17 +73,17 @@ Every asset is built by the [release workflow](.github/workflows/release.yml) on
 
 | Platform | Asset | Install with |
 | --- | --- | --- |
-| Windows x64 | `RemnantsUserSetup-x64.exe` | run it (per-user, no admin) |
-| Windows arm64 | `RemnantsUserSetup-arm64.exe` | run it (per-user, no admin) |
+| Windows x64 | [`RemnantsUserSetup-x64.exe`](https://github.com/dominikkoenitzer/Remnants/releases/latest/download/RemnantsUserSetup-x64.exe) | run it (per-user, no admin) |
+| Windows arm64 | [`RemnantsUserSetup-arm64.exe`](https://github.com/dominikkoenitzer/Remnants/releases/latest/download/RemnantsUserSetup-arm64.exe) | run it (per-user, no admin) |
 | macOS (Apple silicon) | `Remnants-darwin-arm64-<version>.dmg` | open, drag to Applications |
 | macOS (Intel) | `Remnants-darwin-x64-<version>.dmg` | open, drag to Applications |
 | Debian, Ubuntu x64 / arm64 | `remnants-<version>-<amd64,arm64>.deb` | `sudo apt install ./<file>` |
 | Fedora, RHEL, openSUSE x64 / arm64 | `remnants-<version>-<x86_64,aarch64>.rpm` | `sudo dnf install ./<file>` |
 | Any Linux x64 / arm64 | `Remnants-linux-<arch>-<version>.tar.gz` | `sudo ./install.sh` |
-| Arch Linux | `PKGBUILD` | `makepkg -si` |
+| Arch Linux | [`PKGBUILD`](https://github.com/dominikkoenitzer/Remnants/releases/latest/download/PKGBUILD) | `makepkg -si` |
 
 Each release also carries a machine-wide Windows installer
-(`RemnantsSetup-<arch>.exe`), a Windows archive for machines where no installer
+([x64](https://github.com/dominikkoenitzer/Remnants/releases/latest/download/RemnantsSetup-x64.exe), [arm64](https://github.com/dominikkoenitzer/Remnants/releases/latest/download/RemnantsSetup-arm64.exe)), a Windows archive for machines where no installer
 may run (`Remnants-win32-<arch>-<version>.zip`) and the macOS app as a plain zip.
 
 It runs on:
@@ -105,7 +105,7 @@ repository turns that into an email.
 
 ### Windows (x64 and arm64)
 
-1. Download **`RemnantsUserSetup-x64.exe`**, or **`RemnantsUserSetup-arm64.exe`**
+1. Download [**`RemnantsUserSetup-x64.exe`**](https://github.com/dominikkoenitzer/Remnants/releases/latest/download/RemnantsUserSetup-x64.exe), or [**`RemnantsUserSetup-arm64.exe`**](https://github.com/dominikkoenitzer/Remnants/releases/latest/download/RemnantsUserSetup-arm64.exe)
    on an ARM machine (Snapdragon laptops, Surface Pro X and later, Windows on a
    Mac VM), and run it. It installs into your user profile, so no administrator
    rights are needed, and adds **Remnants** to the Start menu.
@@ -197,7 +197,7 @@ windowrulev2 = workspace 2, class:^(remnants)$
 
 ### Verify a download
 
-Each release ships a `SHA256SUMS` file covering every asset:
+Each release ships a [`SHA256SUMS`](https://github.com/dominikkoenitzer/Remnants/releases/latest/download/SHA256SUMS) file covering every asset:
 
 ```sh
 sha256sum -c SHA256SUMS --ignore-missing
