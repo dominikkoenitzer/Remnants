@@ -698,7 +698,7 @@ export class SearchView extends ViewPane {
 		}
 
 		this._register(this.searchWidget.onSearchSubmit(options => {
-			const shouldRenderAIResults = this.configurationService.getValue<ISearchConfigurationProperties>('search').searchView.semanticSearchBehavior;
+			const shouldRenderAIResults = this.configurationService.getValue<ISearchConfigurationProperties>('search').searchView?.semanticSearchBehavior;
 			if (shouldRenderAIResults === SemanticSearchBehavior.Auto) {
 				this.logService.info(`SearchView: Automatically rendering AI results`);
 			}
@@ -2005,13 +2005,13 @@ export class SearchView extends ViewPane {
 			this.viewModel.searchResult.setAIQueryUsingTextQuery(query);
 		}
 
-		if (this.configurationService.getValue<ISearchConfigurationProperties>('search').searchView.keywordSuggestions) {
+		if (this.configurationService.getValue<ISearchConfigurationProperties>('search').searchView?.keywordSuggestions) {
 			this.getKeywordSuggestions();
 		}
 
 		return result.asyncResults.then((complete) => {
 			clearTimeout(slowTimer);
-			const config = this.configurationService.getValue<ISearchConfigurationProperties>('search').searchView.semanticSearchBehavior;
+			const config = this.configurationService.getValue<ISearchConfigurationProperties>('search').searchView?.semanticSearchBehavior;
 			if (complete.results.length === 0 && config === SemanticSearchBehavior.RunOnEmpty) {
 				this.logService.info(`SearchView: Requesting semantic results on empty search.`);
 				this.model.searchResult.aiTextSearchResult.hidden = false;
