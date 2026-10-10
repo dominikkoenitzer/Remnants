@@ -27,7 +27,7 @@ Every asset also gets a signed provenance attestation
 workflow with `gh attestation verify <file> -R dominikkoenitzer/Remnants` even
 though none of the binaries is code-signed.
 
-The README's [Install](README.md#install) section points users there.
+The README's [Download](README.md#download) and [Other ways to install](README.md#other-ways-to-install) sections point users there.
 
 ## Versioning
 
