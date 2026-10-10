@@ -18,7 +18,7 @@ AutoReq:  0
 %global __brp_strip_comment_note %{nil}
 
 %description
-Remnants is a build of Code - OSS with every built-in AI feature removed: no chat panel, no completions service, no sign-in and no telemetry. Extensions come from Open VSX. See https://github.com/dominikkoenitzer/Remnants for details.
+Remnants is a build of Code - OSS with every built-in AI feature removed: no chat panel, no completions service, no sign-in and no telemetry. Extensions come from Open VSX.
 
 # Don't generate build_id links to prevent conflicts when installing multiple
 # versions alongside each other.
