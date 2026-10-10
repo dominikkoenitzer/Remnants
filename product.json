@@ -32,7 +32,7 @@
 	"linuxIconName": "remnants",
 	"licenseFileName": "LICENSE.txt",
 	"downloadUrl": "https://get-remnants.vercel.app",
-	"reportIssueUrl": "https://github.com/dominikkoenitzer/Remnants/issues/new",
+	"reportIssueUrl": "https://get-remnants.vercel.app/issues/new",
 	"nodejsArtifactFeed": "",
 	"electronArtifactFeed": "",
 	"urlProtocol": "remnants",
