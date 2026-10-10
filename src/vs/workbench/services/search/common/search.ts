@@ -464,7 +464,8 @@ export interface ISearchConfigurationProperties {
 	experimental: {
 		closedNotebookRichContentResults: boolean;
 	};
-	searchView: {
+	/** Unset in Remnants: these settings went with the AI features. */
+	searchView?: {
 		semanticSearchBehavior: string;
 		keywordSuggestions: boolean;
 	};
