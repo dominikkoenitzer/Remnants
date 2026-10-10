@@ -1,10 +1,96 @@
 {
   "routes": [
-    { "src": "^/download/windows$", "status": 307, "headers": { "Location": "https://github.com/dominikkoenitzer/Remnants/releases/latest/download/RemnantsUserSetup-x64.exe" } },
-    { "src": "^/download/windows-arm$", "status": 307, "headers": { "Location": "https://github.com/dominikkoenitzer/Remnants/releases/latest/download/RemnantsUserSetup-arm64.exe" } },
-    { "src": "^/latest$", "status": 307, "headers": { "Location": "https://api.github.com/repos/dominikkoenitzer/Remnants/releases/latest", "Access-Control-Allow-Origin": "*" } },
-    { "src": "^/issues$", "status": 307, "headers": { "Location": "https://github.com/dominikkoenitzer/Remnants/issues" } },
-    { "src": "^/issues/new$", "status": 307, "headers": { "Location": "https://github.com/dominikkoenitzer/Remnants/issues/new" } },
-    { "src": "^/releases/download/([^/]+?)/([^/]+?)$", "status": 307, "headers": { "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/$1/$2" } }
+    {
+      "src": "^/download/windows$",
+      "status": 307,
+      "headers": {
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/latest/download/RemnantsUserSetup-x64.exe"
+      }
+    },
+    {
+      "src": "^/download/windows-arm$",
+      "status": 307,
+      "headers": {
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/latest/download/RemnantsUserSetup-arm64.exe"
+      }
+    },
+    {
+      "src": "^/download/mac$",
+      "status": 307,
+      "headers": {
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/v1.139.4/Remnants-darwin-arm64-1.139.4.dmg"
+      }
+    },
+    {
+      "src": "^/download/mac-intel$",
+      "status": 307,
+      "headers": {
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/v1.139.4/Remnants-darwin-x64-1.139.4.dmg"
+      }
+    },
+    {
+      "src": "^/download/linux$",
+      "status": 307,
+      "headers": {
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/v1.139.4/Remnants-linux-x64-1.139.4.tar.gz"
+      }
+    },
+    {
+      "src": "^/download/deb$",
+      "status": 307,
+      "headers": {
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/v1.139.4/remnants-1.139.4-amd64.deb"
+      }
+    },
+    {
+      "src": "^/download/rpm$",
+      "status": 307,
+      "headers": {
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/v1.139.4/remnants-1.139.4-x86_64.rpm"
+      }
+    },
+    {
+      "src": "^/download/pkgbuild$",
+      "status": 307,
+      "headers": {
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/latest/download/PKGBUILD"
+      }
+    },
+    {
+      "src": "^/download/checksums$",
+      "status": 307,
+      "headers": {
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/latest/download/SHA256SUMS"
+      }
+    },
+    {
+      "src": "^/latest$",
+      "status": 307,
+      "headers": {
+        "Location": "https://api.github.com/repos/dominikkoenitzer/Remnants/releases/latest",
+        "Access-Control-Allow-Origin": "*"
+      }
+    },
+    {
+      "src": "^/issues$",
+      "status": 307,
+      "headers": {
+        "Location": "https://github.com/dominikkoenitzer/Remnants/issues"
+      }
+    },
+    {
+      "src": "^/issues/new$",
+      "status": 307,
+      "headers": {
+        "Location": "https://github.com/dominikkoenitzer/Remnants/issues/new"
+      }
+    },
+    {
+      "src": "^/releases/download/([^/]+?)/([^/]+?)$",
+      "status": 307,
+      "headers": {
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/$1/$2"
+      }
+    }
   ]
 }

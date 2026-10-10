@@ -1,0 +1,111 @@
+{
+  "slug": "remnants",
+  "name": "Remnants",
+  "description": "A code editor built on the open VS Code source, with every AI feature taken out. For Windows, macOS and Linux.",
+  "colours": {
+    "light": { "accent": "#2563eb", "accent-hover": "#1d4ed8", "accent-ink": "#2563eb", "band": "#e6edfc", "tile": "#eff4fe", "stage": "#e9f0fd" },
+    "dark": { "accent": "#2563eb", "accent-hover": "#3b82f6", "accent-ink": "#7fb2fb", "band": "#101a2e", "tile": "#15213c", "stage": "#121b2f" }
+  },
+  "platforms": { "windows": "Windows", "windows-arm": "Windows on ARM", "mac": "macOS", "linux": "Linux" },
+  "hero": {
+    "lede": "A code editor built on the open VS Code source, with every AI feature taken out. Nothing asks you to sign in, and it sends no usage data.",
+    "also": "Also for <a href=\"/download/windows-arm\">Windows on ARM</a>, <a href=\"/download/mac\">macOS</a> and <a href=\"/download/linux\">Linux</a>.",
+    "notes": ["The Windows installer is just for you and needs no admin rights.", "If Windows says it protected your PC, click More info, then Run anyway."],
+    "away": "Remnants runs on Windows, macOS and Linux. Open this page on your computer to download it.",
+    "image": { "name": "hero", "w": 2880, "h": 1800, "alt": "Remnants with a small JavaScript project open: the explorer with git markers, four tabs and the code" }
+  },
+  "features": [
+    {
+      "label": "Layout",
+      "title": "Views live in the status bar",
+      "body": ["The activity bar is hidden, so the editor gets the room. Explorer, Search, Source Control, Run and Debug and Extensions sit at the left of the status bar, the terminal and settings at the right.", "The switch of the open view is lit."],
+      "main": { "name": "f5", "w": 2880, "h": 1800, "pos": "0 100%", "alt": "Source Control opened from the status bar, with a commit message typed" },
+      "detail": { "name": "c5", "w": 760, "h": 150, "style": "width: 62%" }
+    },
+    {
+      "label": "Diff",
+      "title": "See every change side by side",
+      "body": ["Click a changed file in Source Control and Remnants opens it next to the last commit. Removed text is marked on the left, added text on the right."],
+      "main": { "name": "f1", "w": 2880, "h": 1800, "pos": "50% 0", "alt": "A side-by-side diff of format.js against the last commit" },
+      "detail": { "name": "c1", "w": 1353, "h": 677 }
+    },
+    {
+      "label": "Terminal",
+      "title": "Your shell, right under the code",
+      "body": ["The terminal opens in the panel below the editor and starts your shell in the project folder. <kbd>Ctrl+`</kbd> shows or hides it."],
+      "main": { "name": "f2", "w": 2880, "h": 1800, "pos": "30% 100%", "alt": "The terminal below the editor with nine tests passing" },
+      "detail": { "name": "c2", "w": 979, "h": 741, "style": "width: 42%" }
+    },
+    {
+      "label": "Search",
+      "title": "Find text across the project",
+      "body": ["Search lists every match, grouped by file, with a count per file. <kbd>Ctrl+Shift+F</kbd> opens it, and a click on a match opens the file at that line."],
+      "main": { "name": "f3", "w": 2880, "h": 1800, "pos": "0 0", "alt": "Fourteen results in six files for parseDuration" },
+      "detail": { "name": "c3", "w": 600, "h": 1080, "style": "width: 26%" }
+    },
+    {
+      "label": "Extensions",
+      "title": "Extensions from Open VSX",
+      "body": ["The Extensions view searches and installs from Open VSX, the open registry for editor extensions. Your languages and themes work as you know them."],
+      "main": { "name": "f4", "w": 2880, "h": 1800, "pos": "0 0", "alt": "Four extensions installed from Open VSX" },
+      "detail": { "name": "c4", "w": 600, "h": 710, "style": "width: 30%" }
+    }
+  ],
+  "pair": {
+    "label": "Themes",
+    "title": "Light and dark, as you like",
+    "body": ["A light and a dark theme come with it, and any theme from Open VSX works too."],
+    "one": { "name": "hero-light", "w": 2880, "h": 1800, "dark": false, "alt": "Remnants in the light theme" },
+    "two": { "name": "f1-dark", "w": 2880, "h": 1800, "dark": false, "alt": "Remnants in the dark theme" }
+  },
+  "new": {
+    "version": "1.139.4",
+    "items": [
+      "Search shows its results on the very first search.",
+      "The optional update check asks the Remnants download site for the latest release.",
+      "Report Issue and the license link open on the Remnants download site.",
+      "On an ARM PC, the x64 build's warning opens the ARM64 download.",
+      "The installers name Remnants as the publisher."
+    ]
+  },
+  "requirements": [
+    "Windows 10 or later, x64 or ARM64",
+    "macOS 12 or later, Apple silicon or Intel",
+    "Linux with glibc 2.34 or newer, x64 or arm64",
+    "About 175 MB to download on Windows",
+    "No account"
+  ],
+  "privacy": {
+    "title": "No AI and no telemetry",
+    "body": ["The chat panel, agent sessions, voice features and the built-in AI extension were removed from the source. Telemetry and crash reports are off, and there is no sign-in.", "Extension searches and updates go to Open VSX. The release check is off until you turn it on."]
+  },
+  "data": {
+    "title": "Settings stay when you update",
+    "body": ["Settings and keybindings live in <code>%APPDATA%\\Remnants</code> on Windows, <code>~/Library/Application Support/Remnants</code> on macOS and <code>~/.config/Remnants</code> on Linux. Extensions live in <code>~/.remnants/extensions</code>."]
+  },
+  "keys": [
+    ["Ctrl+Shift+P", "Command Palette"],
+    ["Ctrl+P", "Open a file by name"],
+    ["Ctrl+Shift+F", "Search across files"],
+    ["Ctrl+`", "Show or hide the terminal"],
+    ["Ctrl+B", "Show or hide the side bar"],
+    ["Ctrl+J", "Show or hide the panel"],
+    ["Alt", "Show the menu bar"],
+    ["Ctrl+K Ctrl+S", "Every shortcut"]
+  ],
+  "keys_note": "The usual shortcuts. On macOS, Cmd takes the place of Ctrl.",
+  "basics": [
+    { "title": "Get started", "steps": ["Download the installer.", "Double-click it and follow the setup.", "Open a folder and start coding."] },
+    { "title": "Updates", "body": ["Remnants never updates itself. Install the new release over the old one; settings and extensions stay. Turn on <code>remnants.checkForUpdates</code> to hear about new releases."] },
+    { "title": "Removing it", "body": ["On Windows, uninstall it under Settings, Apps. On a Mac, move it to the Trash. On Linux, remove the package. Your settings folder stays until you delete it."] }
+  ],
+  "faq": [
+    { "q": "Is Remnants free?", "a": ["Yes. It is free and open source under the MIT License, with no account."] },
+    { "q": "Why does Windows say it protected my PC?", "a": ["Remnants is not signed with a paid certificate, so Windows asks once. Click More info, then Run anyway. Every download has a checksum in the <a href=\"/download/checksums\">checksum file</a>."] },
+    { "q": "Does it have any AI features?", "a": ["No. They were removed from the source, not just switched off, and telemetry is off too."] },
+    { "q": "Which files are there for macOS and Linux?", "a": ["macOS: a disk image for <a href=\"/download/mac\">Apple silicon</a> and for <a href=\"/download/mac-intel\">Intel</a>.", "Linux: a <a href=\"/download/deb\">.deb</a> for Debian and Ubuntu, an <a href=\"/download/rpm\">.rpm</a> for Fedora and openSUSE, a <a href=\"/download/linux\">tarball</a> for any distribution, and a <a href=\"/download/pkgbuild\">PKGBUILD</a> for Arch."] },
+    { "q": "Where are my settings and extensions?", "a": ["Settings live in <code>%APPDATA%\\Remnants</code> on Windows, <code>~/Library/Application Support/Remnants</code> on macOS and <code>~/.config/Remnants</code> on Linux. Extensions live in <code>~/.remnants/extensions</code>. Uninstalling leaves both in place."] }
+  ],
+  "closing": { "title": "Get Remnants", "sub": "Free for Windows, macOS and Linux." },
+  "footer": ["For AI assistants: <a href=\"/llms.txt\">llms.txt</a>."]
+}
