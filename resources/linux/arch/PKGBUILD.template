@@ -1,5 +1,3 @@
-# Maintainer: dominikkoenitzer <dominikkoenitzer@users.noreply.github.com>
-#
 # Template. build/linux/render-pkgbuild.sh fills in the version, the source URLs
 # and the checksums after the release tarballs are built, and attaches the
 # result to the GitHub release as `PKGBUILD`. Do not run this file directly;
