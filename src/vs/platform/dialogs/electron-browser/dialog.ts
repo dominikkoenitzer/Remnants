@@ -33,7 +33,7 @@ export function createNativeAboutDialogDetails(productService: IProductService, 
 		);
 	};
 
-	const brand = localize('aboutBrand', "A clean, fast, AI-free editor.") + '\nhttps://github.com/dominikkoenitzer/Remnants\n\n';
+	const brand = localize('aboutBrand', "A clean, fast, AI-free editor.") + '\n\n';
 	const details = brand + getDetails(true);
 	const detailsToCopy = brand + getDetails(false);
 
