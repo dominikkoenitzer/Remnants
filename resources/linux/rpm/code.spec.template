@@ -4,7 +4,6 @@ Release:  @@RELEASE@@.el8
 Summary:  A clean, AI-free code editor
 Group:    Development/Tools
 Vendor:   Remnants
-Packager: dominikkoenitzer <dominikkoenitzer@users.noreply.github.com>
 License:  @@LICENSE@@
 URL:      https://github.com/dominikkoenitzer/Remnants
 Icon:     @@NAME@@.xpm
