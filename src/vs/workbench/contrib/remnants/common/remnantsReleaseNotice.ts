@@ -3,9 +3,10 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-// The opt-in release notice: once a day, ask GitHub for the latest release of
-// the repository the product points to and say so when it is newer than the
-// running build. Everything here is pure so it can be tested without services.
+// The opt-in release notice: once a day, ask the product's download site for
+// the latest release and say so when it is newer than the running build. The
+// site forwards `/latest` to the GitHub API. Everything here is pure so it can
+// be tested without services.
 
 export const CHECK_FOR_UPDATES_SETTING = 'remnants.checkForUpdates';
 export const UPDATE_MODE_SETTING = 'update.mode';
@@ -15,14 +16,8 @@ export const DISMISSED_TAG_STORAGE_KEY = 'remnants.releaseNotice.dismissedTag';
 
 export const CHECK_INTERVAL = 24 * 60 * 60 * 1000;
 
-export interface IGitHubRepository {
-	readonly owner: string;
-	readonly name: string;
-}
-
 export interface ILatestRelease {
 	readonly tag: string;
-	readonly htmlUrl: string | undefined;
 }
 
 /**
@@ -129,19 +124,29 @@ function compareIdentifiers(a: string, b: string): number {
 	return a < b ? -1 : a > b ? 1 : 0;
 }
 
-const GITHUB_REPOSITORY_PATTERN = /^https:\/\/github\.com\/([a-z0-9-]+)\/([a-z0-9._-]+?)(?:\.git)?(?:[/?#]|$)/i;
-
 /**
- * Reads owner and repository from a GitHub URL such as the product's
- * `reportIssueUrl`.
+ * The origin of the product's `downloadUrl`, the site the notice asks and
+ * opens. Undefined unless it is an https URL, which turns the notice off.
  */
-export function parseGitHubRepository(url: string | undefined): IGitHubRepository | undefined {
-	const match = url ? GITHUB_REPOSITORY_PATTERN.exec(url) : null;
-	return match ? { owner: match[1], name: match[2] } : undefined;
+export function getDownloadSite(downloadUrl: string | undefined): string | undefined {
+	if (!downloadUrl) {
+		return undefined;
+	}
+	let url: URL;
+	try {
+		url = new URL(downloadUrl);
+	} catch {
+		return undefined;
+	}
+	return url.protocol === 'https:' ? url.origin : undefined;
 }
 
-export function getLatestReleaseApiUrl(repository: IGitHubRepository): string {
-	return `https://api.github.com/repos/${repository.owner}/${repository.name}/releases/latest`;
+/**
+ * The site answers `/latest` with a redirect to the GitHub API's latest
+ * release, which the request follows.
+ */
+export function getLatestReleaseUrl(site: string): string {
+	return `${site}/latest`;
 }
 
 /**
@@ -151,25 +156,9 @@ export function parseLatestRelease(value: unknown): ILatestRelease | undefined {
 	if (!value || typeof value !== 'object') {
 		return undefined;
 	}
-	const release = value as { tag_name?: unknown; html_url?: unknown };
+	const release = value as { tag_name?: unknown };
 	if (typeof release.tag_name !== 'string' || !release.tag_name) {
 		return undefined;
 	}
-	return {
-		tag: release.tag_name,
-		htmlUrl: typeof release.html_url === 'string' ? release.html_url : undefined
-	};
-}
-
-/**
- * The page "Open Release Page" opens. The response's `html_url` is used only
- * when it is a release page of the same repository; otherwise the tag page is
- * built from the tag.
- */
-export function getReleasePageUrl(release: ILatestRelease, repository: IGitHubRepository): string {
-	const releasesUrl = `https://github.com/${repository.owner}/${repository.name}/releases/`;
-	if (release.htmlUrl?.startsWith(releasesUrl)) {
-		return release.htmlUrl;
-	}
-	return `${releasesUrl}tag/${encodeURIComponent(release.tag)}`;
+	return { tag: release.tag_name };
 }
