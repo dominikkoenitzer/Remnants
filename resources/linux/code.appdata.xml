@@ -6,8 +6,8 @@
 	<project_license>@@LICENSE@@</project_license>
 	<name>@@NAME_LONG@@</name>
 	<developer_name>Remnants</developer_name>
-	<url type="homepage">https://github.com/dominikkoenitzer/Remnants</url>
-	<url type="bugtracker">https://github.com/dominikkoenitzer/Remnants/issues</url>
+	<url type="homepage">@@HOMEPAGE@@</url>
+	<url type="bugtracker">@@HOMEPAGE@@/issues</url>
 	<summary>A clean, AI-free code editor</summary>
 	<description>
 		<p>@@NAME_LONG@@ is a code editor derived from Code - OSS, the open-source core of Visual Studio Code, with every built-in AI surface, telemetry hook and account prompt removed.</p>

@@ -6,7 +6,7 @@ Recommends: @@RECOMMENDS@@
 Priority: optional
 Architecture: @@ARCHITECTURE@@
 Maintainer: dominikkoenitzer <dominikkoenitzer@users.noreply.github.com>
-Homepage: https://github.com/dominikkoenitzer/Remnants
+Homepage: @@HOMEPAGE@@
 Installed-Size: @@INSTALLEDSIZE@@
 Description: A clean, AI-free code editor
  Remnants is a build of Code - OSS with every built-in AI feature removed:

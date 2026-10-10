@@ -5,7 +5,7 @@ Summary:  A clean, AI-free code editor
 Group:    Development/Tools
 Vendor:   Remnants
 License:  @@LICENSE@@
-URL:      https://github.com/dominikkoenitzer/Remnants
+URL:      @@HOMEPAGE@@
 Icon:     @@NAME@@.xpm
 Requires: @@DEPENDENCIES@@
 Recommends: @@RECOMMENDS@@
