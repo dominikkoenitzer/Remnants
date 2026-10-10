@@ -7,14 +7,16 @@
     "light": {
       "accent": "#2563eb",
       "accent-hover": "#1d4ed8",
-      "accent-ink": "#2563eb",
+      "accent-ink": "#1d4ed8",
       "band": "#e6edfc",
       "tile": "#eff4fe",
-      "stage": "#e9f0fd"
+      "stage": "#e9f0fd",
+      "h1-vw": "8.2vw",
+      "h1-max": "6.4rem"
     },
     "dark": {
       "accent": "#2563eb",
-      "accent-hover": "#3b82f6",
+      "accent-hover": "#2d6ae6",
       "accent-ink": "#7fb2fb",
       "band": "#101a2e",
       "tile": "#15213c",
