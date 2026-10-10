@@ -15,7 +15,8 @@ dist=${2:?usage: render-pkgbuild.sh <version> <distdir>}
 
 repo=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 template="$repo/resources/linux/arch/PKGBUILD.template"
-base="https://github.com/dominikkoenitzer/Remnants/releases/download/v$version"
+site=$(cd "$repo" && node -p "require('./product.json').downloadUrl")
+base="$site/releases/download/v$version"
 
 sources=$(mktemp)
 trap 'rm -f "$sources"' EXIT
@@ -45,7 +46,7 @@ sed -e "s|@@PKGVER@@|$version|g" \
 	-e "s|@@APPNAME@@|$app|g" \
 	-e "s|@@PKGDESC@@|$desc|g" \
 	-e "s|@@ARCHES@@|${arches[*]}|g" \
-	-e "s|@@URL@@|https://github.com/dominikkoenitzer/Remnants|g" \
+	-e "s|@@URL@@|$site|g" \
 	-e "/@@SOURCES@@/r $sources" \
 	-e "/@@SOURCES@@/d" \
 	"$template" >"$dist/PKGBUILD"
