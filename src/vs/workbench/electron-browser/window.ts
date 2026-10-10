@@ -260,7 +260,9 @@ export class NativeWindow extends BaseWindow {
 				[{
 					label: localize('downloadArmBuild', "Download"),
 					run: () => {
-						this.openerService.open('https://github.com/dominikkoenitzer/Remnants/releases/latest');
+						if (this.productService.downloadUrl) {
+							this.openerService.open(new URL('/download/windows-arm', this.productService.downloadUrl).href);
+						}
 					}
 				}],
 				{
