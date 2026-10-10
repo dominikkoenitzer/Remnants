@@ -8,6 +8,7 @@ on:
       - "LICENSE.txt"
       - ".github/ISSUE_TEMPLATE/**"
       - ".github/PULL_REQUEST_TEMPLATE.md"
+      - "site/**"
   pull_request:
     branches: [main]
     paths-ignore:
@@ -15,6 +16,7 @@ on:
       - "LICENSE.txt"
       - ".github/ISSUE_TEMPLATE/**"
       - ".github/PULL_REQUEST_TEMPLATE.md"
+      - "site/**"
   # On a timer as well as on every push. Nothing here changes between those
   # runs; what changes underneath it does. A new toolchain, a new runner
   # image, a yanked dependency. Any of those turns a green build red with no

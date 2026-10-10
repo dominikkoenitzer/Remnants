@@ -1,0 +1,28 @@
+# Remnants
+
+> A code editor built on the open VS Code source, with every AI feature taken out.
+
+Remnants keeps the editor, IntelliSense, the integrated terminal, Git and the debugger. The chat panel, agent sessions, voice and the bundled AI extension are removed, telemetry and crash reporting are off, and nothing asks you to sign in.
+
+- Runs on Windows x64 and Windows on ARM. The installer sets it up for the current user only, so it needs no admin rights.
+- Extensions come from the Open VSX registry.
+- Settings, keybindings and profiles live in `%APPDATA%\Remnants`. Extensions live in `%USERPROFILE%\.remnants\extensions`.
+- It has no built-in updater. New versions come from this page.
+- The release notice is off by default. With the setting `remnants.checkForUpdates` turned on, the editor asks `/latest` once a day and shows a notification when a newer release is out. It downloads and installs nothing. It stays off while `update.mode` is `none` or `manual`.
+- MIT license.
+
+## Download
+
+- [Windows x64 installer](/download/windows): `RemnantsUserSetup-x64.exe` from the latest release
+- [Windows on ARM installer](/download/windows-arm): `RemnantsUserSetup-arm64.exe` from the latest release
+
+## Releases
+
+- [Latest release](/latest): the latest release as JSON; `tag_name` is its version tag. The release notice reads it.
+- `/releases/download/<tag>/<file>`: one file of a given release, for example `Remnants-linux-x64-<version>.tar.gz` for release `v<version>`.
+
+## Help
+
+- [Report a problem](/issues/new): opens a new issue. The editor's Report Issue uses this address.
+- [Open issues](/issues)
+- [License](/license.txt)
