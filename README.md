@@ -223,33 +223,96 @@ Uninstalling never touches these.
 
 ## Build from source
 
-Remnants builds with the same toolchain as Code - OSS. CI builds on **Node 22**,
-because the committed `package-lock.json` is only in sync under npm 10's
-resolver; npm 11 (bundled with Node 24) rejects `npm ci`. Node 24 matches
-`.nvmrc` and works for `npm install`.
+Remnants builds with the same toolchain as Code - OSS. Use **Node.js 22**: the
+committed `package-lock.json` is only in sync under npm 10's resolver, and npm 11
+(bundled with Node 24) rejects `npm ci`. `.nvmrc` asks for Node 24, so set
+`VSCODE_SKIP_NODE_VERSION_CHECK=1` to skip that check, as the release build does.
 
-### Prerequisites
+### Windows, step by step
 
-Common to every platform: **Node.js 22 or 24** and **Python 3.13** (node-gyp
-compiles the native modules from source, per `.npmrc`).
+Open PowerShell and paste one block at a time. Accept the administrator prompts.
+
+1. Install Git, Node.js 22, Python 3.13 and the Visual Studio 2022 C++ build tools.
+   The build tools are a few GB and take a while.
+
+   ```powershell
+   winget install --id Git.Git -e
+   winget install --id OpenJS.NodeJS.22 -e
+   winget install --id Python.Python.3.13 -e
+   winget install --id Microsoft.VisualStudio.2022.BuildTools -e --override "--wait --passive --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Component.VC.Runtimes.x86.x64.Spectre --add Microsoft.VisualStudio.Component.Windows11SDK.26100 --includeRecommended"
+   ```
+
+   It has to be Visual Studio 2022: node-gyp here cannot use the newer Visual
+   Studio 18 toolchain. The Spectre-mitigated libraries are not part of
+   `--includeRecommended`, so they are added by name. To cross-build the arm64
+   installer, also add the ARM64 C++ tools and their Spectre libraries.
+
+2. Close PowerShell and open a new window, so the new tools are on your PATH. Then
+   let PowerShell run npm's script wrapper (once per user):
+
+   ```powershell
+   Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+   ```
+
+3. Get the source and check the tools:
+
+   ```powershell
+   cd $HOME
+   git clone https://github.com/dominikkoenitzer/Remnants.git
+   cd Remnants
+   .\scripts\setup.ps1
+   ```
+
+   `setup.ps1` only checks. It prints the install command for anything still
+   missing and installs nothing.
+
+4. Install the dependencies:
+
+   ```powershell
+   $env:VSCODE_SKIP_NODE_VERSION_CHECK = "1"
+   npm ci
+   ```
+
+5. Build and start it:
+
+   ```powershell
+   npm run transpile-client
+   npm run build-fast-extensions
+   .\scripts\code.bat
+   ```
+
+   The first start downloads Electron and the built-in extensions, then opens a
+   window titled **Remnants Dev**.
+
+`npm ci` and the first start download files from GitHub. If either stops with a
+rate limit error (HTTP 403), set a token in the same window and run it again:
+`$env:GITHUB_TOKEN = "<token>"`. A token without any scopes is enough. Create one
+on GitHub under **Settings > Developer settings > Personal access tokens**, or use
+`$env:GITHUB_TOKEN = gh auth token` if GitHub CLI is signed in.
+
+`$env:` variables only last for the current window, so set them again in a new
+one. For day-to-day work, keep `npm run watch` running in a second window and run
+**Developer: Reload Window** in the dev build after a change.
+
+### macOS and Linux
+
+Install Node.js 22 and Python 3.13, plus:
 
 | Platform | Also needs |
 | --- | --- |
-| Windows | **Visual Studio 2022 C++ Build Tools** with *Desktop development with C++* and the Spectre-mitigated libraries (`Microsoft.VisualStudio.Component.VC.Runtimes.x86.x64.Spectre`; not part of `--includeRecommended`, add it explicitly). Building the arm64 installer also needs the ARM64 C++ tools and their Spectre libraries |
 | macOS | Xcode Command Line Tools (`xcode-select --install`) |
 | Linux | `libkrb5-dev libx11-dev libxkbfile-dev libsecret-1-dev` on Debian/Ubuntu; `krb5 libx11 libxkbfile libsecret` on Arch |
 
-If you build with Node 22, set `VSCODE_SKIP_NODE_VERSION_CHECK=1` first to bypass
-the `.nvmrc` Node 24 pin.
-
-### Run a development build
+Then:
 
 ```sh
-npm install
-npm run transpile-client           # fast esbuild transpile of the client
-npm run build-fast-extensions      # built-in extensions and the icon font
-npm run download-builtin-extensions
-scripts/code.sh                    # scripts\code.bat on Windows
+git clone https://github.com/dominikkoenitzer/Remnants.git
+cd Remnants
+export VSCODE_SKIP_NODE_VERSION_CHECK=1
+npm ci
+npm run transpile-client
+npm run build-fast-extensions
+./scripts/code.sh
 ```
 
 ### Produce the release artifacts
