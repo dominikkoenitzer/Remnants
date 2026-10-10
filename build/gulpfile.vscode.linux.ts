@@ -63,6 +63,7 @@ function prepareDebPackage(arch: string) {
 			.pipe(replace('@@NAME_LONG@@', product.nameLong))
 			.pipe(replace('@@NAME@@', linuxDesktopName))
 			.pipe(replace('@@LICENSE@@', product.licenseName))
+			.pipe(replace('@@HOMEPAGE@@', product.downloadUrl))
 			.pipe(rename(`usr/share/appdata/${linuxDesktopName}.appdata.xml`));
 
 		const workspaceMime = gulp.src('resources/linux/code-workspace.xml', { base: '.' })
@@ -96,6 +97,7 @@ function prepareDebPackage(arch: string) {
 					.pipe(replace('@@DEPENDS@@', dependencies.join(', ')))
 					.pipe(replace('@@RECOMMENDS@@', debianRecommendedDependencies.join(', ')))
 					.pipe(replace('@@INSTALLEDSIZE@@', Math.ceil(size / 1024).toString()))
+					.pipe(replace('@@HOMEPAGE@@', product.downloadUrl))
 					.pipe(rename('DEBIAN/control'))
 					.pipe(es.through(function (f) { that.emit('data', f); }, function () { that.emit('end'); }));
 			}));
@@ -172,6 +174,7 @@ function prepareRpmPackage(arch: string) {
 			.pipe(replace('@@NAME_LONG@@', product.nameLong))
 			.pipe(replace('@@NAME@@', linuxDesktopName))
 			.pipe(replace('@@LICENSE@@', product.licenseName))
+			.pipe(replace('@@HOMEPAGE@@', product.downloadUrl))
 			.pipe(rename(`BUILD/usr/share/appdata/${linuxDesktopName}.appdata.xml`));
 
 		const workspaceMime = gulp.src('resources/linux/code-workspace.xml', { base: '.' })
@@ -198,6 +201,7 @@ function prepareRpmPackage(arch: string) {
 			.pipe(replace('@@NAME_LONG@@', product.nameLong))
 			.pipe(replace('@@DESKTOP_NAME@@', linuxDesktopName))
 			.pipe(replace('@@ICON@@', product.linuxIconName))
+			.pipe(replace('@@HOMEPAGE@@', product.downloadUrl))
 			.pipe(replace('@@VERSION@@', packageJson.version))
 			.pipe(replace('@@RELEASE@@', linuxPackageRevision.toString()))
 			.pipe(replace('@@ARCHITECTURE@@', rpmArch))

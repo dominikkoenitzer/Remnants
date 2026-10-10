@@ -33,6 +33,7 @@ name_short=$(field nameShort)  # Remnants
 icon=$(field linuxIconName)    # remnants
 url_protocol=$(field urlProtocol)
 license=$(field licenseName)
+homepage=$(field downloadUrl)
 
 # The default install prefix that install.sh and the Arch package both use. It
 # is baked into the shipped .desktop files so that a plain `sudo ./install.sh`
@@ -63,6 +64,7 @@ render() {
 		-e "s|@@ICON@@|$icon|g" \
 		-e "s|@@URLPROTOCOL@@|$url_protocol|g" \
 		-e "s|@@LICENSE@@|$license|g" \
+		-e "s|@@HOMEPAGE@@|$homepage|g" \
 		-e "s|@@VERSION@@|$version|g" \
 		"$1" >"$2"
 }
