@@ -16,14 +16,14 @@ For security issues, **do not** open a public issue; follow [SECURITY.md](SECURI
 
 ## Development setup
 
-See [Build from source](README.md#build-from-source) in the README for prerequisites and commands. In short:
+See [Build from source](README.md#build-from-source) in the README for prerequisites and commands. On Windows, `.\scripts\setup.ps1` checks the prerequisites. In short, with Node.js 22 in PowerShell:
 
-```sh
-npm install
+```powershell
+$env:VSCODE_SKIP_NODE_VERSION_CHECK = "1"
+npm ci
 npm run transpile-client
 npm run build-fast-extensions
-npm run download-builtin-extensions
-scripts\code.bat
+.\scripts\code.bat
 ```
 
 For day-to-day work, `npm run watch` gives an incremental build.
