@@ -8,7 +8,7 @@
 AppId={#AppId}
 AppName={#NameLong}
 AppVerName={#NameVersion}
-AppPublisher=dominikkoenitzer
+AppPublisher=Remnants
 AppPublisherURL=https://github.com/dominikkoenitzer/Remnants
 AppSupportURL=https://github.com/dominikkoenitzer/Remnants
 AppUpdatesURL=https://github.com/dominikkoenitzer/Remnants
