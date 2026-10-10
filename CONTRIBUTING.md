@@ -20,7 +20,8 @@ See [Build from source](README.md#build-from-source) in the README for prerequis
 
 ```sh
 npm install
-npm run transpile
+npm run transpile-client
+npm run build-fast-extensions
 npm run download-builtin-extensions
 scripts\code.bat
 ```

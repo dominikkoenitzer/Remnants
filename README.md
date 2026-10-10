@@ -246,7 +246,8 @@ the `.nvmrc` Node 24 pin.
 
 ```sh
 npm install
-npm run transpile                  # fast esbuild build of client + built-in extensions
+npm run transpile-client           # fast esbuild transpile of the client
+npm run build-fast-extensions      # built-in extensions and the icon font
 npm run download-builtin-extensions
 scripts/code.sh                    # scripts\code.bat on Windows
 ```
