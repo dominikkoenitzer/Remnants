@@ -19,7 +19,7 @@ import { Registry } from '../../../../platform/registry/common/platform.js';
 import { asJson, IRequestService } from '../../../../platform/request/common/request.js';
 import { IStorageService, StorageScope, StorageTarget } from '../../../../platform/storage/common/storage.js';
 import { IWorkbenchContribution, registerWorkbenchContribution2, WorkbenchPhase } from '../../../common/contributions.js';
-import { CHECK_FOR_UPDATES_SETTING, DISMISSED_TAG_STORAGE_KEY, getLatestReleaseApiUrl, getReleasePageUrl, IGitHubRepository, ILatestRelease, isCheckAllowed, isCheckDue, LAST_CHECK_STORAGE_KEY, parseGitHubRepository, parseLatestRelease, shouldNotify, UPDATE_MODE_SETTING } from '../common/remnantsReleaseNotice.js';
+import { CHECK_FOR_UPDATES_SETTING, DISMISSED_TAG_STORAGE_KEY, getDownloadSite, getLatestReleaseUrl, ILatestRelease, isCheckAllowed, isCheckDue, LAST_CHECK_STORAGE_KEY, parseLatestRelease, shouldNotify, UPDATE_MODE_SETTING } from '../common/remnantsReleaseNotice.js';
 
 Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration).registerConfiguration({
 	id: 'remnants',
@@ -30,7 +30,7 @@ Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration).regis
 			type: 'boolean',
 			default: false,
 			scope: ConfigurationScope.APPLICATION,
-			markdownDescription: localize('remnants.checkForUpdates', "Once a day, ask GitHub for the latest Remnants release and show a notification when it is newer than this version. Nothing is downloaded or installed. Has no effect while `#update.mode#` is `none` or `manual`."),
+			markdownDescription: localize('remnants.checkForUpdates', "Once a day, ask the Remnants download site, which forwards to GitHub, for the latest release and show a notification when it is newer than this version. Nothing is downloaded or installed. Has no effect while `#update.mode#` is `none` or `manual`."),
 			tags: ['usesOnlineServices']
 		}
 	}
@@ -55,24 +55,24 @@ class RemnantsReleaseNotice extends Disposable implements IWorkbenchContribution
 	) {
 		super();
 
-		const repository = parseGitHubRepository(productService.reportIssueUrl) ?? parseGitHubRepository(productService.licenseUrl);
-		if (!repository) {
+		const site = getDownloadSite(productService.downloadUrl);
+		if (!site) {
 			return;
 		}
 
 		this._register(configurationService.onDidChangeConfiguration(e => {
 			if (e.affectsConfiguration(CHECK_FOR_UPDATES_SETTING) || e.affectsConfiguration(UPDATE_MODE_SETTING)) {
-				this.checkIfDue(repository);
+				this.checkIfDue(site);
 			}
 		}));
 
 		const timer = this._register(new IntervalTimer());
-		timer.cancelAndSet(() => this.checkIfDue(repository), GATE_INTERVAL, mainWindow);
+		timer.cancelAndSet(() => this.checkIfDue(site), GATE_INTERVAL, mainWindow);
 
-		this.checkIfDue(repository);
+		this.checkIfDue(site);
 	}
 
-	private checkIfDue(repository: IGitHubRepository): void {
+	private checkIfDue(site: string): void {
 		if (!isCheckAllowed(this.configurationService.getValue(CHECK_FOR_UPDATES_SETTING), this.configurationService.getValue(UPDATE_MODE_SETTING))) {
 			return;
 		}
@@ -86,13 +86,13 @@ class RemnantsReleaseNotice extends Disposable implements IWorkbenchContribution
 		// as the check for today.
 		this.storageService.store(LAST_CHECK_STORAGE_KEY, now, StorageScope.APPLICATION, StorageTarget.MACHINE);
 
-		this.check(repository).catch(error => this.logService.warn('Release notice: the check failed', error));
+		this.check(site).catch(error => this.logService.warn('Release notice: the check failed', error));
 	}
 
-	private async check(repository: IGitHubRepository): Promise<void> {
-		const context = await this.requestService.request({ type: 'GET', url: getLatestReleaseApiUrl(repository), timeout: 20000, callSite: 'remnants.releaseNotice' }, CancellationToken.None);
+	private async check(site: string): Promise<void> {
+		const context = await this.requestService.request({ type: 'GET', url: getLatestReleaseUrl(site), timeout: 20000, callSite: 'remnants.releaseNotice' }, CancellationToken.None);
 		if (context.res.statusCode !== 200) {
-			this.logService.warn(`Release notice: GitHub answered with status ${context.res.statusCode}`);
+			this.logService.warn(`Release notice: the release check answered with status ${context.res.statusCode}`);
 			return;
 		}
 
@@ -103,18 +103,18 @@ class RemnantsReleaseNotice extends Disposable implements IWorkbenchContribution
 
 		const dismissedTag = this.storageService.get(DISMISSED_TAG_STORAGE_KEY, StorageScope.APPLICATION);
 		if (shouldNotify(release.tag, this.productService.version, dismissedTag)) {
-			this.notify(release, repository);
+			this.notify(release, site);
 		}
 	}
 
-	private notify(release: ILatestRelease, repository: IGitHubRepository): void {
+	private notify(release: ILatestRelease, site: string): void {
 		this.notificationService.prompt(
 			Severity.Info,
 			localize('remnantsReleaseNotice.message', "{0} {1} is available. You are running {2}.", this.productService.nameLong, release.tag, this.productService.version),
 			[{
-				label: localize('remnantsReleaseNotice.open', "Open Release Page"),
+				label: localize('remnantsReleaseNotice.open', "Open Download Page"),
 				run: () => {
-					this.openerService.open(URI.parse(getReleasePageUrl(release, repository)));
+					this.openerService.open(URI.parse(site));
 				}
 			}, {
 				label: localize('remnantsReleaseNotice.dismiss', "Don't Show Again"),

@@ -5,12 +5,10 @@
 
 import assert from 'assert';
 import { ensureNoDisposablesAreLeakedInTestSuite } from '../../../../../base/test/common/utils.js';
-import { CHECK_INTERVAL, compareVersions, getLatestReleaseApiUrl, getReleasePageUrl, isCheckAllowed, isCheckDue, parseGitHubRepository, parseLatestRelease, shouldNotify } from '../../common/remnantsReleaseNotice.js';
+import { CHECK_INTERVAL, compareVersions, getDownloadSite, getLatestReleaseUrl, isCheckAllowed, isCheckDue, parseLatestRelease, shouldNotify } from '../../common/remnantsReleaseNotice.js';
 
 suite('remnantsReleaseNotice', () => {
 	ensureNoDisposablesAreLeakedInTestSuite();
-
-	const repository = { owner: 'example-owner', name: 'Remnants' };
 
 	suite('compareVersions', () => {
 
@@ -143,61 +141,35 @@ suite('remnantsReleaseNotice', () => {
 		});
 	});
 
-	suite('parseGitHubRepository', () => {
+	suite('getDownloadSite', () => {
 
-		test('reads owner and name from product URLs', () => {
-			assert.deepStrictEqual(parseGitHubRepository('https://github.com/example-owner/Remnants/issues/new'), repository);
-			assert.deepStrictEqual(parseGitHubRepository('https://github.com/example-owner/Remnants/blob/main/LICENSE.txt'), repository);
-			assert.deepStrictEqual(parseGitHubRepository('https://github.com/example-owner/Remnants'), repository);
-			assert.deepStrictEqual(parseGitHubRepository('https://github.com/example-owner/Remnants.git'), repository);
-			assert.deepStrictEqual(parseGitHubRepository('https://github.com/some-owner/some.repo_name?tab=readme'), { owner: 'some-owner', name: 'some.repo_name' });
+		test('reads the origin of an https download URL', () => {
+			assert.strictEqual(getDownloadSite('https://downloads.example.com'), 'https://downloads.example.com');
+			assert.strictEqual(getDownloadSite('https://downloads.example.com/'), 'https://downloads.example.com');
+			assert.strictEqual(getDownloadSite('https://downloads.example.com/remnants/?from=app#top'), 'https://downloads.example.com');
 		});
 
-		test('ignores anything that is not an https GitHub repository URL', () => {
-			for (const value of [undefined, '', 'https://github.com/example-owner', 'http://github.com/example-owner/Remnants', 'https://gitlab.com/example-owner/Remnants', 'https://github.com.evil.example/example-owner/Remnants']) {
-				assert.strictEqual(parseGitHubRepository(value), undefined, value);
+		test('ignores anything that is not an https URL', () => {
+			for (const value of [undefined, '', 'downloads.example.com', 'http://downloads.example.com', 'file:///C:/remnants', 'command:workbench.action.quit', 'https://']) {
+				assert.strictEqual(getDownloadSite(value), undefined, value);
 			}
 		});
 	});
 
-	test('getLatestReleaseApiUrl', () => {
-		assert.strictEqual(getLatestReleaseApiUrl(repository), 'https://api.github.com/repos/example-owner/Remnants/releases/latest');
+	test('getLatestReleaseUrl', () => {
+		assert.strictEqual(getLatestReleaseUrl('https://downloads.example.com'), 'https://downloads.example.com/latest');
 	});
 
 	suite('parseLatestRelease', () => {
 
-		test('reads the tag and the page URL', () => {
-			assert.deepStrictEqual(parseLatestRelease({ tag_name: 'v1.140.0', html_url: 'https://github.com/example-owner/Remnants/releases/tag/v1.140.0', draft: false }), {
-				tag: 'v1.140.0',
-				htmlUrl: 'https://github.com/example-owner/Remnants/releases/tag/v1.140.0'
-			});
-			assert.deepStrictEqual(parseLatestRelease({ tag_name: 'v1.140.0', html_url: 42 }), { tag: 'v1.140.0', htmlUrl: undefined });
+		test('reads the tag', () => {
+			assert.deepStrictEqual(parseLatestRelease({ tag_name: 'v1.140.0', html_url: 'https://github.com/example-owner/Remnants/releases/tag/v1.140.0', draft: false }), { tag: 'v1.140.0' });
 		});
 
 		test('rejects responses without a tag', () => {
 			for (const value of [null, undefined, 'v1.140.0', 42, {}, { tag_name: '' }, { tag_name: 1 }, { message: 'Not Found' }]) {
 				assert.strictEqual(parseLatestRelease(value), undefined);
 			}
-		});
-	});
-
-	suite('getReleasePageUrl', () => {
-
-		test('uses the release page from the response', () => {
-			const htmlUrl = 'https://github.com/example-owner/Remnants/releases/tag/v1.140.0';
-			assert.strictEqual(getReleasePageUrl({ tag: 'v1.140.0', htmlUrl }, repository), htmlUrl);
-		});
-
-		test('falls back to the tag page for any other URL', () => {
-			const expected = 'https://github.com/example-owner/Remnants/releases/tag/v1.140.0';
-			assert.strictEqual(getReleasePageUrl({ tag: 'v1.140.0', htmlUrl: undefined }, repository), expected);
-			assert.strictEqual(getReleasePageUrl({ tag: 'v1.140.0', htmlUrl: 'https://example.com/releases/tag/v1.140.0' }, repository), expected);
-			assert.strictEqual(getReleasePageUrl({ tag: 'v1.140.0', htmlUrl: 'command:workbench.action.quit' }, repository), expected);
-			assert.strictEqual(getReleasePageUrl({ tag: 'v1.140.0', htmlUrl: 'https://github.com/someone/else/releases/tag/v1.140.0' }, repository), expected);
-		});
-
-		test('encodes the tag', () => {
-			assert.strictEqual(getReleasePageUrl({ tag: 'v1/2 3', htmlUrl: undefined }, repository), 'https://github.com/example-owner/Remnants/releases/tag/v1%2F2%203');
 		});
 	});
 });
