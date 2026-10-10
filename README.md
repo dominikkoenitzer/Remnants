@@ -1,5 +1,12 @@
 # Remnants
 
+**[Download Remnants for Windows](https://github.com/dominikkoenitzer/Remnants/releases/latest/download/RemnantsUserSetup-x64.exe)**, then double-click it.
+If Windows says "Windows protected your PC", click **More info**, then **Run anyway**.
+
+On an ARM PC, take the [arm64 installer](https://github.com/dominikkoenitzer/Remnants/releases/latest/download/RemnantsUserSetup-arm64.exe) instead. To check which one you have, open **Settings > System > About**: **System type** says x64-based or ARM-based processor.
+
+macOS and Linux: get the `.dmg`, `.deb`, `.rpm` or `.tar.gz` from the [latest release](https://github.com/dominikkoenitzer/Remnants/releases/latest), or the [`PKGBUILD`](https://github.com/dominikkoenitzer/Remnants/releases/latest/download/PKGBUILD) on Arch. Steps for each are under [Install](#install).
+
 [![CI](https://github.com/dominikkoenitzer/Remnants/actions/workflows/ci.yml/badge.svg)](https://github.com/dominikkoenitzer/Remnants/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.txt)
 [![Latest release](https://img.shields.io/github/v/release/dominikkoenitzer/Remnants?sort=semver&display_name=tag)](https://github.com/dominikkoenitzer/Remnants/releases/latest)
