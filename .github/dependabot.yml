@@ -56,6 +56,10 @@ updates:
       # ipynb extension stops type-checking. It stays on upstream's 10.0.2 and
       # moves together with sinon.
       - dependency-name: "@types/sinon"
+      # 24.19.1 breaks json-language-features/server (TS2769 on fs.readFile),
+      # which stays on 24.12.4 like upstream. An ignore cannot be limited to
+      # one directory, so it holds for the whole tree and moves by hand.
+      - dependency-name: "@types/node"
     commit-message:
       prefix: deps
     labels:
