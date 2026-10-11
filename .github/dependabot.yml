@@ -51,6 +51,11 @@ updates:
       # misplaced contents (1.139.1 shipped that way and could not start). It
       # stays on upstream's 3.0.3.
       - dependency-name: "asar"
+      # 10.0.20 imports FakeTimerInstallOpts from @sinonjs/fake-timers, and the
+      # 7.1.2 that sinon 12 installs ships its own types without it, so the
+      # ipynb extension stops type-checking. It stays on upstream's 10.0.2 and
+      # moves together with sinon.
+      - dependency-name: "@types/sinon"
     commit-message:
       prefix: deps
     labels:
