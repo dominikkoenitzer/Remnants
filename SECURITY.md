@@ -22,7 +22,7 @@ Remnants is a fork of [Code - OSS](https://github.com/microsoft/vscode). Vulnera
 ## Dependency advisories
 
 GitHub's Dependabot reports a large number of open advisories against this
-repository: **39 as of 2026-10-03** (19 high, 16 medium, 4 low).
+repository: **49 as of 2026-10-13** (19 high, 20 medium, 10 low).
 That number is worth explaining rather than leaving to interpretation.
 
 They come from upstream. Remnants tracks the VS Code tree at
@@ -38,13 +38,13 @@ Where they sit:
 | Location | Alerts |
 | --- | --- |
 | CLI (`Cargo.lock`) | 21 |
-| Root lockfile (editor + built-ins) | 9 |
-| Build tooling | 4 |
-| Bundled extensions | 3 |
+| Root lockfile (editor + built-ins) | 11 |
+| Build tooling | 5 |
+| Bundled extensions | 8 |
 | Test harnesses | 2 |
-| Remote server | 0 |
+| Remote server | 2 |
 
-Of the 39, 13 are on development-only dependencies that never reach a build.
+Of the 49, 15 are on development-only dependencies that never reach a build.
 
 **None of them were introduced here.** Remnants is a subtractive fork: nothing
 was added to the root `package.json` to support anything it does. Against the
@@ -71,7 +71,8 @@ What is actually done about them: Dependabot's alerts are on, its security pull
 requests are not. Advisories with a fix reachable inside the existing version
 ranges are closed by hand, lockfile by lockfile, without touching any
 `package.json`. The sweep on 2026-09-16 closed 49 of them, the only critical
-one among them, and a second pass on 2026-10-03 closed 83 more.
+one among them, a second pass on 2026-10-03 closed 83 more, and a third on
+2026-10-13 closed 11, all five critical ones among them.
 
 What is left has no fix inside those ranges. All 21 in the CLI trace back to
 `russh`, which the CLI takes as a git dependency on Microsoft's own fork,
@@ -83,10 +84,14 @@ latest release; `braces` and `decode-uri-component` come in through gulp 4 and
 that same `gulp-sourcemaps`; and `uuid` 3 is what
 `@microsoft/dev-tunnels-connections` requires, even in its latest release.
 No patched release exists at all for `extract-zip` in the build tooling,
-`http-cache-semantics` in the root and build lockfiles, `braces` 3.0.3 in the
-npm and Mermaid extensions, or `node-forge` in the API tests. The Emmet
-extension pins `image-size` 1.0 and the sanity tests get `diff` 7 through
-mocha 11; both fixes are a major version away. These are resolved by rebasing
+`http-cache-semantics` in the root and build lockfiles, `sprintf-js` in the
+root, build and npm extension lockfiles, `braces` 3.0.3 in the npm and Mermaid
+extensions, or `node-forge` in the API tests. The Emmet extension pins
+`image-size` 1.0, the sanity tests get `diff` 7 through mocha 11, Mermaid's
+Tailwind asks for `postcss-selector-parser` 6, and every manifest that takes
+`katex` (the editor, the remote server, its web build and three extensions)
+asks for 0.16 while the fix is 0.18; each of these fixes is a major version
+away. These are resolved by rebasing
 onto a newer upstream release, which is the only honest way to fix a dependency
 you do not own. If you need an editor with a fully patched dependency tree
 today, build from [upstream VS Code](https://github.com/microsoft/vscode)
