@@ -21,9 +21,10 @@ Remnants is a fork of [Code - OSS](https://github.com/microsoft/vscode). Vulnera
 
 ## Dependency advisories
 
-GitHub's Dependabot reports a large number of open advisories against this
-repository: **49 as of 2026-10-13** (19 high, 20 medium, 10 low).
-That number is worth explaining rather than leaving to interpretation.
+GitHub's Dependabot reports open advisories against this repository:
+**17 as of 2026-10-16** (4 high, 6 medium, 7 low), and 32 more are dismissed
+with a stated reason. Those numbers are worth explaining rather than leaving to
+interpretation.
 
 They come from upstream. Remnants tracks the VS Code tree at
 [`04c0d99f`](https://github.com/microsoft/vscode/commit/04c0d99f4fb0d8afe6ce4f0c58e31e183ac3e4b1)
@@ -33,18 +34,19 @@ extensions, the CLI, and the test harnesses. Dependabot scans all of them and
 attributes every transitive advisory to whoever owns the fork. Upstream carries
 the same dependency versions at the same commit.
 
-Where they sit:
+Where the open ones sit:
 
 | Location | Alerts |
 | --- | --- |
-| CLI (`Cargo.lock`) | 21 |
-| Root lockfile (editor + built-ins) | 11 |
-| Build tooling | 5 |
-| Bundled extensions | 8 |
-| Test harnesses | 2 |
+| Root lockfile (editor + built-ins) | 9 |
+| Bundled extensions | 5 |
 | Remote server | 2 |
+| Test harnesses | 1 |
 
-Of the 49, 15 are on development-only dependencies that never reach a build.
+Of the 17, 7 are on development-only dependencies that never reach a build.
+The 32 dismissed ones are the 21 in the CLI's `Cargo.lock`, dismissed as not
+used because the Rust CLI is never built or shipped here, and 11 for which no
+patched release exists at all, dismissed as a tolerable risk.
 
 **None of them were introduced here.** Remnants is a subtractive fork: nothing
 was added to the root `package.json` to support anything it does. Against the
