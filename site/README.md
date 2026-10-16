@@ -27,6 +27,15 @@ It names no author and does not link to this repository.
   - `/download/rpm`
   - `/download/pkgbuild`
   - `/download/checksums`
+  - `/download/windows-system`
+  - `/download/windows-system-arm`
+  - `/download/windows-zip`
+  - `/download/windows-zip-arm`
+  - `/download/mac-zip`
+  - `/download/mac-intel-zip`
+  - `/download/linux-arm`
+  - `/download/deb-arm`
+  - `/download/rpm-arm`
   - `/latest`
   - `/issues`
   - `/issues/new`
