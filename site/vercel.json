@@ -64,6 +64,69 @@
       }
     },
     {
+      "src": "^/download/windows-system$",
+      "status": 307,
+      "headers": {
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/latest/download/RemnantsSetup-x64.exe"
+      }
+    },
+    {
+      "src": "^/download/windows-system-arm$",
+      "status": 307,
+      "headers": {
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/latest/download/RemnantsSetup-arm64.exe"
+      }
+    },
+    {
+      "src": "^/download/windows-zip$",
+      "status": 307,
+      "headers": {
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/v1.139.4/Remnants-win32-x64-1.139.4.zip"
+      }
+    },
+    {
+      "src": "^/download/windows-zip-arm$",
+      "status": 307,
+      "headers": {
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/v1.139.4/Remnants-win32-arm64-1.139.4.zip"
+      }
+    },
+    {
+      "src": "^/download/mac-zip$",
+      "status": 307,
+      "headers": {
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/v1.139.4/Remnants-darwin-arm64-1.139.4.zip"
+      }
+    },
+    {
+      "src": "^/download/mac-intel-zip$",
+      "status": 307,
+      "headers": {
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/v1.139.4/Remnants-darwin-x64-1.139.4.zip"
+      }
+    },
+    {
+      "src": "^/download/linux-arm$",
+      "status": 307,
+      "headers": {
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/v1.139.4/Remnants-linux-arm64-1.139.4.tar.gz"
+      }
+    },
+    {
+      "src": "^/download/deb-arm$",
+      "status": 307,
+      "headers": {
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/v1.139.4/remnants-1.139.4-arm64.deb"
+      }
+    },
+    {
+      "src": "^/download/rpm-arm$",
+      "status": 307,
+      "headers": {
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/v1.139.4/remnants-1.139.4-aarch64.rpm"
+      }
+    },
+    {
       "src": "^/latest$",
       "status": 307,
       "headers": {
