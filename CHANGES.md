@@ -75,12 +75,23 @@ Microsoft Marketplace, which the Code - OSS licence does not cover.
   signing key; `build/linux/dependencies-generator.ts` skips binaries this fork
   does not build; three extensions declare the
   `@microsoft/applicationinsights-common` that `@vscode/extension-telemetry`
-  imports without declaring.
+  imports without declaring; `asar` stays at upstream's exact 3.0.3, because
+  later versions write overlapping file offsets with `build/lib/asar.ts`, and
+  every release build checks the packed archive with `build/verify-asar.ts`.
 - **`npm install` fix**: the upstream `postinstall` created AI-agent harness
   symlinks that broke installs once the harness was removed.
 - **Visual identity**: the Remnants shard icon, themes, product branding, and
   Windows installer artwork.
-- **Default settings**: a minimal, quieter default configuration.
+- **Default settings**: a minimal, quieter default configuration. Since
+  1.139.2 the activity bar is hidden and the status bar switches the side bar
+  views, the terminal and settings instead, and a few status items and Explorer
+  views start hidden. They are ordinary defaults, so any value you set wins.
+- **Inert API stubs**: `vscode.lm` and `vscode.chat` stay on the extension API
+  as empty stubs, so extensions that register language-model tools still
+  activate.
+- **Update notice**: the opt-in `remnants.checkForUpdates` setting asks the
+  download site once a day for the latest release and links to it. Nothing is
+  downloaded or installed.
 - **Repository automation**: upstream's `.github` replaced with a small CI
   workflow and release workflow; test fixtures excluded from secret scanning.
 
