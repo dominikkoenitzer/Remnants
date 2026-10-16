@@ -31,9 +31,9 @@ The README's [Download](README.md#download) and [Other ways to install](README.m
 
 ## Versioning
 
-Remnants tracks the upstream Code - OSS version in `package.json` (`version`, e.g.
-`1.125.0`). Tag releases as `v<version>`. If you ship more than one build from the
-same upstream base, add a fork suffix to the tag: `v1.125.0-remnants.1`.
+The version lives in `package.json` (`version`) and the tag is `v<version>`. A
+release starts at the upstream version it tracks (1.139.1); further builds on the
+same base raise the patch number (1.139.2, 1.139.3, 1.139.4).
 
 ## Cutting a release (GitHub Actions)
 
@@ -57,9 +57,11 @@ of failing. It is not free, though. The builds are not byte-reproducible, so eve
 re-run gives the same version new checksums, and anyone who already verified a
 download finds it changed underneath them. Once a version is published and its
 assets are verified, leave them alone and let improvements ride the next version,
-unless something about them is actually broken. Because each
-platform is a separate job, a failure on one still ships the others - the `publish`
-job runs on `always()` and takes whatever artifacts exist. If it published a partial
+unless something about them is actually broken. A published version that turns
+out broken is not rebuilt under the same tag: the fix ships as the next version,
+and the broken release loses its assets and says so in its notes, as v1.139.1
+does. Because each platform is a separate job, a failure on one still ships the
+others: the `publish` job runs on `always()` and takes whatever artifacts exist. If it published a partial
 set, fix the broken platform and re-run the workflow with **platforms** set to just
 that one.
 
@@ -81,6 +83,15 @@ that one.
 - **Linux on `ubuntu-22.04`**, so the binaries link against an older glibc and stay
   loadable on older distros. glibc is backwards compatible, so this build still runs
   on Arch and current Fedora/Ubuntu.
+- **`asar` at exactly 3.0.3**, the version upstream uses. Later versions write
+  overlapping file offsets with `build/lib/asar.ts`, and the packaged app then
+  fails to start while `--version` still works, so every build job runs
+  `node build/verify-asar.ts` on its `node_modules.asar`. Dependabot ignores
+  `asar` for this reason.
+- **`gulp-rename` at 1.2.2** and **`glob` ^7 in `build/package.json`**. Newer
+  `gulp-rename` drops the contents of streamed files, so built-in extensions
+  unpack without their `package.json`; the build scripts import glob's default
+  export, which only v7 has.
 - **macOS is ad-hoc signed** in `build/darwin/package-zip.sh`. Apple silicon refuses
   to execute an arm64 binary with no valid signature, and the packaging step
   invalidates the one Electron shipped with. Drop that and the app dies at launch
@@ -195,4 +206,6 @@ main executable on its own reports a much older one than the build really needs.
   Both macOS jobs and both Linux jobs run on their target architecture, so those
   builds are executed natively, and the Windows arm64 assets are exercised on real
   ARM hardware. The two system installers are the only assets never installed.
-- The README badge and Install link resolve to the latest release automatically.
+- The README's download links resolve to the latest release automatically. The
+  download page's addresses that name a version (`site/vercel.json`) need the new
+  one.
