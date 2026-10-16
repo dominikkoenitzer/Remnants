@@ -1,6 +1,6 @@
 # Contributing to Remnants
 
-Thanks for your interest! Remnants is a personal, AI-free build derived from [Code - OSS](https://github.com/microsoft/vscode); see [CHANGES.md](CHANGES.md) for what it changes. Issues and pull requests are welcome.
+Remnants is a personal, AI-free build derived from [Code - OSS](https://github.com/microsoft/vscode); see [CHANGES.md](CHANGES.md) for what it changes. Issues and pull requests are welcome.
 
 ## Before you start
 
@@ -30,7 +30,7 @@ For day-to-day work, `npm run watch` gives an incremental build.
 
 ## Before submitting a pull request
 
-1. **Type-check**: `npm run typecheck-client` must pass with no errors. This is the same gate CI runs.
+1. **Type-check**: `npm run typecheck-client` must pass with no errors. CI runs it too, together with the build of every built-in extension.
 2. **Match the existing style**: the codebase uses **tabs**, PascalCase for types/enums, camelCase for functions/variables, and double quotes only for user-facing (localized) strings. See the upstream [coding guidelines](https://github.com/microsoft/vscode/wiki/Coding-Guidelines) for the full conventions.
 3. **Keep commits focused** with clear messages.
 4. **Don't commit build output**: `out/`, `.build/`, and `node_modules/` are ignored; keep them that way.
@@ -43,4 +43,4 @@ For day-to-day work, `npm run watch` gives an incremental build.
 
 ## Relationship to upstream
 
-Remnants tracks [microsoft/vscode](https://github.com/microsoft/vscode) as `upstream`. Changes that are generally useful and not Remnants-specific are best contributed to upstream VS Code directly.
+Remnants takes each [microsoft/vscode](https://github.com/microsoft/vscode) release through the sync tooling in [`upstream/`](upstream/README.md). Changes that are generally useful and not Remnants-specific are best contributed to upstream VS Code directly.
