@@ -35,10 +35,11 @@ macOS) opens the Command Palette, and `Ctrl+K Ctrl+S` (`Cmd+K Cmd+S`) lists ever
 shortcut.
 
 > [!NOTE]
-> Almost all of the code here is Microsoft's. Remnants is derived from upstream
+> Almost all of the code here is Microsoft's. Remnants was cut from upstream
 > commit [`93cfdd48`](https://github.com/microsoft/vscode/commit/93cfdd489c3b228840d0f86ec77c3636277c93ea)
-> (release 1.125.0); my own contribution is roughly −759,000 / +2,800 lines on
-> top of it. [CHANGES.md](CHANGES.md) documents exactly what I changed and how to
+> (release 1.125.0) and now tracks release 1.139.1
+> ([`04c0d99f`](https://github.com/microsoft/vscode/commit/04c0d99f4fb0d8afe6ce4f0c58e31e183ac3e4b1));
+> my own contribution is roughly −759,000 / +2,800 lines on top of it. [CHANGES.md](CHANGES.md) documents exactly what I changed and how to
 > verify it.
 
 ## Other ways to install
