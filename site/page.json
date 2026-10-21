@@ -1,7 +1,7 @@
 {
   "slug": "remnants",
   "name": "Remnants",
-  "url": "https://get-remnants.vercel.app/",
+  "url": "https://remnants.punds.ch/",
   "description": "A code editor built on the open VS Code source, with every AI feature taken out. For Windows, macOS and Linux.",
   "colours": {
     "light": {
