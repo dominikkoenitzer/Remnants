@@ -2,7 +2,7 @@
 
 Remnants is a code editor built from Code - OSS, the open-source core of VS Code, with every built-in AI feature and all telemetry removed.
 
-[![CI](https://github.com/dominikkoenitzer/Remnants/actions/workflows/ci.yml/badge.svg)](https://github.com/dominikkoenitzer/Remnants/actions/workflows/ci.yml)
+[![CI](https://github.com/dominikkoenitzer/Remnants/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/dominikkoenitzer/Remnants/actions/workflows/ci.yml)
 
 ## Download
 
