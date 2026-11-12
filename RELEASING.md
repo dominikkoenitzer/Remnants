@@ -198,3 +198,7 @@ main executable on its own reports a much older one than the build really needs.
 - The README's download links go through the download page, and every
   `/download/<platform>` redirect in `site/vercel.json` points at
   `releases/latest/download/<name>`, so a new release needs no edit there.
+- The download page names one version under what is new. Once the release is
+  published, set `new` in `site/page.json` to that version and its changes, run
+  `python site/build.py`, and push. The site test fails while that version and
+  the one in `package.json` differ.
