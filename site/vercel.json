@@ -1,6 +1,13 @@
 {
   "routes": [
     {
+      "src": "^/diag(/.*)?$",
+      "headers": {
+        "X-Robots-Tag": "noindex"
+      },
+      "continue": true
+    },
+    {
       "src": "^/download/windows$",
       "status": 307,
       "headers": {
