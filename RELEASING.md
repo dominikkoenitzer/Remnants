@@ -195,4 +195,6 @@ main executable on its own reports a much older one than the build really needs.
   Both macOS jobs and both Linux jobs run on their target architecture, so those
   builds are executed natively, and the Windows arm64 assets are exercised on real
   ARM hardware. The two system installers are the only assets never installed.
-- The README badge and Install link resolve to the latest release automatically.
+- The README's download links go through the download page, and every
+  `/download/<platform>` redirect in `site/vercel.json` points at
+  `releases/latest/download/<name>`, so a new release needs no edit there.
