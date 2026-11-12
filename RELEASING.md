@@ -22,6 +22,13 @@ per version, carrying every platform it supports:
 | `PKGBUILD` | Arch Linux, builds `remnants-bin` from the x64/arm64 tarball |
 | `SHA256SUMS` | checksums for everything above |
 
+Every asset with `<version>` in its name is also published a second time under
+the same name without it (`Remnants-darwin-arm64.dmg`, `remnants-amd64.deb`), so
+`https://github.com/dominikkoenitzer/Remnants/releases/latest/download/<name>`
+always fetches the newest build. Such a link resolves against the latest release
+only, so a release meant to become the latest has to carry every platform; a
+partial one leaves the missing platforms' links broken until it is completed.
+
 Every asset also gets a signed provenance attestation
 (`actions/attest-build-provenance`), so a download can be traced back to this
 workflow with `gh attestation verify <file> -R dominikkoenitzer/Remnants` even
@@ -49,7 +56,8 @@ push. A full run takes roughly 30-45 minutes, with the platforms in parallel.
    just that platform's assets. Set **draft** if you want to inspect the release
    before it goes public.
 4. The build jobs upload their assets as run artifacts; the `publish` job collects
-   them, renders `PKGBUILD` and `SHA256SUMS`, and creates or updates the release.
+   them, adds the unversioned copies, renders `PKGBUILD` and `SHA256SUMS`, and
+   creates or updates the release.
 
 Re-running for an existing tag is safe in the sense that nothing breaks: `publish`
 re-uploads the assets to that release (`--clobber`) and refreshes the notes instead
@@ -117,7 +125,8 @@ npm run gulp vscode-darwin-arm64
 bash build/darwin/package-zip.sh arm64 "$version" dist
 bash build/darwin/package-dmg.sh arm64 "$version" dist   # after the zip, which signs the bundle
 
-# Arch package + checksums, once the tarballs are in dist/
+# Unversioned copies, Arch package + checksums, once every asset is in dist/
+bash build/stable-names.sh "$version" dist
 bash build/linux/render-pkgbuild.sh "$version" dist
 ( cd dist && sha256sum -- * > SHA256SUMS )
 ```

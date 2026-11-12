@@ -707,6 +707,15 @@ jobs:
           fi
           ls -lh dist
 
+      # The download page links to releases/latest/download/<name>, which only
+      # works for a name that stays the same from one release to the next. The
+      # Windows installers already have one; every versioned asset also goes
+      # out under its name without the version.
+      - name: Add unversioned copies
+        env:
+          VERSION: ${{ needs.setup.outputs.version }}
+        run: bash build/stable-names.sh "$VERSION" dist
+
       # The Arch package pulls the published tarball by URL, so its checksum can
       # only be filled in once that tarball exists. Render it here, next to the
       # tarball it refers to.
