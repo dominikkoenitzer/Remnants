@@ -26,8 +26,9 @@ Every asset with `<version>` in its name is also published a second time under
 the same name without it (`Remnants-darwin-arm64.dmg`, `remnants-amd64.deb`), so
 `https://github.com/dominikkoenitzer/Remnants/releases/latest/download/<name>`
 always fetches the newest build. Such a link resolves against the latest release
-only, so a release meant to become the latest has to carry every platform; a
-partial one leaves the missing platforms' links broken until it is completed.
+only, so the latest release has to carry every platform. The workflow sees to
+that: a new release that lacks a platform is created as a draft, and the run that
+adds the last missing platform publishes it as the latest.
 
 Every asset also gets a signed provenance attestation
 (`actions/attest-build-provenance`), so a download can be traced back to this
@@ -39,8 +40,12 @@ The README's [Download](README.md#download) and [Other ways to install](README.m
 ## Versioning
 
 Remnants tracks the upstream Code - OSS version in `package.json` (`version`, e.g.
-`1.125.0`). Tag releases as `v<version>`. If you ship more than one build from the
-same upstream base, add a fork suffix to the tag: `v1.125.0-remnants.1`.
+`1.125.0`). Tag releases as `v<version>`. To ship another build from the same
+upstream base, bump the patch number in `package.json` and `package-lock.json`
+(`1.139.4` to `1.139.5`). A suffix such as `1.139.4-remnants.1` does not work:
+the rpm `Version` and the PKGBUILD `pkgver` take no hyphen. The workflow checks
+both before it builds anything: the version is plain `major.minor.patch`, and a
+run for every platform needs a version with no published release.
 
 ## Cutting a release (GitHub Actions)
 
@@ -57,7 +62,8 @@ push. A full run takes roughly 30-45 minutes, with the platforms in parallel.
    before it goes public.
 4. The build jobs upload their assets as run artifacts; the `publish` job collects
    them, adds the unversioned copies, renders `PKGBUILD` and `SHA256SUMS`, and
-   creates or updates the release.
+   creates or updates the release. A new release missing a platform stays a draft
+   until a later run adds it.
 
 Re-running for an existing tag is safe in the sense that nothing breaks: `publish`
 re-uploads the assets to that release (`--clobber`) and refreshes the notes instead
@@ -67,9 +73,9 @@ download finds it changed underneath them. Once a version is published and its
 assets are verified, leave them alone and let improvements ride the next version,
 unless something about them is actually broken. Because each
 platform is a separate job, a failure on one still ships the others - the `publish`
-job runs on `always()` and takes whatever artifacts exist. If it published a partial
-set, fix the broken platform and re-run the workflow with **platforms** set to just
-that one.
+job runs on `always()` and takes whatever artifacts exist. A partial set of a new
+version is held back as a draft; fix the broken platform and re-run the workflow
+with **platforms** set to just that one, and that run publishes it.
 
 ### Pins that must stay
 
@@ -132,7 +138,8 @@ bash build/linux/render-pkgbuild.sh "$version" dist
 ```
 
 Then publish with the [GitHub CLI](https://cli.github.com/), authenticated against
-this repo (`gh auth login`):
+this repo (`gh auth login`). One machine builds only its own platforms, so add
+`--draft` until the release carries all of them:
 
 ```sh
 gh release create "v$version" dist/* \
@@ -175,6 +182,13 @@ gh release create "v$version" dist/* \
   mentioning only the platforms the release actually has. The publish job feeds it
   the release's own asset list, so re-running one platform never drops the others
   from the notes or from `SHA256SUMS`.
+- **`build/release-assets.sh`** lists every file a complete release carries.
+  `build/publish-release.sh` checks the run's assets against it and holds a new
+  release back as a draft while a platform is missing.
+- **`build/check-release-version.sh`** stops a run whose version has a hyphen, or
+  that would build every platform again for a published version.
+- **`build/release-scripts.test.sh`** tests these scripts against a stand-in `gh`;
+  CI runs it on every push.
 
 ## Supported platform floors
 
