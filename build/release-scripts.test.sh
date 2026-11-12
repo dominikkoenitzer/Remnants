@@ -112,11 +112,11 @@ check "a draft still missing platforms stays a draft" "$(calls)" \
 
 setup published "${mac_only[@]}"
 printf '%s\n' "${no_mac[@]}" SHA256SUMS > "$GH_ASSETS"
-publish false
-check "a published release only gets its assets replaced" "$(calls)" \
-	"release upload v1.0.0 --clobber;"
+status=0
+publish false || status=$?
+check "a run over a published release stops and uploads nothing" "$status $(calls)" "1 "
 
-# check-release-version.sh: no full run over a published version, no suffix.
+# check-release-version.sh: no run over a published version, no suffix.
 version_check() {
 	GH_STATE=$3
 	export GH_STATE
@@ -125,7 +125,8 @@ version_check() {
 check "a full run over a published version stops" "$(version_check 1.0.0 all published)" stop
 check "a full run over a new version goes ahead" "$(version_check 1.0.1 all none)" pass
 check "a full run over a draft goes ahead" "$(version_check 1.0.0 all draft)" pass
-check "a one-platform run over a published version goes ahead" "$(version_check 1.0.0 linux published)" pass
+check "a one-platform run over a published version stops" "$(version_check 1.0.0 linux published)" stop
+check "a one-platform run over a draft goes ahead" "$(version_check 1.0.0 linux draft)" pass
 check "a version with a suffix stops" "$(version_check 1.0.0-remnants.1 all none)" stop
 check "an unreadable release stops" "$(version_check 1.0.0 all broken)" stop
 

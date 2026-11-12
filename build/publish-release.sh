@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Create the GitHub release for a version from the assets in <distdir>, or add
-# them to the release when it already exists.
+# them to it while it is still a draft. A published release is left alone.
 #
 #   build/publish-release.sh <version> <distdir> <draft> <commit>
 #
@@ -30,12 +30,15 @@ bash "$here/release-assets.sh" "$version" > "$expected"
 # Names a complete release has and the files in $have lack, one per line.
 missing() { grep -vxF -f "$have" "$expected" || true; }
 
-if gh release view "$tag" >/dev/null 2>&1; then
-	echo "Release $tag already exists - updating its assets."
+if is_draft=$(gh release view "$tag" --json isDraft --jq .isDraft 2>/dev/null); then
+	if [ "$is_draft" != "true" ]; then
+		echo "Release $tag is already published, so its files stay as they are. A fix ships under a new version." >&2
+		exit 1
+	fi
+	echo "Draft release $tag already exists - adding this run's assets."
 	gh release upload "$tag" "$dist"/* --clobber
 	gh release view "$tag" --json assets --jq '.assets[].name' >> "$have"
-	if [ -z "$(missing)" ] && [ "$draft" != "true" ] &&
-		[ "$(gh release view "$tag" --json isDraft --jq .isDraft)" = "true" ]; then
+	if [ -z "$(missing)" ] && [ "$draft" != "true" ]; then
 		echo "Release $tag now has every platform - publishing it as the latest release."
 		gh release edit "$tag" --draft=false --latest
 	fi
