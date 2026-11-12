@@ -65,7 +65,7 @@ jobs:
           echo "version=$ver" >> "$GITHUB_OUTPUT"
           echo "Releasing Remnants v$ver"
 
-      # A published version is never built again for every platform, and a
+      # A published version is never built again, not even one platform, and a
       # version the Linux packages cannot carry fails here instead of twenty
       # minutes into their build.
       - name: Check the version can be released

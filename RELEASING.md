@@ -44,8 +44,8 @@ Remnants tracks the upstream Code - OSS version in `package.json` (`version`, e.
 upstream base, bump the patch number in `package.json` and `package-lock.json`
 (`1.139.4` to `1.139.5`). A suffix such as `1.139.4-remnants.1` does not work:
 the rpm `Version` and the PKGBUILD `pkgver` take no hyphen. The workflow checks
-both before it builds anything: the version is plain `major.minor.patch`, and a
-run for every platform needs a version with no published release.
+both before it builds anything: the version is plain `major.minor.patch`, and it
+has no published release. A draft of it may still be completed or rebuilt.
 
 ## Cutting a release (GitHub Actions)
 
@@ -57,21 +57,21 @@ push. A full run takes roughly 30-45 minutes, with the platforms in parallel.
 2. Leave **version** blank to release the current `package.json` version, or type a
    version; it must match `package.json` (the workflow fails fast otherwise, since
    the assets always report the `package.json` version). The tag is `v<version>`.
-3. Pick **platforms**: `all`, or one of `windows` / `linux` / `macos` to rebuild
-   just that platform's assets. Set **draft** if you want to inspect the release
+3. Pick **platforms**: `all`, or one of `windows` / `linux` / `macos` to build
+   just that platform's assets into a draft. Set **draft** if you want to inspect the release
    before it goes public.
 4. The build jobs upload their assets as run artifacts; the `publish` job collects
    them, adds the unversioned copies, renders `PKGBUILD` and `SHA256SUMS`, and
    creates or updates the release. A new release missing a platform stays a draft
    until a later run adds it.
 
-Re-running for an existing tag is safe in the sense that nothing breaks: `publish`
-re-uploads the assets to that release (`--clobber`) and refreshes the notes instead
-of failing. It is not free, though. The builds are not byte-reproducible, so every
-re-run gives the same version new checksums, and anyone who already verified a
-download finds it changed underneath them. Once a version is published and its
-assets are verified, leave them alone and let improvements ride the next version,
-unless something about them is actually broken. Because each
+A published release is never built again, not even one platform of it. The
+builds are not byte-reproducible, so a re-run would give the same version new
+checksums, and anyone who already verified a download would find it changed
+underneath them. The workflow stops such a run in its setup job, and
+`publish-release.sh` refuses to upload to a published release. A fix, even for
+something broken, ships under the next patch version. A draft is different:
+`publish` re-uploads the assets to it (`--clobber`) and refreshes the notes. Because each
 platform is a separate job, a failure on one still ships the others - the `publish`
 job runs on `always()` and takes whatever artifacts exist. A partial set of a new
 version is held back as a draft; fix the broken platform and re-run the workflow
@@ -186,7 +186,7 @@ gh release create "v$version" dist/* \
   `build/publish-release.sh` checks the run's assets against it and holds a new
   release back as a draft while a platform is missing.
 - **`build/check-release-version.sh`** stops a run whose version has a hyphen, or
-  that would build every platform again for a published version.
+  whose version is already published.
 - **`build/release-scripts.test.sh`** tests these scripts against a stand-in `gh`;
   CI runs it on every push.
 

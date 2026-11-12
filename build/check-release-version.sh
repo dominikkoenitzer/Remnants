@@ -7,9 +7,9 @@
 # - The version is plain major.minor.patch. The rpm Version and the PKGBUILD
 #   pkgver take no hyphen, so a suffix such as 1.139.4-remnants.1 fails twenty
 #   minutes into the Linux build.
-# - A run for every platform needs a version with no published release yet. A
-#   published release is never built again; a run for one platform may still
-#   complete or repair it, and a draft may be rebuilt in full.
+# - A published release is never built again, not even for one platform: its
+#   files stay as people downloaded and verified them, and a fix ships under a
+#   new version. A draft may be completed or rebuilt.
 #
 # Needs gh with a token that may read the repository's releases.
 set -euo pipefail
@@ -26,11 +26,11 @@ tag="v$version"
 err=$(mktemp)
 trap 'rm -f "$err"' EXIT
 if is_draft=$(gh release view "$tag" --json isDraft --jq .isDraft 2> "$err"); then
-	if [ "$is_draft" = "false" ] && [ "$platforms" = "all" ]; then
-		echo "$tag is already published. Bump the version in package.json for a new release, or pick one platform to complete this one." >&2
+	if [ "$is_draft" != "true" ]; then
+		echo "$tag is already published. Bump the version in package.json for a new release." >&2
 		exit 1
 	fi
-	echo "$tag exists as a $([ "$is_draft" = "true" ] && echo draft || echo release); this run adds to it."
+	echo "$tag exists as a draft; this run adds its $platforms files to it."
 elif grep -q "release not found" "$err"; then
 	echo "$tag is new."
 else
