@@ -47,6 +47,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      # The scripts the release workflow publishes with, against a stand-in gh.
+      - name: Test the release scripts
+        run: bash build/release-scripts.test.sh
+
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:

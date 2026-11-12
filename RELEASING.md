@@ -22,6 +22,14 @@ per version, carrying every platform it supports:
 | `PKGBUILD` | Arch Linux, builds `remnants-bin` from the x64/arm64 tarball |
 | `SHA256SUMS` | checksums for everything above |
 
+Every asset with `<version>` in its name is also published a second time under
+the same name without it (`Remnants-darwin-arm64.dmg`, `remnants-amd64.deb`), so
+`https://github.com/dominikkoenitzer/Remnants/releases/latest/download/<name>`
+always fetches the newest build. Such a link resolves against the latest release
+only, so the latest release has to carry every platform. The workflow sees to
+that: a new release that lacks a platform is created as a draft, and the run that
+adds the last missing platform publishes it as the latest.
+
 Every asset also gets a signed provenance attestation
 (`actions/attest-build-provenance`), so a download can be traced back to this
 workflow with `gh attestation verify <file> -R dominikkoenitzer/Remnants` even
@@ -32,8 +40,12 @@ The README's [Download](README.md#download) and [Other ways to install](README.m
 ## Versioning
 
 Remnants tracks the upstream Code - OSS version in `package.json` (`version`, e.g.
-`1.125.0`). Tag releases as `v<version>`. If you ship more than one build from the
-same upstream base, add a fork suffix to the tag: `v1.125.0-remnants.1`.
+`1.125.0`). Tag releases as `v<version>`. To ship another build from the same
+upstream base, bump the patch number in `package.json` and `package-lock.json`
+(`1.139.4` to `1.139.5`). A suffix such as `1.139.4-remnants.1` does not work:
+the rpm `Version` and the PKGBUILD `pkgver` take no hyphen. The workflow checks
+both before it builds anything: the version is plain `major.minor.patch`, and it
+has no published release. A draft of it may still be completed or rebuilt.
 
 ## Cutting a release (GitHub Actions)
 
@@ -45,23 +57,25 @@ push. A full run takes roughly 30-45 minutes, with the platforms in parallel.
 2. Leave **version** blank to release the current `package.json` version, or type a
    version; it must match `package.json` (the workflow fails fast otherwise, since
    the assets always report the `package.json` version). The tag is `v<version>`.
-3. Pick **platforms**: `all`, or one of `windows` / `linux` / `macos` to rebuild
-   just that platform's assets. Set **draft** if you want to inspect the release
+3. Pick **platforms**: `all`, or one of `windows` / `linux` / `macos` to build
+   just that platform's assets into a draft. Set **draft** if you want to inspect the release
    before it goes public.
 4. The build jobs upload their assets as run artifacts; the `publish` job collects
-   them, renders `PKGBUILD` and `SHA256SUMS`, and creates or updates the release.
+   them, adds the unversioned copies, renders `PKGBUILD` and `SHA256SUMS`, and
+   creates or updates the release. A new release missing a platform stays a draft
+   until a later run adds it.
 
-Re-running for an existing tag is safe in the sense that nothing breaks: `publish`
-re-uploads the assets to that release (`--clobber`) and refreshes the notes instead
-of failing. It is not free, though. The builds are not byte-reproducible, so every
-re-run gives the same version new checksums, and anyone who already verified a
-download finds it changed underneath them. Once a version is published and its
-assets are verified, leave them alone and let improvements ride the next version,
-unless something about them is actually broken. Because each
+A published release is never built again, not even one platform of it. The
+builds are not byte-reproducible, so a re-run would give the same version new
+checksums, and anyone who already verified a download would find it changed
+underneath them. The workflow stops such a run in its setup job, and
+`publish-release.sh` refuses to upload to a published release. A fix, even for
+something broken, ships under the next patch version. A draft is different:
+`publish` re-uploads the assets to it (`--clobber`) and refreshes the notes. Because each
 platform is a separate job, a failure on one still ships the others - the `publish`
-job runs on `always()` and takes whatever artifacts exist. If it published a partial
-set, fix the broken platform and re-run the workflow with **platforms** set to just
-that one.
+job runs on `always()` and takes whatever artifacts exist. A partial set of a new
+version is held back as a draft; fix the broken platform and re-run the workflow
+with **platforms** set to just that one, and that run publishes it.
 
 ### Pins that must stay
 
@@ -117,13 +131,15 @@ npm run gulp vscode-darwin-arm64
 bash build/darwin/package-zip.sh arm64 "$version" dist
 bash build/darwin/package-dmg.sh arm64 "$version" dist   # after the zip, which signs the bundle
 
-# Arch package + checksums, once the tarballs are in dist/
+# Unversioned copies, Arch package + checksums, once every asset is in dist/
+bash build/stable-names.sh "$version" dist
 bash build/linux/render-pkgbuild.sh "$version" dist
 ( cd dist && sha256sum -- * > SHA256SUMS )
 ```
 
 Then publish with the [GitHub CLI](https://cli.github.com/), authenticated against
-this repo (`gh auth login`):
+this repo (`gh auth login`). One machine builds only its own platforms, so add
+`--draft` until the release carries all of them:
 
 ```sh
 gh release create "v$version" dist/* \
@@ -166,6 +182,13 @@ gh release create "v$version" dist/* \
   mentioning only the platforms the release actually has. The publish job feeds it
   the release's own asset list, so re-running one platform never drops the others
   from the notes or from `SHA256SUMS`.
+- **`build/release-assets.sh`** lists every file a complete release carries.
+  `build/publish-release.sh` checks the run's assets against it and holds a new
+  release back as a draft while a platform is missing.
+- **`build/check-release-version.sh`** stops a run whose version has a hyphen, or
+  whose version is already published.
+- **`build/release-scripts.test.sh`** tests these scripts against a stand-in `gh`;
+  CI runs it on every push.
 
 ## Supported platform floors
 
