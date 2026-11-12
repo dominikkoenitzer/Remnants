@@ -44,3 +44,6 @@
 # Vendored third-party libraries
 src/vs/base/common/lit-html/**
 src/vs/base/common/signals-core/**
+
+# The download page: plain browser JavaScript with no build, deployed apart from the editor
+site/**
