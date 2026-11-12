@@ -729,20 +729,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.setup.outputs.version }}
           DRAFT: ${{ inputs.draft }}
-        run: |
-          tag="v$VERSION"
-          if gh release view "$tag" >/dev/null 2>&1; then
-            echo "Release $tag already exists - updating its assets."
-            gh release upload "$tag" dist/* --clobber
-          else
-            draft_flag=""
-            if [ "$DRAFT" = "true" ]; then draft_flag="--draft"; fi
-            gh release create "$tag" dist/* \
-              --title "Remnants v$VERSION" \
-              --notes "Publishing." \
-              --target "${{ github.sha }}" \
-              $draft_flag
-          fi
+          COMMIT: ${{ github.sha }}
+        run: bash build/publish-release.sh "$VERSION" dist "$DRAFT" "$COMMIT"
 
       # Notes and checksums describe the release as it now stands, not only what
       # this run rebuilt, so a single-platform re-run cannot drop the other
