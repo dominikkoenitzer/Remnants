@@ -41,7 +41,6 @@ It names no author and does not link to this repository.
   - `/issues/new`
   - `/releases/download/([^/]+?)/([^/]+?)`
 - `llms.txt` describes the app for AI assistants.
-- Some addresses in `vercel.json` name a version: update them with every release.
 
 - `diag/` is the diagnostics page at /diag. Nothing links to it and search engines are told to leave it
   out. It measures the visitor's browser for ten seconds and shows the result; nothing is sent.
