@@ -218,4 +218,10 @@ main executable on its own reports a much older one than the build really needs.
   Both macOS jobs and both Linux jobs run on their target architecture, so those
   builds are executed natively, and the Windows arm64 assets are exercised on real
   ARM hardware. The two system installers are the only assets never installed.
-- The README badge and Install link resolve to the latest release automatically.
+- The README's download links go through the download page, and every
+  `/download/<platform>` redirect in `site/vercel.json` points at
+  `releases/latest/download/<name>`, so a new release needs no edit there.
+- The download page names one version under what is new. Once the release is
+  published, set `new` in `site/page.json` to that version and its changes, run
+  `python site/build.py`, and push. The site test fails while that version and
+  the one in `package.json` differ.

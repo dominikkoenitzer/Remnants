@@ -1,6 +1,13 @@
 {
   "routes": [
     {
+      "src": "^/diag(/.*)?$",
+      "headers": {
+        "X-Robots-Tag": "noindex"
+      },
+      "continue": true
+    },
+    {
       "src": "^/download/windows$",
       "status": 307,
       "headers": {
@@ -18,35 +25,35 @@
       "src": "^/download/mac$",
       "status": 307,
       "headers": {
-        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/v1.139.4/Remnants-darwin-arm64-1.139.4.dmg"
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/latest/download/Remnants-darwin-arm64.dmg"
       }
     },
     {
       "src": "^/download/mac-intel$",
       "status": 307,
       "headers": {
-        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/v1.139.4/Remnants-darwin-x64-1.139.4.dmg"
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/latest/download/Remnants-darwin-x64.dmg"
       }
     },
     {
       "src": "^/download/linux$",
       "status": 307,
       "headers": {
-        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/v1.139.4/Remnants-linux-x64-1.139.4.tar.gz"
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/latest/download/Remnants-linux-x64.tar.gz"
       }
     },
     {
       "src": "^/download/deb$",
       "status": 307,
       "headers": {
-        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/v1.139.4/remnants-1.139.4-amd64.deb"
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/latest/download/remnants-amd64.deb"
       }
     },
     {
       "src": "^/download/rpm$",
       "status": 307,
       "headers": {
-        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/v1.139.4/remnants-1.139.4-x86_64.rpm"
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/latest/download/remnants-x86_64.rpm"
       }
     },
     {
@@ -81,49 +88,49 @@
       "src": "^/download/windows-zip$",
       "status": 307,
       "headers": {
-        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/v1.139.4/Remnants-win32-x64-1.139.4.zip"
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/latest/download/Remnants-win32-x64.zip"
       }
     },
     {
       "src": "^/download/windows-zip-arm$",
       "status": 307,
       "headers": {
-        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/v1.139.4/Remnants-win32-arm64-1.139.4.zip"
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/latest/download/Remnants-win32-arm64.zip"
       }
     },
     {
       "src": "^/download/mac-zip$",
       "status": 307,
       "headers": {
-        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/v1.139.4/Remnants-darwin-arm64-1.139.4.zip"
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/latest/download/Remnants-darwin-arm64.zip"
       }
     },
     {
       "src": "^/download/mac-intel-zip$",
       "status": 307,
       "headers": {
-        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/v1.139.4/Remnants-darwin-x64-1.139.4.zip"
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/latest/download/Remnants-darwin-x64.zip"
       }
     },
     {
       "src": "^/download/linux-arm$",
       "status": 307,
       "headers": {
-        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/v1.139.4/Remnants-linux-arm64-1.139.4.tar.gz"
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/latest/download/Remnants-linux-arm64.tar.gz"
       }
     },
     {
       "src": "^/download/deb-arm$",
       "status": 307,
       "headers": {
-        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/v1.139.4/remnants-1.139.4-arm64.deb"
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/latest/download/remnants-arm64.deb"
       }
     },
     {
       "src": "^/download/rpm-arm$",
       "status": 307,
       "headers": {
-        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/download/v1.139.4/remnants-1.139.4-aarch64.rpm"
+        "Location": "https://github.com/dominikkoenitzer/Remnants/releases/latest/download/remnants-aarch64.rpm"
       }
     },
     {
