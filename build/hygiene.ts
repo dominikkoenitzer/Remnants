@@ -52,7 +52,8 @@ export function checkNoNewJavaScriptFiles(repoRoot: string): string | undefined 
 	});
 	const tracked = out.split(/\r?\n/).filter(line => !!line);
 
-	const unknown = tracked.filter(file => !allowed.has(file));
+	// The download page in site/ is plain browser JavaScript with no build, deployed apart from the editor.
+	const unknown = tracked.filter(file => !allowed.has(file) && !file.startsWith('site/'));
 	if (unknown.length > 0) {
 		return [
 			'New JavaScript files are not allowed. Use TypeScript (.ts) instead.',
