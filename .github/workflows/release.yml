@@ -65,6 +65,16 @@ jobs:
           echo "version=$ver" >> "$GITHUB_OUTPUT"
           echo "Releasing Remnants v$ver"
 
+      # A published version is never built again for every platform, and a
+      # version the Linux packages cannot carry fails here instead of twenty
+      # minutes into their build.
+      - name: Check the version can be released
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+          PLATFORMS: ${{ inputs.platforms || 'all' }}
+        run: bash build/check-release-version.sh "$VERSION" "$PLATFORMS"
+
   windows:
     name: Windows ${{ matrix.arch }} installer
     needs: setup
