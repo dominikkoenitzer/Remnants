@@ -193,6 +193,13 @@ test.describe("links", () => {
     expect(linked.filter((n) => !published.has(n))).toEqual([]);
   });
 
+  test("the page shows the version package.json releases", () => {
+    const { version } = JSON.parse(readFileSync(new URL("../package.json", site), "utf8"));
+    const page = JSON.parse(readFileSync(new URL("page.json", site), "utf8"));
+    expect(page.new.version, "site/page.json new.version").toBe(version);
+    expect(html, "index.html, rebuilt with python build.py").toContain(`>Version ${version}<`);
+  });
+
   test("every address on the page answers", async ({ request }) => {
     const refs = [...html.matchAll(/\s(?:href|src)="([^"]+)"/g), ...html.matchAll(/\ssrcset="([^"]+)"/g)]
       .flatMap((m) => m[1].split(",").map((part) => part.trim().split(/\s+/)[0]))
