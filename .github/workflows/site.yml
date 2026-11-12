@@ -3,9 +3,9 @@ name: Site
 on:
   push:
     branches: [main]
-    paths: ['site/**', '.github/workflows/site.yml']
+    paths: ['site/**', '.github/workflows/site.yml', 'build/release-notes.sh', 'build/stable-names.sh']
   pull_request:
-    paths: ['site/**', '.github/workflows/site.yml']
+    paths: ['site/**', '.github/workflows/site.yml', 'build/release-notes.sh', 'build/stable-names.sh']
   workflow_dispatch:
 
 concurrency:
