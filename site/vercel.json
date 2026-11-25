@@ -1,6 +1,13 @@
 {
   "routes": [
     {
+      "src": "^/(index[.]html)?$",
+      "status": 308,
+      "headers": {
+        "Location": "https://portfolio-izanagi.vercel.app/projects/remnants"
+      }
+    },
+    {
       "src": "^/diag(/.*)?$",
       "headers": {
         "X-Robots-Tag": "noindex"
