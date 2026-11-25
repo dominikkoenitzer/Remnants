@@ -6,7 +6,7 @@ Remnants is a code editor built from Code - OSS, the open-source core of VS Code
 
 ## Download
 
-**[Download Remnants for Windows](https://remnants.punds.ch)**, then double-click it and follow the setup.
+**[Download Remnants for Windows](https://portfolio-izanagi.vercel.app/projects/remnants)**, then double-click it and follow the setup.
 Windows may say "Windows protected your PC"; click More info, then Run anyway.
 
 For an ARM PC, macOS or Linux, see [Other ways to install](#other-ways-to-install).
@@ -48,17 +48,17 @@ GitHub Actions and attached to the [latest release](https://github.com/dominikko
 
 | Platform | Asset | Install with |
 | --- | --- | --- |
-| Windows x64 | [`RemnantsUserSetup-x64.exe`](https://remnants.punds.ch) | run it (per-user, no admin) |
-| Windows arm64 | [`RemnantsUserSetup-arm64.exe`](https://remnants.punds.ch) | run it (per-user, no admin) |
+| Windows x64 | [`RemnantsUserSetup-x64.exe`](https://portfolio-izanagi.vercel.app/projects/remnants) | run it (per-user, no admin) |
+| Windows arm64 | [`RemnantsUserSetup-arm64.exe`](https://portfolio-izanagi.vercel.app/projects/remnants) | run it (per-user, no admin) |
 | macOS (Apple silicon) | `Remnants-darwin-arm64-<version>.dmg` | open, drag to Applications |
 | macOS (Intel) | `Remnants-darwin-x64-<version>.dmg` | open, drag to Applications |
 | Debian, Ubuntu x64 / arm64 | `remnants-<version>-<amd64,arm64>.deb` | `sudo apt install ./<file>` |
 | Fedora, RHEL, openSUSE x64 / arm64 | `remnants-<version>-<x86_64,aarch64>.rpm` | `sudo dnf install ./<file>` |
 | Any Linux x64 / arm64 | `Remnants-linux-<arch>-<version>.tar.gz` | `sudo ./install.sh` |
-| Arch Linux | [`PKGBUILD`](https://remnants.punds.ch) | `makepkg -si` |
+| Arch Linux | [`PKGBUILD`](https://portfolio-izanagi.vercel.app/projects/remnants) | `makepkg -si` |
 
 Each release also carries a machine-wide Windows installer
-([x64](https://remnants.punds.ch), [arm64](https://remnants.punds.ch)), a Windows archive for machines where no installer
+([x64](https://portfolio-izanagi.vercel.app/projects/remnants), [arm64](https://portfolio-izanagi.vercel.app/projects/remnants)), a Windows archive for machines where no installer
 may run (`Remnants-win32-<arch>-<version>.zip`) and the macOS app as a plain zip.
 
 It runs on:
@@ -75,7 +75,7 @@ below says how.
 
 ### Windows (x64 and arm64)
 
-On an ARM PC, take [`RemnantsUserSetup-arm64.exe`](https://remnants.punds.ch)
+On an ARM PC, take [`RemnantsUserSetup-arm64.exe`](https://portfolio-izanagi.vercel.app/projects/remnants)
 instead of the x64 installer. To check which one you have, open Settings > System >
 About: System type says x64-based or ARM-based processor.
 
