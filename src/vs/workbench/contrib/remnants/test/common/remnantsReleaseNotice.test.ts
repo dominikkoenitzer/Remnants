@@ -143,10 +143,15 @@ suite('remnantsReleaseNotice', () => {
 
 	suite('getDownloadSite', () => {
 
-		test('reads the origin of an https download URL', () => {
+		test('reads an https download URL with its path', () => {
 			assert.strictEqual(getDownloadSite('https://downloads.example.com'), 'https://downloads.example.com');
 			assert.strictEqual(getDownloadSite('https://downloads.example.com/'), 'https://downloads.example.com');
-			assert.strictEqual(getDownloadSite('https://downloads.example.com/remnants/?from=app#top'), 'https://downloads.example.com');
+			assert.strictEqual(getDownloadSite('https://downloads.example.com/get/remnants'), 'https://downloads.example.com/get/remnants');
+			assert.strictEqual(getDownloadSite('https://downloads.example.com/get/remnants/?from=app#top'), 'https://downloads.example.com/get/remnants');
+		});
+
+		test('still reads a download URL that is only an origin, as older builds have it', () => {
+			assert.strictEqual(getLatestReleaseUrl(getDownloadSite('https://downloads.example.com')!), 'https://downloads.example.com/latest');
 		});
 
 		test('ignores anything that is not an https URL', () => {
@@ -158,6 +163,7 @@ suite('remnantsReleaseNotice', () => {
 
 	test('getLatestReleaseUrl', () => {
 		assert.strictEqual(getLatestReleaseUrl('https://downloads.example.com'), 'https://downloads.example.com/latest');
+		assert.strictEqual(getLatestReleaseUrl(getDownloadSite('https://downloads.example.com/get/remnants/')!), 'https://downloads.example.com/get/remnants/latest');
 	});
 
 	suite('parseLatestRelease', () => {

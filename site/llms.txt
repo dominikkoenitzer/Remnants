@@ -8,21 +8,21 @@ Remnants keeps the editor, IntelliSense, the integrated terminal, Git and the de
 - Extensions come from the Open VSX registry.
 - Settings, keybindings and profiles live in `%APPDATA%\Remnants`. Extensions live in `%USERPROFILE%\.remnants\extensions`.
 - It has no built-in updater. New versions come from this page.
-- The release notice is off by default. With the setting `remnants.checkForUpdates` turned on, the editor asks `/latest` once a day and shows a notification when a newer release is out. It downloads and installs nothing. It stays off while `update.mode` is `none` or `manual`.
+- The release notice is off by default. With the setting `remnants.checkForUpdates` turned on, the editor asks `https://portfolio-izanagi.vercel.app/get/remnants/latest` once a day and shows a notification when a newer release is out. It downloads and installs nothing. It stays off while `update.mode` is `none` or `manual`.
 - MIT license.
 
 ## Download
 
-- [Windows x64 installer](/download/windows): `RemnantsUserSetup-x64.exe` from the latest release
-- [Windows on ARM installer](/download/windows-arm): `RemnantsUserSetup-arm64.exe` from the latest release
+- [Windows x64 installer](https://portfolio-izanagi.vercel.app/get/remnants/download/windows): `RemnantsUserSetup-x64.exe` from the latest release
+- [Windows on ARM installer](https://portfolio-izanagi.vercel.app/get/remnants/download/windows-arm): `RemnantsUserSetup-arm64.exe` from the latest release
 
 ## Releases
 
-- [Latest release](/latest): the latest release as JSON; `tag_name` is its version tag. The release notice reads it.
-- `/releases/download/<tag>/<file>`: one file of a given release, for example `Remnants-linux-x64-<version>.tar.gz` for release `v<version>`.
+- [Latest release](https://portfolio-izanagi.vercel.app/get/remnants/latest): the latest release as JSON; `tag_name` is its version tag. The release notice reads it.
+- `https://portfolio-izanagi.vercel.app/get/remnants/releases/download/<tag>/<file>`: one file of a given release, for example `Remnants-linux-x64-<version>.tar.gz` for release `v<version>`.
 
 ## Help
 
-- [Report a problem](/issues/new): opens a new issue. The editor's Report Issue uses this address.
-- [Open issues](/issues)
-- [License](/license.txt)
+- [Report a problem](https://portfolio-izanagi.vercel.app/get/remnants/issues/new): opens a new issue. The editor's Report Issue uses this address.
+- [Open issues](https://portfolio-izanagi.vercel.app/get/remnants/issues)
+- [License](https://portfolio-izanagi.vercel.app/get/remnants/license.txt)
