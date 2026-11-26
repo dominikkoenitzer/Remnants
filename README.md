@@ -44,7 +44,7 @@ shortcut.
 ## Other ways to install
 
 Every asset is built by the [release workflow](.github/workflows/release.yml) on
-GitHub Actions and attached to the [latest release](https://github.com/dominikkoenitzer/Remnants/releases/latest).
+GitHub Actions and attached to each release; the [download page](https://portfolio-izanagi.vercel.app/projects/remnants) leads to the newest.
 
 | Platform | Asset | Install with |
 | --- | --- | --- |
@@ -161,7 +161,7 @@ your compositor while Remnants is open; Electron derives it from the desktop ent
 
 ### Verify a download
 
-Each release ships a [`SHA256SUMS`](https://github.com/dominikkoenitzer/Remnants/releases/latest/download/SHA256SUMS) file covering every asset:
+Each release ships a `SHA256SUMS` file covering every asset:
 
 ```sh
 sha256sum -c SHA256SUMS --ignore-missing
