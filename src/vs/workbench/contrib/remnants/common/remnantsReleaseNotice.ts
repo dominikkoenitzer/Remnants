@@ -125,9 +125,7 @@ function compareIdentifiers(a: string, b: string): number {
 }
 
 /**
- * The product's `downloadUrl` without a trailing slash, query or fragment: the
- * address the notice asks and opens, path included. Undefined unless it is an
- * https URL, which turns the notice off.
+ * The https `downloadUrl` with its path, no query or trailing slash; undefined turns the notice off.
  */
 export function getDownloadSite(downloadUrl: string | undefined): string | undefined {
 	if (!downloadUrl) {
