@@ -97,3 +97,34 @@ jobs:
             test -f "$dir/package.json" || { echo "$dir was unpacked incompletely: no package.json." >&2; exit 1; }
           done
           ls .build/builtInExtensions
+
+  notice:
+    name: Release notice test
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GIT_LFS_SKIP_SMUDGE: 1
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # The unit tests run under the Node the editor itself pins.
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libkrb5-dev libx11-dev libxkbfile-dev libsecret-1-dev
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test the release notice
+        run: |
+          npm run transpile-client
+          npm run test-node -- --run src/vs/workbench/contrib/remnants/test/common/remnantsReleaseNotice.test.ts
