@@ -125,8 +125,9 @@ function compareIdentifiers(a: string, b: string): number {
 }
 
 /**
- * The origin of the product's `downloadUrl`, the site the notice asks and
- * opens. Undefined unless it is an https URL, which turns the notice off.
+ * The product's `downloadUrl` without a trailing slash, query or fragment: the
+ * address the notice asks and opens, path included. Undefined unless it is an
+ * https URL, which turns the notice off.
  */
 export function getDownloadSite(downloadUrl: string | undefined): string | undefined {
 	if (!downloadUrl) {
@@ -138,11 +139,11 @@ export function getDownloadSite(downloadUrl: string | undefined): string | undef
 	} catch {
 		return undefined;
 	}
-	return url.protocol === 'https:' ? url.origin : undefined;
+	return url.protocol === 'https:' ? url.origin + url.pathname.replace(/\/+$/, '') : undefined;
 }
 
 /**
- * The site answers `/latest` with a redirect to the GitHub API's latest
+ * The address answers `/latest` with a redirect to the GitHub API's latest
  * release, which the request follows.
  */
 export function getLatestReleaseUrl(site: string): string {
