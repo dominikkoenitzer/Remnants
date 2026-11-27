@@ -16,8 +16,20 @@ cat > "$work/bin/gh" <<'EOF'
 #!/usr/bin/env bash
 # Stand-in gh. $GH_STATE is none, draft, published or broken; $GH_ASSETS lists the
 # release's assets; $GH_NOTES is its notes; $GH_LATEST is the tag of the latest
-# release, empty for none or broken; every call is appended to $GH_LOG.
+# release, empty for none or broken; $GH_SUMS is the release's SHA256SUMS, if
+# it has one; every call is appended to $GH_LOG.
 echo "$*" >> "$GH_LOG"
+if [ "$1 $2" = "release download" ]; then
+	if [ "$GH_STATE" = "none" ] || [ "$GH_STATE" = "broken" ] || [ ! -f "${GH_SUMS:-}" ]; then
+		echo "release not found" >&2
+		exit 1
+	fi
+	while [ $# -gt 0 ]; do
+		if [ "$1" = "-O" ]; then cp "$GH_SUMS" "$2"; fi
+		shift
+	done
+	exit 0
+fi
 if [ "$1 $2" = "release view" ]; then
 	# No tag: the latest release.
 	if [ "$3" = "--json" ]; then
@@ -229,6 +241,54 @@ check "a second run changes nothing" "$(ls -1 "$work/dist" | wc -l)" "$before"
 echo other > "$work/dist/remnants-amd64.deb"
 if bash "$build/stable-names.sh" 1.0.0 "$work/dist" > /dev/null 2>&1; then result=pass; else result=stop; fi
 check "a copy name already taken by other bytes stops" "$result" stop
+
+# render-pkgbuild.sh: an architecture this run did not build keeps its checksum
+# from the release's SHA256SUMS, so a partial re-run cannot drop it.
+empty=$(sha256sum < /dev/null | cut -d' ' -f1)
+older=1111111111111111111111111111111111111111111111111111111111111111
+render() {
+	rm -f "$work/sums"
+	if [ $# -gt 0 ]; then printf '%s\n' "$@" > "$work/sums"; fi
+	export GH_SUMS="$work/sums"
+	status=0
+	bash "$build/linux/render-pkgbuild.sh" 1.0.0 "$work/dist" > "$work/out" 2>&1 || status=$?
+}
+pkgbuild() {
+	if [ -f "$work/dist/PKGBUILD" ]; then
+		grep -E '^(arch|sha256sums_[a-z0-9_]+)=' "$work/dist/PKGBUILD" | tr '\n' ';'
+	else
+		echo none
+	fi
+}
+
+setup draft Remnants-linux-x64-1.0.0.tar.gz Remnants-linux-arm64-1.0.0.tar.gz
+render "$older  Remnants-linux-x64-1.0.0.tar.gz" "$older  Remnants-linux-arm64-1.0.0.tar.gz"
+check "a PKGBUILD for both built tarballs uses this run's checksums" "$status $(pkgbuild)" \
+	"0 arch=('x86_64' 'aarch64');sha256sums_x86_64=('$empty');sha256sums_aarch64=('$empty');"
+
+setup draft Remnants-linux-x64-1.0.0.tar.gz
+render "$older  Remnants-linux-arm64-1.0.0.tar.gz" "$older  Remnants-linux-arm64.tar.gz"
+check "a PKGBUILD from an x64-only re-run keeps arm64 from the release" "$status $(pkgbuild)" \
+	"0 arch=('x86_64' 'aarch64');sha256sums_x86_64=('$empty');sha256sums_aarch64=('$older');"
+
+setup draft Remnants-linux-arm64-1.0.0.tar.gz
+render "$older  Remnants-linux-x64-1.0.0.tar.gz"
+check "a PKGBUILD from an arm64-only re-run keeps x64 from the release" "$status $(pkgbuild)" \
+	"0 arch=('x86_64' 'aarch64');sha256sums_x86_64=('$older');sha256sums_aarch64=('$empty');"
+
+setup draft Remnants-linux-x64-1.0.0.tar.gz
+render "$older  Remnants-linux-x64.tar.gz" "$older  Remnants-linux-arm64-0.9.9.tar.gz"
+check "a PKGBUILD takes no checksum for another name or version" "$status $(pkgbuild)" \
+	"0 arch=('x86_64');sha256sums_x86_64=('$empty');"
+
+setup none Remnants-linux-x64-1.0.0.tar.gz
+render
+check "a PKGBUILD for a new release covers what this run built" "$status $(pkgbuild)" \
+	"0 arch=('x86_64');sha256sums_x86_64=('$empty');"
+
+setup draft "${mac_only[@]}"
+render "$older  Remnants-linux-x64-1.0.0.tar.gz" "$older  Remnants-linux-arm64-1.0.0.tar.gz"
+check "a run without Linux writes no PKGBUILD over the release's one" "$status $(pkgbuild)" "0 none"
 
 # release-notes.sh documents exactly the files release-assets.sh names.
 printf '%s\n' "${everything[@]}" > "$work/list"

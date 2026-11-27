@@ -731,6 +731,7 @@ jobs:
       # tarball it refers to.
       - name: Render Arch PKGBUILD
         env:
+          GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.setup.outputs.version }}
         run: bash build/linux/render-pkgbuild.sh "$VERSION" dist
 
