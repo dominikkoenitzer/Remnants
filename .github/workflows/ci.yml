@@ -133,4 +133,4 @@ jobs:
       - name: Test the release notice
         run: |
           npm run transpile-client
-          npm run test-node -- --run src/vs/workbench/contrib/remnants/test/common/remnantsReleaseNotice.test.ts
+          npm run test-node -- --run src/vs/workbench/contrib/remnants/test/common/remnantsReleaseNotice.test.ts --run src/vs/workbench/test/common/remnantsDownload.test.ts

@@ -124,21 +124,8 @@ function compareIdentifiers(a: string, b: string): number {
 	return a < b ? -1 : a > b ? 1 : 0;
 }
 
-/**
- * The https `downloadUrl` with its path, no query or trailing slash; undefined turns the notice off.
- */
-export function getDownloadSite(downloadUrl: string | undefined): string | undefined {
-	if (!downloadUrl) {
-		return undefined;
-	}
-	let url: URL;
-	try {
-		url = new URL(downloadUrl);
-	} catch {
-		return undefined;
-	}
-	return url.protocol === 'https:' ? url.origin + url.pathname.replace(/\/+$/, '') : undefined;
-}
+// Moved to workbench/common, where the window code can reach it too.
+export { getDownloadSite } from '../../../common/remnantsDownload.js';
 
 /**
  * The address answers `/latest` with a redirect to the GitHub API's latest

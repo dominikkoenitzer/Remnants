@@ -79,6 +79,7 @@ import { getWorkbenchContribution } from '../common/contributions.js';
 import { DynamicWorkbenchSecurityConfiguration } from '../common/configuration.js';
 import { nativeHoverDelegate } from '../../platform/hover/browser/hover.js';
 import { WINDOW_ACTIVE_BORDER, WINDOW_INACTIVE_BORDER } from '../common/theme.js';
+import { getMacDownloadUrl } from '../common/remnantsDownload.js';
 import { IContextMenuService } from '../../platform/contextview/browser/contextView.js';
 
 export class NativeWindow extends BaseWindow {
@@ -260,8 +261,10 @@ export class NativeWindow extends BaseWindow {
 				[{
 					label: localize('downloadArmBuild', "Download"),
 					run: () => {
-						if (this.productService.downloadUrl) {
-							this.openerService.open(new URL('/download/windows-arm', this.productService.downloadUrl).href);
+						// Sent only on macOS under Rosetta (app.ts), so the native build is the Apple silicon one.
+						const mac = getMacDownloadUrl(this.productService.downloadUrl);
+						if (mac) {
+							this.openerService.open(mac);
 						}
 					}
 				}],
