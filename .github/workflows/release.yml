@@ -134,7 +134,9 @@ jobs:
           done
           ls .build/builtInExtensions
 
+      # bash stops at the first failing command; pwsh would only check the last one.
       - name: Build app and installer
+        shell: bash
         run: |
           npm run gulp vscode-win32-${{ matrix.arch }}
           npm run gulp vscode-win32-${{ matrix.arch }}-inno-updater
