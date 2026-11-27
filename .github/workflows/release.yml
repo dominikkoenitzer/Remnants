@@ -734,13 +734,14 @@ jobs:
           VERSION: ${{ needs.setup.outputs.version }}
         run: bash build/linux/render-pkgbuild.sh "$VERSION" dist
 
-      - name: Create or update GitHub Release
+      # Always a draft here: the release goes public in the last release step,
+      # once its notes and checksums are on it.
+      - name: Create or update draft GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.setup.outputs.version }}
-          DRAFT: ${{ inputs.draft }}
           COMMIT: ${{ github.sha }}
-        run: bash build/publish-release.sh "$VERSION" dist "$DRAFT" "$COMMIT"
+        run: bash build/publish-release.sh "$VERSION" dist "$COMMIT"
 
       # Notes and checksums describe the release as it now stands, not only what
       # this run rebuilt, so a single-platform re-run cannot drop the other
@@ -772,6 +773,16 @@ jobs:
             sort -k2 > SHA256SUMS
           cat SHA256SUMS
           gh release upload "$tag" SHA256SUMS --clobber
+
+      # Only now does the draft go public, and only with every platform on it.
+      # It becomes the latest release only when its version is above the
+      # current latest one, so an older draft cannot take "latest" back.
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.setup.outputs.version }}
+          DRAFT: ${{ inputs.draft }}
+        run: bash build/finalize-release.sh "$VERSION" "$DRAFT"
 
       # None of these binaries is code-signed, so this is how a download can be
       # traced back to the workflow that produced it:
