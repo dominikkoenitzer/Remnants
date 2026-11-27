@@ -6,8 +6,10 @@
 #
 # The package pulls the published tarballs by URL, so its checksums can only be
 # filled in once those tarballs exist. Run this against the directory holding the
-# built assets; it writes <distdir>/PKGBUILD covering whichever architectures
-# actually built, and does nothing if no Linux tarball is present.
+# built assets; it writes <distdir>/PKGBUILD, and does nothing if no Linux tarball
+# is present. An architecture that did not build in this run (a re-run after one
+# of them failed) keeps the checksum from the release's SHA256SUMS, so the
+# PKGBUILD that replaces the release's one still covers it. Needs gh for that.
 set -euo pipefail
 
 version=${1:?usage: render-pkgbuild.sh <version> <distdir>}
@@ -19,22 +21,34 @@ site=$(cd "$repo" && node -p "require('./product.json').downloadUrl")
 base="$site/releases/download/v$version"
 
 sources=$(mktemp)
-trap 'rm -f "$sources"' EXIT
+release_sums=$(mktemp)
+trap 'rm -f "$sources" "$release_sums"' EXIT
+fetched=false
+built=0
 arches=()
 
 # makepkg arch : the arch as it appears in our tarball names
 for pair in x86_64:x64 aarch64:arm64; do
 	makepkg_arch=${pair%%:*}
 	dist_arch=${pair##*:}
-	tarball="$dist/Remnants-linux-$dist_arch-$version.tar.gz"
-	[ -f "$tarball" ] || continue
+	name="Remnants-linux-$dist_arch-$version.tar.gz"
+	if [ -f "$dist/$name" ]; then
+		sum=$(sha256sum "$dist/$name" | cut -d' ' -f1)
+		built=$((built + 1))
+	else
+		if ! $fetched; then
+			gh release download "v$version" -p SHA256SUMS -O "$release_sums" --clobber 2>/dev/null || : >"$release_sums"
+			fetched=true
+		fi
+		sum=$(awk -v name="$name" '$2 == name { print $1; exit }' "$release_sums")
+		[ -n "$sum" ] || continue
+	fi
 	arches+=("'$makepkg_arch'")
-	sum=$(sha256sum "$tarball" | cut -d' ' -f1)
-	printf 'source_%s=("%s/%s")\n' "$makepkg_arch" "$base" "$(basename "$tarball")" >>"$sources"
+	printf 'source_%s=("%s/%s")\n' "$makepkg_arch" "$base" "$name" >>"$sources"
 	printf "sha256sums_%s=('%s')\n" "$makepkg_arch" "$sum" >>"$sources"
 done
 
-if [ ${#arches[@]} -eq 0 ]; then
+if [ "$built" -eq 0 ]; then
 	echo "No Linux tarball in $dist - skipping PKGBUILD."
 	exit 0
 fi

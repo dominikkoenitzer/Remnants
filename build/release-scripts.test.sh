@@ -15,9 +15,35 @@ mkdir "$work/bin"
 cat > "$work/bin/gh" <<'EOF'
 #!/usr/bin/env bash
 # Stand-in gh. $GH_STATE is none, draft, published or broken; $GH_ASSETS lists the
-# release's assets; every call is appended to $GH_LOG.
+# release's assets; $GH_NOTES is its notes; $GH_LATEST is the tag of the latest
+# release, empty for none or broken; $GH_SUMS is the release's SHA256SUMS, if
+# it has one; every call is appended to $GH_LOG.
 echo "$*" >> "$GH_LOG"
+if [ "$1 $2" = "release download" ]; then
+	if [ "$GH_STATE" = "none" ] || [ "$GH_STATE" = "broken" ] || [ ! -f "${GH_SUMS:-}" ]; then
+		echo "release not found" >&2
+		exit 1
+	fi
+	while [ $# -gt 0 ]; do
+		if [ "$1" = "-O" ]; then cp "$GH_SUMS" "$2"; fi
+		shift
+	done
+	exit 0
+fi
 if [ "$1 $2" = "release view" ]; then
+	# No tag: the latest release.
+	if [ "$3" = "--json" ]; then
+		if [ "$GH_LATEST" = "broken" ]; then
+			echo "HTTP 502: Bad Gateway" >&2
+			exit 1
+		fi
+		if [ -z "$GH_LATEST" ]; then
+			echo "release not found" >&2
+			exit 1
+		fi
+		echo "$GH_LATEST"
+		exit 0
+	fi
 	if [ "$GH_STATE" = "none" ]; then
 		echo "release not found" >&2
 		exit 1
@@ -29,6 +55,7 @@ if [ "$1 $2" = "release view" ]; then
 	case "$*" in
 	*isDraft*) if [ "$GH_STATE" = "draft" ]; then echo true; else echo false; fi ;;
 	*assets*) cat "$GH_ASSETS" ;;
+	*body*) echo "$GH_NOTES" ;;
 	esac
 fi
 exit 0
@@ -51,7 +78,7 @@ check() {
 # A dist folder holding the named assets, and a release state for gh.
 setup() {
 	GH_STATE=$1
-	export GH_STATE
+	export GH_STATE GH_NOTES="Publishing." GH_LATEST=""
 	shift
 	rm -rf "$work/dist" "$GH_LOG"
 	: > "$GH_ASSETS"
@@ -73,48 +100,119 @@ for name in "${everything[@]}"; do
 done
 
 publish() {
-	bash "$build/publish-release.sh" 1.0.0 "$work/dist" "$1" abc123 > "$work/out" 2>&1
+	status=0
+	bash "$build/publish-release.sh" 1.0.0 "$work/dist" abc123 > "$work/out" 2>&1 || status=$?
 }
 calls() { grep -E "^release (create|upload|edit)" "$GH_LOG" | sed -E "s| $work/dist/[^ ]+||g" | tr '\n' ';' || true; }
 
-# publish-release.sh: a new release becomes the latest only with every platform.
+# publish-release.sh: it only ever makes or fills a draft.
 setup none "${everything[@]}"
-publish false
-check "a complete new release is published" "$(calls)" \
-	"release create v1.0.0 --title Remnants v1.0.0 --notes Publishing. --target abc123;"
+publish
+check "a complete new release is created as a draft" "$status $(calls)" \
+	"0 release create v1.0.0 --title Remnants v1.0.0 --notes Publishing. --target abc123 --draft;"
 
 setup none "${no_mac[@]}"
-publish false
-check "a new release without macOS is created as a draft" "$(calls)" \
-	"release create v1.0.0 --title Remnants v1.0.0 --notes Publishing. --target abc123 --draft;"
-
-setup none "${everything[@]}"
-publish true
-check "the draft input still makes a draft" "$(calls)" \
-	"release create v1.0.0 --title Remnants v1.0.0 --notes Publishing. --target abc123 --draft;"
+publish
+check "a new release without macOS is created as a draft" "$status $(calls)" \
+	"0 release create v1.0.0 --title Remnants v1.0.0 --notes Publishing. --target abc123 --draft;"
 
 setup draft "${mac_only[@]}"
 printf '%s\n' "${no_mac[@]}" SHA256SUMS > "$GH_ASSETS"
-publish false
-check "the run that completes a draft publishes it as the latest" "$(calls)" \
-	"release upload v1.0.0 --clobber;release edit v1.0.0 --draft=false --latest;"
-
-setup draft "${mac_only[@]}"
-printf '%s\n' "${no_mac[@]}" SHA256SUMS > "$GH_ASSETS"
-publish true
-check "a completed draft stays a draft when the draft input asks for one" "$(calls)" \
-	"release upload v1.0.0 --clobber;"
-
-setup draft "${mac_only[@]}"
-publish false
-check "a draft still missing platforms stays a draft" "$(calls)" \
-	"release upload v1.0.0 --clobber;"
+publish
+check "the run that completes a draft uploads and publishes nothing" "$status $(calls)" \
+	"0 release upload v1.0.0 --clobber;"
 
 setup published "${mac_only[@]}"
 printf '%s\n' "${no_mac[@]}" SHA256SUMS > "$GH_ASSETS"
-status=0
-publish false || status=$?
+publish
 check "a run over a published release stops and uploads nothing" "$status $(calls)" "1 "
+
+# finalize-release.sh: the draft goes public last, and takes "latest" only from
+# an older release.
+finish() {
+	status=0
+	bash "$build/finalize-release.sh" "${2:-1.0.0}" "$1" "${3:-def456}" > "$work/out" 2>&1 || status=$?
+}
+# A draft of version $2 as the run leaves it before the last step - every
+# platform, notes, SHA256SUMS - with $1 as the latest release.
+ready() {
+	setup draft
+	{ bash "$build/release-assets.sh" "${2:-1.0.0}"; echo SHA256SUMS; } > "$GH_ASSETS"
+	export GH_NOTES="## Downloads" GH_LATEST=$1
+}
+
+ready ""
+finish false
+check "the first release is published as the latest" "$status $(calls)" \
+	"0 release edit v1.0.0 --draft=false --latest --target def456;"
+
+ready v0.9.9
+finish false
+check "a release above the latest one is published as the latest" "$status $(calls)" \
+	"0 release edit v1.0.0 --draft=false --latest --target def456;"
+
+ready v1.0.1
+finish false
+check "an older draft is published without taking latest back" "$status $(calls)" \
+	"0 release edit v1.0.0 --draft=false --latest=false --target def456;"
+
+ready v1.9.0 1.10.0
+finish false 1.10.0
+check "1.10.0 is above 1.9.0" "$status $(calls)" \
+	"0 release edit v1.10.0 --draft=false --latest --target def456;"
+
+ready v1.10.0 1.9.0
+finish false 1.9.0
+check "1.9.0 is not above 1.10.0" "$status $(calls)" \
+	"0 release edit v1.9.0 --draft=false --latest=false --target def456;"
+
+ready v0.9.9
+finish false 1.0.0 abc789
+check "a release is published with its tag on the commit this run built" "$status $(calls)" \
+	"0 release edit v1.0.0 --draft=false --latest --target abc789;"
+
+ready v0.9.9
+finish true
+check "a complete draft stays a draft when the draft input asks for one" "$status $(calls)" "0 "
+
+ready v0.9.9
+printf '%s\n' "${no_mac[@]}" SHA256SUMS > "$GH_ASSETS"
+finish false
+check "a draft still missing platforms stays a draft" "$status $(calls)" "0 "
+
+ready v0.9.9
+printf '%s\n' "${everything[@]}" > "$GH_ASSETS"
+finish false
+check "a draft without SHA256SUMS stops and stays a draft" "$status $(calls)" "1 "
+
+ready v0.9.9
+export GH_NOTES="Publishing."
+finish false
+check "a draft without its notes stops and stays a draft" "$status $(calls)" "1 "
+
+ready broken
+finish false
+check "an unreadable latest release stops and the draft stays" "$status $(calls)" "1 "
+
+ready nightly
+finish false
+check "a latest release that is no version stops and the draft stays" "$status $(calls)" "1 "
+
+ready v0.9.9
+export GH_STATE=broken
+finish false
+check "an unreadable draft stops and nothing is published" "$status $(calls)" "1 "
+
+ready v0.9.9
+export GH_STATE=published
+finish false
+check "a published release is left alone" "$status $(calls)" "0 "
+
+# release.yml: draft first, then notes and checksums, publishing last.
+steps=$(grep -oE 'build/publish-release\.sh|release edit "\$tag" --notes-file|release upload "\$tag" SHA256SUMS|build/finalize-release\.sh' \
+	"$build/../.github/workflows/release.yml" | tr '\n' ';')
+check "the workflow publishes after the notes and SHA256SUMS" "$steps" \
+	'build/publish-release.sh;release edit "$tag" --notes-file;release upload "$tag" SHA256SUMS;build/finalize-release.sh;'
 
 # check-release-version.sh: no run over a published version, no suffix.
 version_check() {
@@ -143,6 +241,54 @@ check "a second run changes nothing" "$(ls -1 "$work/dist" | wc -l)" "$before"
 echo other > "$work/dist/remnants-amd64.deb"
 if bash "$build/stable-names.sh" 1.0.0 "$work/dist" > /dev/null 2>&1; then result=pass; else result=stop; fi
 check "a copy name already taken by other bytes stops" "$result" stop
+
+# render-pkgbuild.sh: an architecture this run did not build keeps its checksum
+# from the release's SHA256SUMS, so a partial re-run cannot drop it.
+empty=$(sha256sum < /dev/null | cut -d' ' -f1)
+older=1111111111111111111111111111111111111111111111111111111111111111
+render() {
+	rm -f "$work/sums"
+	if [ $# -gt 0 ]; then printf '%s\n' "$@" > "$work/sums"; fi
+	export GH_SUMS="$work/sums"
+	status=0
+	bash "$build/linux/render-pkgbuild.sh" 1.0.0 "$work/dist" > "$work/out" 2>&1 || status=$?
+}
+pkgbuild() {
+	if [ -f "$work/dist/PKGBUILD" ]; then
+		grep -E '^(arch|sha256sums_[a-z0-9_]+)=' "$work/dist/PKGBUILD" | tr '\n' ';'
+	else
+		echo none
+	fi
+}
+
+setup draft Remnants-linux-x64-1.0.0.tar.gz Remnants-linux-arm64-1.0.0.tar.gz
+render "$older  Remnants-linux-x64-1.0.0.tar.gz" "$older  Remnants-linux-arm64-1.0.0.tar.gz"
+check "a PKGBUILD for both built tarballs uses this run's checksums" "$status $(pkgbuild)" \
+	"0 arch=('x86_64' 'aarch64');sha256sums_x86_64=('$empty');sha256sums_aarch64=('$empty');"
+
+setup draft Remnants-linux-x64-1.0.0.tar.gz
+render "$older  Remnants-linux-arm64-1.0.0.tar.gz" "$older  Remnants-linux-arm64.tar.gz"
+check "a PKGBUILD from an x64-only re-run keeps arm64 from the release" "$status $(pkgbuild)" \
+	"0 arch=('x86_64' 'aarch64');sha256sums_x86_64=('$empty');sha256sums_aarch64=('$older');"
+
+setup draft Remnants-linux-arm64-1.0.0.tar.gz
+render "$older  Remnants-linux-x64-1.0.0.tar.gz"
+check "a PKGBUILD from an arm64-only re-run keeps x64 from the release" "$status $(pkgbuild)" \
+	"0 arch=('x86_64' 'aarch64');sha256sums_x86_64=('$older');sha256sums_aarch64=('$empty');"
+
+setup draft Remnants-linux-x64-1.0.0.tar.gz
+render "$older  Remnants-linux-x64.tar.gz" "$older  Remnants-linux-arm64-0.9.9.tar.gz"
+check "a PKGBUILD takes no checksum for another name or version" "$status $(pkgbuild)" \
+	"0 arch=('x86_64');sha256sums_x86_64=('$empty');"
+
+setup none Remnants-linux-x64-1.0.0.tar.gz
+render
+check "a PKGBUILD for a new release covers what this run built" "$status $(pkgbuild)" \
+	"0 arch=('x86_64');sha256sums_x86_64=('$empty');"
+
+setup draft "${mac_only[@]}"
+render "$older  Remnants-linux-x64-1.0.0.tar.gz" "$older  Remnants-linux-arm64-1.0.0.tar.gz"
+check "a run without Linux writes no PKGBUILD over the release's one" "$status $(pkgbuild)" "0 none"
 
 # release-notes.sh documents exactly the files release-assets.sh names.
 printf '%s\n' "${everything[@]}" > "$work/list"
