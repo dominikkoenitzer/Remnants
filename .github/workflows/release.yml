@@ -23,10 +23,8 @@ on:
         type: boolean
         default: false
 
-permissions:
-  contents: write # create the release and upload the assets
-  id-token: write # sign the provenance attestations
-  attestations: write # publish them
+# Nothing by default: the build jobs run every dependency's install scripts, so only publish may write.
+permissions: {}
 
 concurrency:
   group: release
@@ -42,6 +40,9 @@ jobs:
   setup:
     name: Resolve version
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
@@ -87,6 +88,8 @@ jobs:
     # source").
     runs-on: windows-2022
     timeout-minutes: 120
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -260,6 +263,8 @@ jobs:
     if: contains(fromJSON('["all","linux"]'), inputs.platforms || 'all')
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 120
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -538,6 +543,8 @@ jobs:
     if: contains(fromJSON('["all","macos"]'), inputs.platforms || 'all')
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 120
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -651,6 +658,8 @@ jobs:
     if: contains(fromJSON('["all","windows"]'), inputs.platforms || 'all')
     runs-on: windows-11-arm
     timeout-minutes: 30
+    permissions:
+      contents: read
     steps:
       - name: Download the installer
         uses: actions/download-artifact@v8
@@ -691,13 +700,47 @@ jobs:
           if ($reported -ne $env:VERSION) { throw "The archive reports version '$reported', expected '$env:VERSION'." }
           "Windows arm64 archive runs unpacked on ARM hardware, version $reported"
 
+  # CI runs on pushes to main, not on this dispatch, so this waits for that run on the commit being released.
+  ci:
+    name: Wait for CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      actions: read
+    steps:
+      - name: Wait for CI to pass on this commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          run=$(gh run list --workflow ci.yml --commit "$GITHUB_SHA" --branch main --limit 20 --json databaseId,event --jq '[.[] | select(.event == "push" or .event == "workflow_dispatch")][0].databaseId // empty')
+          if [ -z "$run" ]; then
+            echo "::error::CI never ran on $GITHUB_SHA from main, so nothing is published. A commit that changes only docs or site/ starts no CI run: run CI on main for it first."
+            exit 1
+          fi
+          echo "Waiting for CI run $run"
+          while :; do
+            state=$(gh run view "$run" --json status,conclusion --jq '.status + " " + .conclusion')
+            [ "${state%% *}" = completed ] && break
+            sleep 30
+          done
+          if [ "$state" != "completed success" ]; then
+            echo "::error::CI run $run ended in ${state#* }, so $GITHUB_SHA is not published"
+            exit 1
+          fi
+
   publish:
     name: Publish release
-    needs: [setup, windows, linux, macos]
+    needs: [setup, windows, linux, macos, ci]
     # Publish whatever built. A platform that failed, or was not selected, must
-    # not hold back the platforms that succeeded.
-    if: always() && needs.setup.result == 'success'
+    # not hold back the platforms that succeeded. CI failing on the commit does.
+    if: always() && needs.setup.result == 'success' && needs.ci.result == 'success'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write # create the release and upload the assets
+      id-token: write # sign the provenance attestations
+      attestations: write # publish them
     steps:
       - name: Checkout
         uses: actions/checkout@v7
