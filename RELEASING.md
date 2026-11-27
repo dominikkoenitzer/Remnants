@@ -27,10 +27,10 @@ the same name without it (`Remnants-darwin-arm64.dmg`, `remnants-amd64.deb`), so
 `https://github.com/dominikkoenitzer/Remnants/releases/latest/download/<name>`
 always fetches the newest build. Such a link resolves against the latest release
 only, so the latest release has to carry every platform. The workflow sees to
-that: every release starts as a draft, and `build/finalize-release.sh` publishes it
-only once it carries every platform, its notes and `SHA256SUMS`. It becomes the
-latest release only when its version is above the current latest, so re-running an
-older draft never takes "latest" back.
+that: every release starts as a draft, and `build/finalize-release.sh` publishes it,
+with the tag on the commit it built, only once it carries every platform, its notes
+and `SHA256SUMS`. It becomes the latest release only when its version is above the
+current latest, so re-running an older draft never takes "latest" back.
 
 Every asset also gets a signed provenance attestation
 (`actions/attest-build-provenance`), so a download can be traced back to this
@@ -178,8 +178,9 @@ gh release create "v$version" dist/* \
   will not launch on Apple silicon.
 - **`build/linux/render-pkgbuild.sh`** fills
   `resources/linux/arch/PKGBUILD.template` in with the version, the release URLs and
-  the tarball checksums. It covers only the architectures that actually built, and
-  skips itself if no Linux tarball is present.
+  the tarball checksums. It covers the architectures this run built, takes the
+  others from the release's `SHA256SUMS` through `gh`, and writes nothing when this
+  run built no Linux tarball.
 - **`build/release-notes.sh`** writes the release body from a list of asset names,
   mentioning only the platforms the release actually has. The publish job feeds it
   the release's own asset list, so re-running one platform never drops the others
