@@ -119,7 +119,7 @@ check "a run over a published release stops and uploads nothing" "$status $(call
 # an older release.
 finish() {
 	status=0
-	bash "$build/finalize-release.sh" "${2:-1.0.0}" "$1" > "$work/out" 2>&1 || status=$?
+	bash "$build/finalize-release.sh" "${2:-1.0.0}" "$1" "${3:-def456}" > "$work/out" 2>&1 || status=$?
 }
 # A draft of version $2 as the run leaves it before the last step - every
 # platform, notes, SHA256SUMS - with $1 as the latest release.
@@ -132,27 +132,32 @@ ready() {
 ready ""
 finish false
 check "the first release is published as the latest" "$status $(calls)" \
-	"0 release edit v1.0.0 --draft=false --latest;"
+	"0 release edit v1.0.0 --draft=false --latest --target def456;"
 
 ready v0.9.9
 finish false
 check "a release above the latest one is published as the latest" "$status $(calls)" \
-	"0 release edit v1.0.0 --draft=false --latest;"
+	"0 release edit v1.0.0 --draft=false --latest --target def456;"
 
 ready v1.0.1
 finish false
 check "an older draft is published without taking latest back" "$status $(calls)" \
-	"0 release edit v1.0.0 --draft=false --latest=false;"
+	"0 release edit v1.0.0 --draft=false --latest=false --target def456;"
 
 ready v1.9.0 1.10.0
 finish false 1.10.0
 check "1.10.0 is above 1.9.0" "$status $(calls)" \
-	"0 release edit v1.10.0 --draft=false --latest;"
+	"0 release edit v1.10.0 --draft=false --latest --target def456;"
 
 ready v1.10.0 1.9.0
 finish false 1.9.0
 check "1.9.0 is not above 1.10.0" "$status $(calls)" \
-	"0 release edit v1.9.0 --draft=false --latest=false;"
+	"0 release edit v1.9.0 --draft=false --latest=false --target def456;"
+
+ready v0.9.9
+finish false 1.0.0 abc789
+check "a release is published with its tag on the commit this run built" "$status $(calls)" \
+	"0 release edit v1.0.0 --draft=false --latest --target abc789;"
 
 ready v0.9.9
 finish true

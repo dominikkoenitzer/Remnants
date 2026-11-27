@@ -2,10 +2,11 @@
 #
 # Publish the draft release for a version, as the last step of a release run:
 #
-#   build/finalize-release.sh <version> <draft>
+#   build/finalize-release.sh <version> <draft> <commit>
 #
 # <draft> is true or false, as the workflow input gives it; true leaves the
-# release a draft. Needs gh with a token that may write releases.
+# release a draft. <commit> is the commit this run built, and the published
+# release gets its tag there. Needs gh with a token that may write releases.
 #
 # The download page links to releases/latest/download/<name>, so the latest
 # release has to carry every platform. A draft that lacks one (it was not
@@ -17,8 +18,9 @@
 # completing an older draft cannot take "latest" back from a newer release.
 set -euo pipefail
 
-version=${1:?usage: finalize-release.sh <version> <draft>}
-draft=${2:?usage: finalize-release.sh <version> <draft>}
+version=${1:?usage: finalize-release.sh <version> <draft> <commit>}
+draft=${2:?usage: finalize-release.sh <version> <draft> <commit>}
+commit=${3:?usage: finalize-release.sh <version> <draft> <commit>}
 
 if ! [[ $version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
 	echo "Version $version is not major.minor.patch." >&2
@@ -97,4 +99,4 @@ else
 	exit 1
 fi
 
-gh release edit "$tag" --draft=false "$latest_flag"
+gh release edit "$tag" --draft=false "$latest_flag" --target "$commit"
