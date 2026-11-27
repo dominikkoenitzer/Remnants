@@ -150,4 +150,104 @@ noted=$(bash "$build/release-notes.sh" 1.0.0 "$work/list" | grep -oE '`[^`]+`' |
 	grep -E '^(PKGBUILD|[Rr]emnants[^ /]*\.(exe|zip|dmg|deb|rpm|tar\.gz))$' | sort -u | tr '\n' ' ')
 check "the release notes name every asset and no other file" "$noted" "$(printf '%s\n' "${everything[@]}" | sort -u | tr '\n' ' ')"
 
+# site.yml: a change to a file outside site/ that the site tests read starts the site job.
+norm() {
+	local IFS=/ part out=()
+	for part in $1; do
+		case $part in
+		'' | .) ;;
+		..) if [ ${#out[@]} -gt 0 ]; then unset 'out[-1]'; fi ;;
+		*) out+=("$part") ;;
+		esac
+	done
+	echo "${out[*]}"
+}
+
+# Paths one script in the folder $1 (relative to the repo root) reads: new URL() from import.meta.url
+# or from a name set to one, join() of such a name with string parts, and a plain relative path,
+# which the site job reads from its working directory, site/test.
+file_reads() {
+	local dir=$1 f=$2 name rel call path arg
+	local -A at=()
+	while IFS=$'\t' read -r name rel; do
+		at[$name]=$(norm "$dir/$rel")
+	done < <(grep -oE "(const|let|var) +[A-Za-z_\$][A-Za-z0-9_\$]* *= *(fileURLToPath\()?new URL\([\"'][^\"']*[\"'], *import\.meta\.url\)" "$f" |
+		sed -E "s/^(const|let|var) +([^ =]+) *= *(fileURLToPath\()?new URL\([\"']([^\"']*)[\"'].*/\2\t\4/" || true)
+	while read -r rel; do
+		norm "$dir/$rel"
+	done < <(grep -oE "new URL\([\"'][^\"']*[\"'], *import\.meta\.url\)" "$f" | sed -E "s/^new URL\([\"']([^\"']*)[\"'].*/\1/" || true)
+	while IFS=$'\t' read -r name rel; do
+		if [ -n "${at[$name]-}" ]; then norm "${at[$name]}/$rel"; fi
+	done < <(grep -oE "new URL\([\"'][^\"']*[\"'], *[A-Za-z_\$][A-Za-z0-9_\$]*\)" "$f" |
+		sed -E "s/^new URL\([\"']([^\"']*)[\"'], *([^)]*)\)/\2\t\1/" || true)
+	while read -r call; do
+		name=$(sed -E 's/^join\(([^,]*),.*/\1/' <<< "$call")
+		if [ -z "${at[$name]-}" ]; then continue; fi
+		path=${at[$name]}
+		while read -r arg; do path+="/$arg"; done < <(grep -oE "[\"'][^\"']*[\"']" <<< "${call#*,}" | tr -d "\"'")
+		norm "$path"
+	done < <(grep -oE "join\([A-Za-z_\$][A-Za-z0-9_\$]*(, *[\"'][^\"']*[\"'])+\)" "$f" || true)
+	while read -r rel; do
+		norm "site/test/$rel"
+	done < <(grep -oE "(readFileSync|existsSync|statSync|readdirSync|createReadStream)\([\"']\.\.?/[^\"']*[\"']" "$f" |
+		sed -E "s/^[^(]*\([\"']([^\"']*)[\"']/\1/" || true)
+	return 0
+}
+
+# Every path outside site/ that a script in the folder $2 under the repo root $1 reads, one per line.
+site_reads() {
+	local f
+	for f in "$1/$2"/*.mjs "$1/$2"/*.js; do
+		if [ -f "$f" ]; then file_reads "$2" "$f"; fi
+	done | { grep -vE '^site(/|$)' || true; } | sort -u
+}
+
+# The paths list of one event in a workflow file.
+event_paths() {
+	sed -n "/^  $2:/,/^  [a-z_]*:/p" "$1" | grep -m1 'paths:' | grep -oE "'[^']*'|\"[^\"]*\"" | tr -d "'\"" || true
+}
+
+# Whether the path $1 is in the list that follows, by name or under a dir/** entry.
+covered() {
+	local file=$1 item
+	shift
+	for item in "$@"; do
+		case $item in
+		*'/**') if [[ $file == "${item%'/**'}"/* ]]; then return 0; fi ;;
+		*) if [ "$file" = "$item" ]; then return 0; fi ;;
+		esac
+	done
+	return 1
+}
+
+mkdir -p "$work/tree/site/test"
+cat > "$work/tree/site/test/a.spec.mjs" <<'EOF'
+const site = new URL("../", import.meta.url);
+const here = fileURLToPath(new URL(".", import.meta.url));
+readFileSync(new URL("../../build/x.sh", import.meta.url));
+readFileSync(new URL("page.json", site));
+readFileSync(new URL('../README.md', site));
+readdirSync(join(here, "..", "diag", "vendor"));
+readFileSync(join(here, "..", "..", "build", "y.sh"));
+readFileSync("../../z.json");
+readFileSync(join(here, name));
+EOF
+check "the scan finds what a site test reads outside site/" "$(site_reads "$work/tree" site/test | tr '\n' ' ')" \
+	"README.md build/x.sh build/y.sh z.json "
+check "a dir/** entry covers the files under it, and only those" \
+	"$(covered site/a.html 'site/**' && echo in) $(covered siteb/a.html 'site/**' || echo out)" "in out"
+
+root=$(cd "$build/.." && pwd)
+site_yml="$root/.github/workflows/site.yml"
+reads=$(site_reads "$root" site/test)
+mapfile -t on_push < <(event_paths "$site_yml" push)
+mapfile -t on_pr < <(event_paths "$site_yml" pull_request)
+missing=""
+for file in $reads; do
+	covered "$file" "${on_push[@]}" || missing+="push:$file "
+	covered "$file" "${on_pr[@]}" || missing+="pull_request:$file "
+done
+check "the scan finds the files outside site/ that the site tests read" "$(if [ -n "$reads" ]; then echo some; else echo none; fi)" some
+check "every file outside site/ that the site tests read starts the site job" "$missing" ""
+
 exit "$failed"
