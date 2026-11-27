@@ -27,8 +27,10 @@ the same name without it (`Remnants-darwin-arm64.dmg`, `remnants-amd64.deb`), so
 `https://github.com/dominikkoenitzer/Remnants/releases/latest/download/<name>`
 always fetches the newest build. Such a link resolves against the latest release
 only, so the latest release has to carry every platform. The workflow sees to
-that: a new release that lacks a platform is created as a draft, and the run that
-adds the last missing platform publishes it as the latest.
+that: every release starts as a draft, and `build/finalize-release.sh` publishes it
+only once it carries every platform, its notes and `SHA256SUMS`. It becomes the
+latest release only when its version is above the current latest, so re-running an
+older draft never takes "latest" back.
 
 Every asset also gets a signed provenance attestation
 (`actions/attest-build-provenance`), so a download can be traced back to this
@@ -61,9 +63,9 @@ push. A full run takes roughly 30-45 minutes, with the platforms in parallel.
    just that platform's assets into a draft. Set **draft** if you want to inspect the release
    before it goes public.
 4. The build jobs upload their assets as run artifacts; the `publish` job collects
-   them, adds the unversioned copies, renders `PKGBUILD` and `SHA256SUMS`, and
-   creates or updates the release. A new release missing a platform stays a draft
-   until a later run adds it.
+   them, adds the unversioned copies, renders `PKGBUILD`, creates the draft or adds to
+   it, writes the notes and `SHA256SUMS`, and publishes it as its last step. A new
+   release missing a platform stays a draft until a later run adds it.
 
 A published release is never built again, not even one platform of it. The
 builds are not byte-reproducible, so a re-run would give the same version new
@@ -183,8 +185,10 @@ gh release create "v$version" dist/* \
   the release's own asset list, so re-running one platform never drops the others
   from the notes or from `SHA256SUMS`.
 - **`build/release-assets.sh`** lists every file a complete release carries.
-  `build/publish-release.sh` checks the run's assets against it and holds a new
-  release back as a draft while a platform is missing.
+  `build/publish-release.sh` only creates the draft or uploads to it.
+- **`build/finalize-release.sh`** publishes the draft: only when every asset of
+  `release-assets.sh`, `SHA256SUMS` and the notes are on it, and with `--latest`
+  only when its version is above the current latest release.
 - **`build/check-release-version.sh`** stops a run whose version has a hyphen, or
   whose version is already published.
 - **`build/release-scripts.test.sh`** tests these scripts against a stand-in `gh`;
