@@ -456,13 +456,6 @@ jobs:
           rpm -qlp "packages/remnants-$VERSION-${{ matrix.rpm_arch }}.rpm" | grep -q '^/usr/bin/remnants$'
           echo "rpm metadata OK"
 
-      - name: Upload package artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: release-linux-${{ matrix.arch }}-packages
-          path: packages/*
-          if-no-files-found: error
-
       # The deb was installed on the build host itself, which is the distro it
       # was built on. Debian stable is a different one, and it is where the
       # computed dependency list has to hold up.
@@ -502,6 +495,14 @@ jobs:
             test ! -e /usr/bin/remnants
             echo "rpm install/remove round trip OK on Fedora"
           '
+
+      # Only after both distro tests, so a package that fails one is not released.
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-linux-${{ matrix.arch }}-packages
+          path: packages/*
+          if-no-files-found: error
 
       # Everything else runs the packaged Electron as plain node, which never
       # starts Chromium. This launches the real app on a virtual display and
@@ -733,8 +734,9 @@ jobs:
     name: Publish release
     needs: [setup, windows, linux, macos, ci]
     # Publish whatever built. A platform that failed, or was not selected, must
-    # not hold back the platforms that succeeded. CI failing on the commit does.
-    if: always() && needs.setup.result == 'success' && needs.ci.result == 'success'
+    # not hold back the platforms that succeeded. A cancelled run, or CI failing on
+    # the commit, publishes nothing.
+    if: ${{ !cancelled() && needs.setup.result == 'success' && needs.ci.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
